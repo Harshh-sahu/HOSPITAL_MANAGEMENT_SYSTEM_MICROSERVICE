@@ -4,14 +4,9 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/../fintness-microservice/aiservice/pom.xml" />
         <option value="$PROJECT_DIR$/backend/UserMS/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/GatewayMS/pom.xml" />
       </list>
-    </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/../fintness-microservice/aiservice/pom.xml" />
-      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="17" project-jdk-type="JavaSDK">
