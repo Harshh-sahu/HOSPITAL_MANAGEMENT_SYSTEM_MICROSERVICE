@@ -1,15 +1,21 @@
 import { Button, PasswordInput, SegmentedControl, TextInput } from "@mantine/core";
 import { IconHeartbeat } from "@tabler/icons-react";
-import React from "react";
+
 import { useForm } from '@mantine/form';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "../Service/UserService";
+import { errorNotification, successNotification,  } from "../Utility/NotificationUtil";
+import React from "react";
 
 
 const RegisterPage = () => {
+const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
 
  const form = useForm({
 
     initialValues: {
+      name: '',
         type:"PATIENT",
       email: '',
       password: '',
@@ -17,19 +23,32 @@ const RegisterPage = () => {
     },
 
     validate: {
+      name:(value: string)=> (!value? 'Name is required' : null),
   email: (value: string) =>
     /^\S+@\S+$/.test(value) ? null : 'Invalid email',
 
-  password: (value: string) =>
-    value.length >= 6 ? null : 'Password must be at least 6 characters long',
+password: (value: string) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/.test(value)
+    ? null
+    : 'Password must be 8-15 characters long, include upper, lower, number & special character',
+
 
 confirmPassword: (value: string, values: any) =>
     value === values.password ? null : 'Passwords do not match',
 },  });
 
    const handleSubmit = (values: typeof form.values) => {
-    console.log(values);
-  };
+    registerUser(values).then((data)=>{
+      console.log("User registered successfully:", data);
+      // successNotification("User registered successfully!");
+      console.log("Redirecting to login page");
+      navigate("/login");
+ 
+    }).catch((error)=>{
+      errorNotification(error.response.data.errorMessage);
+      console.error("Registration failed:", error);
+    }).finally(() => setLoading(false));
+};
 
   return (
     <div
@@ -47,6 +66,14 @@ confirmPassword: (value: string, values: any) =>
             Register{" "}
           </div>
            <SegmentedControl bg="none" className="[&_*]:!text-white border border-white" color="pink" {...form.getInputProps("type")} fullWidth size="md" radius="md" data={[{label:'Patient',value:"PATIENT"}, {label:'Doctor',value:"DOCTOR"},{label:'Admin',value:"ADMIN"},]} />
+          <TextInput
+          className="transition duration-300"
+            variant="unstyled"
+            size="md"
+            radius="md"
+            placeholder="name"
+              {...form.getInputProps('name')}
+          />
           <TextInput
           className="transition duration-300"
             variant="unstyled"
@@ -71,12 +98,12 @@ confirmPassword: (value: string, values: any) =>
             className="transition duration-300"
               {...form.getInputProps('confirmPassword')}
           />
-          <Button radius="md" size="md" type="submit" color="pink">
+          <Button loading={loading} radius="md" size="md" type="submit" color="pink">
             register
           </Button>
           <div className="text-sm self-center">
             Already have an account?
-            <Link to="/login" className="hover:underline hover:text-blue-700" > Sign In</Link>
+            <Link to="/login" className="hover:underline hover:text-blue-700"  > Sign In</Link>
           </div>
         </form>
       </div>
