@@ -16,7 +16,7 @@ const navigate = useNavigate();
 
     initialValues: {
       name: '',
-        type:"PATIENT",
+        role:"PATIENT",
       email: '',
       password: '',
       confirmPassword: '',
@@ -40,7 +40,7 @@ confirmPassword: (value: string, values: any) =>
    const handleSubmit = (values: typeof form.values) => {
     registerUser(values).then((data)=>{
       console.log("User registered successfully:", data);
-      // successNotification("User registered successfully!");
+      successNotification("User registered successfully!");
       console.log("Redirecting to login page");
       navigate("/login");
  

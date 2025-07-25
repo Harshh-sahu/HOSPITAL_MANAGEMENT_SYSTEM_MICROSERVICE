@@ -6,6 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
 import { errorNotification, successNotification } from "../Utility/NotificationUtil";
 import { loginUser } from "../Service/UserService";
+import { useDispatch } from "react-redux";
+import { setJwt } from "../Slices/JwtSlice";
+import { jwtDecode } from "jwt-decode";
+import { setUser } from "../Slices/UserSlice";
 
 // TODO: You need to define or import the 'loginUser' function.
 // For example: import { loginUser } from "../api/auth";
@@ -13,6 +17,7 @@ import { loginUser } from "../Service/UserService";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
+  const dispatch = useDispatch();
   const form = useForm({
     initialValues: {
       email: "",
@@ -34,11 +39,12 @@ const LoginPage = () => {
     console.log("Submitting login with:", values);
     setLoading(true);
     loginUser(values)
-      .then((data) => {
-        console.log("Login Success:", data);
-        localStorage.setItem("token", data.token); // ✅ optional
-
+      .then((_data) => {
+    
+    console.log(jwtDecode(_data))
         successNotification("Login successful!");
+        dispatch(setJwt(_data)); // Dispatch the action to set JWT in Redux store
+        dispatch(setUser(jwtDecode(_data))); // Decode JWT and store user info
         navigate("/dashboard"); // ✅ go to dashboard
       })
       .catch((error) => {
