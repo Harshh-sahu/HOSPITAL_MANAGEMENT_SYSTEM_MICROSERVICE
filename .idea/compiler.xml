@@ -17,6 +17,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="UserMS" />
+        <module name="profileMS" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -28,6 +29,7 @@
       <module name="GatewayMS" options="-parameters" />
       <module name="UserMS" options="-parameters" />
       <module name="aiservice" options="-parameters" />
+      <module name="profileMS" options="-parameters" />
     </option>
   </component>
 </project>

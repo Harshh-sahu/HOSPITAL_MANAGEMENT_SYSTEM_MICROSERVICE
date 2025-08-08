@@ -46,7 +46,7 @@ public class UserAPI {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) throws HmsException {
+    public ResponseEntity<String> loginUser(@RequestBody LoginDTO loginDTO) throws HmsException {
 try{
     authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(

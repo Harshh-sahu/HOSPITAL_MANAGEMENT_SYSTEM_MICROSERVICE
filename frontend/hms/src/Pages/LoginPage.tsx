@@ -36,16 +36,15 @@ const LoginPage = () => {
 
 
   const handleSubmit = (values: typeof form.values) => {
-    console.log("Submitting login with:", values);
     setLoading(true);
     loginUser(values)
       .then((_data) => {
     
-    console.log(jwtDecode(_data))
         successNotification("Login successful!");
-        dispatch(setJwt(_data)); // Dispatch the action to set JWT in Redux store
-        dispatch(setUser(jwtDecode(_data))); // Decode JWT and store user info
-        navigate("/dashboard"); // ✅ go to dashboard
+   
+        dispatch(setJwt(_data)); 
+        dispatch(setUser(jwtDecode(_data))); 
+      
       })
       .catch((error) => {
         console.error("Login Failed:", error);

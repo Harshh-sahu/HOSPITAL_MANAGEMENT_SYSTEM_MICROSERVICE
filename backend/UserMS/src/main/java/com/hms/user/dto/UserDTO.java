@@ -34,6 +34,8 @@ public class UserDTO {
     )
     private String password;
     private Roles role;
+    private Long profileId;
+
 
 
     public User toEntity(){
@@ -42,7 +44,8 @@ public class UserDTO {
             this.name,
             this.email,
             this.password,
-            this.role
+            this.role,
+                this.profileId
         );
     }
 

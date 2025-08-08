@@ -37,18 +37,19 @@ confirmPassword: (value: string, values: any) =>
     value === values.password ? null : 'Passwords do not match',
 },  });
 
-   const handleSubmit = (values: typeof form.values) => {
-    registerUser(values).then((data)=>{
-      console.log("User registered successfully:", data);
-      successNotification("User registered successfully!");
-      console.log("Redirecting to login page");
-      navigate("/login");
- 
-    }).catch((error)=>{
-      errorNotification(error.response.data.errorMessage);
-      console.error("Registration failed:", error);
-    }).finally(() => setLoading(false));
+const handleSubmit = (values: typeof form.values) => {
+  console.log("Form Data:", values);   // <-- yeh print karega form data
+  setLoading(true);
+  registerUser(values).then((data) => {
+    console.log("User registered successfully:", data);
+    successNotification("User registered successfully!");
+    navigate("/login");
+  }).catch((error) => {
+    errorNotification(error.response?.data?.errorMessage || "Registration failed");
+    console.error("Registration failed:", error);
+  }).finally(() => setLoading(false));
 };
+
 
   return (
     <div
@@ -65,7 +66,7 @@ confirmPassword: (value: string, values: any) =>
           <div className="self-center font-medium bg-fontFamily-heading text-white text-xl">
             Register{" "}
           </div>
-           <SegmentedControl bg="none" className="[&_*]:!text-white border border-white" color="pink" {...form.getInputProps("type")} fullWidth size="md" radius="md" data={[{label:'Patient',value:"PATIENT"}, {label:'Doctor',value:"DOCTOR"},{label:'Admin',value:"ADMIN"},]} />
+           <SegmentedControl bg="none" className="[&_*]:!text-white border border-white" color="pink" {...form.getInputProps("role")} fullWidth size="md" radius="md" data={[{label:'Patient',value:"PATIENT"}, {label:'Doctor',value:"DOCTOR"},{label:'Admin',value:"ADMIN"},]} />
           <TextInput
           className="transition duration-300"
             variant="unstyled"
