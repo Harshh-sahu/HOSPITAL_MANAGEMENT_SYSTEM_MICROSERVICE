@@ -5,6 +5,7 @@ import {
   IconLayoutGrid,
   IconMoodCry,
   IconStethoscope,
+  IconUser,
   IconVaccine,
 } from "@tabler/icons-react";
 import { useSelector } from "react-redux";
@@ -13,40 +14,37 @@ import { NavLink } from "react-router-dom";
 const links = [
   {
     name: "Dashboard",
-    url: "/dashboard",
+    url: "/doctor/dashboard",
     icon: <IconLayoutGrid stroke={1.5} />,
   },
   {
-    name: "Doctors",
-    url: "/doctors",
-    icon: <IconStethoscope stroke={1.5} />,
+    name: "Profile",
+    url: "/doctor/profile",
+    icon: <IconUser stroke={1.5} />,
   },
   {
-    name: "Patients",
-    url: "/patients",
+    name: "patients",
+    url: "/doctor/patients",
     icon: <IconMoodCry stroke={1.5} />,
   },
   {
     name: "Appointments",
-    url: "/appointments",
+    url: "/doctor/appointments",
     icon: <IconCalendarCheck stroke={1.5} />,
   },
   {
     name: "Pharmacy",
-    url: "/pharmacy",
+    url: "/doctor/pharmacy",
     icon: <IconVaccine stroke={1.5} />,
   },
 ];
 
 const Sidebar = () => {
-     const user = useSelector((state: any) => state.user);
-  
+  const user = useSelector((state: any) => state.user);
+
   return (
     <div className="flex">
-      <div className="w-64">
-
-
-      </div>
+      <div className="w-64"></div>
       <div className="w-64 fixed overflow-y-auto hide-scrollbar bg-dark flex flex-col gap-7 items-center h-screen   ">
         <div className="fixed z-[500] py-3  bg-dark text-primary-400 flex gap-1 items-center">
           <IconHeartbeat size={40} stroke={2.5} />
@@ -64,7 +62,7 @@ const Sidebar = () => {
             </div>
             <span className="font-medium text-light">{user.name}</span>
             <Text c="dimmed" className="text-light" size="xs">
-            {user.role}
+              {user.role}
             </Text>
           </div>
           <div className="flex flex-col  gap-1">

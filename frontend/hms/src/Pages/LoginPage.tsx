@@ -41,7 +41,7 @@ const LoginPage = () => {
       .then((_data) => {
     
         successNotification("Login successful!");
-   
+
         dispatch(setJwt(_data)); 
         dispatch(setUser(jwtDecode(_data))); 
       
