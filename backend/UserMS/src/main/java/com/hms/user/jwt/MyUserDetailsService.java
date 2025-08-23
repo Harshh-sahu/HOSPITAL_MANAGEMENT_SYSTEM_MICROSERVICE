@@ -25,6 +25,7 @@ public class MyUserDetailsService implements UserDetailsService {
                  dto.getRole(),
                  dto.getName(),
                  dto.getEmail(),
+                 dto.getProfileId(),
                  null); // Assuming authorities are not needed here, otherwise you can set them accordingly
         }catch (HmsException e){
             // Handle the case where the user is not found

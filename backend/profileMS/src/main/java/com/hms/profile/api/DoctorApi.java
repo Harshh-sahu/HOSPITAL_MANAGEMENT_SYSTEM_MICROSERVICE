@@ -32,5 +32,11 @@ public class DoctorApi {
 
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<DoctorDTO> updateDoctor(@RequestBody DoctorDTO doctorDTO) throws HmsException {
+        // Assuming there's an update method in the service
+        return new ResponseEntity<>(doctorService.updateDoctor(doctorDTO), HttpStatus.OK);
+    }
+
 
 }

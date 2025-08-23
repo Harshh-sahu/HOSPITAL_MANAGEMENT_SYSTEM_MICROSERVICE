@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { IconEdit } from "@tabler/icons-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   bloodGroups,
@@ -19,6 +19,12 @@ import {
   doctorSpecializations,
 } from "../../../Data/DropDownData";
 import { useDisclosure } from "@mantine/hooks";
+import { getDoctor, updateDoctor } from "../../../Service/DoctorProfileService";
+import { error } from "console";
+import { errorNotification, successNotification } from "../../../Utility/NotificationUtil";
+import { parseToArray } from "../../../Utility/OtherUtility";
+import { useForm } from "@mantine/form";
+import { formatDate } from "../../../Utility/DateUtility";
 
 const doctor: any = {
   name: "Dr. Rajesh Kumar",
@@ -37,7 +43,72 @@ function Profile() {
   const user = useSelector((state: any) => state.user);
   const [opened, { open, close }] = useDisclosure(false);
   const [editmode, setEdit] = useState(false);
+  const [profile, setProfile] = useState<any>({});
 
+
+   useEffect(()=>{
+    getDoctor(user.profileId).then((data)=>{
+      setProfile({...data});
+
+    }).catch((error) => {
+      console.log(error);
+    });
+   },[])
+
+  const form = useForm({
+    initialValues: {
+      dob: '',
+      phone: '',
+      address: '',
+      licenseNo: '',
+      bloodGroup: '',
+      department: '',
+      totalExp: '',
+    },
+    validate: {
+      dob: (value:any) =>
+        !value ? "Date of birth is required" : undefined,
+      phone: (value:any) =>
+        !value ? "Phone number is required" : undefined,
+      address: (value:any) => !value ? "Address is required" : undefined,
+      licenseNo: (value:any) =>
+        !value ? "License number is required" : undefined,
+    },
+  });
+const handleEdit = () => {
+  form.setValues({
+    ...profile
+  });
+  setEdit(true);
+};
+
+const handleSubmit = (e: any) => {
+  form.validate();  
+  if (!form.isValid()) return;  // <-- Use ! to return only if form is invalid
+
+  let values = form.getValues();
+  console.log("Form submitted:", values);
+
+updateDoctor({
+  ...profile,
+  ...values
+})
+
+    .then((_data) => {
+      successNotification("Profile updated successfully");
+     setProfile({
+  ...profile,
+  ...values,
+});
+
+      setEdit(false);
+    })
+    .catch((error) => {
+      console.log(error);
+      errorNotification(error.response.data.errorMessage);
+    });
+
+}
   return (
     <div className="p-10">
       <div className="flex justify-between items-start">
@@ -62,20 +133,21 @@ function Profile() {
             <div className="text-xl mb-5 text-neutral-700">{user.email}</div>
           </div>
         </div>
-        {!editmode ? (
-          <Button
-            size="lg"
-            onClick={() => setEdit(true)}
-            variant="filled"
-            leftSection={<IconEdit />}
-          >
-            Edit
-          </Button>
-        ) : (
-          <Button size="lg" onClick={() => setEdit(false)} variant="filled">
-            Submit
-          </Button>
-        )}
+    {!editmode ? (
+             <Button
+               type="button"
+               size="lg"
+               onClick={handleEdit}
+               variant="filled"
+               leftSection={<IconEdit />}
+             >
+               Edit
+             </Button>
+           ) : (
+             <Button onClick={handleSubmit} size="lg" type="submit" variant="filled">
+               Submit  
+             </Button>
+           )}
       </div>
 
       <Divider my="xl" />
@@ -84,14 +156,13 @@ function Profile() {
         <div className="text-2xl font-medium text-neutral-900">
           Personal Information
         </div>
-
-        <Table
+  <Table
           striped
           stripedColor="primary.2"
           verticalSpacing="md"
           withRowBorders={false}
         >
-          <Table.Tbody>
+          <Table.Tbody className="[&>tr]:!mb-2 [&_td]:!w-1/2">
             {/* DOB Row */}
             <Table.Tr>
               <Table.Th className="font-semibold text-xl">
@@ -99,10 +170,16 @@ function Profile() {
               </Table.Th>
               {editmode ? (
                 <Table.Td>
-                  <DateInput label="Date input" placeholder="Date input" />
+                  <DateInput
+                    {...form.getInputProps("dob")}
+                    label="Date input"
+                    placeholder="Date input"
+                  />
                 </Table.Td>
               ) : (
-                <Table.Td className="text-xl">{doctor.dob}</Table.Td>
+                <Table.Td className="text-xl">
+                  {formatDate(profile.dob) ?? "-"}
+                </Table.Td>
               )}
             </Table.Tr>
 
@@ -112,6 +189,7 @@ function Profile() {
               {editmode ? (
                 <Table.Td>
                   <NumberInput
+                    {...form.getInputProps("phone")}
                     label="Phone"
                     description="Enter your phone number"
                     hideControls
@@ -121,7 +199,7 @@ function Profile() {
                   />
                 </Table.Td>
               ) : (
-                <Table.Td className="text-xl">{doctor.phone}</Table.Td>
+                <Table.Td className="text-xl">{profile.phone ?? "-"}</Table.Td>
               )}
             </Table.Tr>
 
@@ -131,13 +209,16 @@ function Profile() {
               {editmode ? (
                 <Table.Td>
                   <TextInput
+                    {...form.getInputProps("address")}
                     label="Address"
                     description="Enter your address"
                     placeholder="Address"
                   />
                 </Table.Td>
               ) : (
-                <Table.Td className="text-xl">{doctor.address}</Table.Td>
+                <Table.Td className="text-xl">
+                  {profile.address ?? "-"}
+                </Table.Td>
               )}
             </Table.Tr>
 
@@ -146,17 +227,16 @@ function Profile() {
               <Table.Th className="font-semibold text-xl">License No</Table.Th>
               {editmode ? (
                 <Table.Td>
-                  <NumberInput
+                  <TextInput
+                    {...form.getInputProps("licenseNo")}
                     label="License No"
                     description="Enter your License number"
                     placeholder="License number"
-                    maxLength={12}
-                    clampBehavior="strict"
-                    hideControls
+            
                   />
                 </Table.Td>
               ) : (
-                <Table.Td className="text-xl">{doctor.aadharNo}</Table.Td>
+                <Table.Td className="text-xl">{profile.licenseNo?? "-"}</Table.Td>
               )}
             </Table.Tr>
 
@@ -168,6 +248,7 @@ function Profile() {
               {editmode ? (
                 <Table.Td>
                   <Select
+                    {...form.getInputProps("specialization")}
                     label="Specializations"
                     description="Select your specializations"
                     data={doctorSpecializations}
@@ -175,7 +256,7 @@ function Profile() {
                 </Table.Td>
               ) : (
                 <Table.Td className="text-xl">
-                  {doctor.specializations}
+                  {profile.specializations?? "-"}
                 </Table.Td>
               )}
             </Table.Tr>
@@ -186,6 +267,7 @@ function Profile() {
               {editmode ? (
                 <Table.Td>
                   <Select
+                    {...form.getInputProps("department")}
                     label="Department"
                     description="Select your department"
                     data={doctorDepartments}
@@ -193,7 +275,7 @@ function Profile() {
                 </Table.Td>
               ) : (
                 <Table.Td className="text-xl">
-                  {doctor.department || "None"}
+                  {profile.department?? "-"}
                 </Table.Td>
               )}
             </Table.Tr>
@@ -208,12 +290,14 @@ function Profile() {
                     placeholder="Enter experience"
                     clampBehavior="strict"
                          hideControls
+                          {...form.getInputProps("totalExp")}
                          maxLength={2}
                          max={50}
+                       
                   />
                 </Table.Td>
               ) : (
-                <Table.Td className="text-xl">{doctor.totalExp} years</Table.Td>
+                <Table.Td className="text-xl">{profile.totalExp ?? "-"} {profile.totalExp ?? '-'} {profile.totalExp?'years':''}</Table.Td>
               )}
             </Table.Tr>
           </Table.Tbody>

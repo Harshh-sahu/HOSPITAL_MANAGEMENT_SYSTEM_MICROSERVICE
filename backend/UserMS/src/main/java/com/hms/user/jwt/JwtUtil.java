@@ -30,6 +30,7 @@ private static final String SECRET = "8e7182879be9f49cb9428411bd3815643c4b7f6e66
         claims.put("email", user.getEmail());
         claims.put("role", user.getRole());
         claims.put("name", user.getName());
+        claims.put("profileId",user.getProfileId());
         return doGenerateToken(claims, userDetails.getUsername());
     }
 

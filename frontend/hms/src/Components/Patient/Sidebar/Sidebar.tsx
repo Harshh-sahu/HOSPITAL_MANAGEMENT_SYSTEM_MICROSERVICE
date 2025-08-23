@@ -21,7 +21,7 @@ const links = [
   },
   {
     name: "Appointments",
-    url: "/patient/appointment",
+    url: "/patient/appointments",
     icon: <IconCalendarCheck stroke={1.5} />,
   },
 ];
