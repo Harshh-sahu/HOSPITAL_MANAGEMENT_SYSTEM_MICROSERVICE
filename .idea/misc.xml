@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/backend/GatewayMS/pom.xml" />
         <option value="$PROJECT_DIR$/backend/profileMS/pom.xml" />
         <option value="$PROJECT_DIR$/backend/Appointment/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/EUREKA-SERVER/pom.xml" />
       </list>
     </option>
   </component>
