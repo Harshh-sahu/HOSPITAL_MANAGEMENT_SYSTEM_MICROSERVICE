@@ -2,6 +2,8 @@ package com.hms.user.service;
 
 import java.util.Optional;
 
+import com.hms.user.clients.ProfileClient;
+import com.hms.user.dto.Roles;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,14 +13,15 @@ import com.hms.user.dto.UserDTO;
 import com.hms.user.entity.User;
 import com.hms.user.exception.HmsException;
 import com.hms.user.repository.UserRepository;
+import reactor.core.publisher.Mono;
 
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private ApiService apiService;
 
+    @Autowired
+    private ProfileClient profileClient;
     @Autowired
     private UserRepository userRepository;
 
@@ -37,7 +40,14 @@ public class UserServiceImpl implements UserService {
         }
 
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        Long profileId = apiService.addProfile(userDTO).block();
+        Long profileId = null;
+        if(userDTO.getRole().equals(Roles.DOCTOR)){
+   profileId=profileClient.addDoctor(userDTO);
+
+
+        } else if(userDTO.getRole().equals(Roles.PATIENT)){
+profileId=profileClient.addPatient(userDTO);
+        }
         System.out.println(profileId);
         userDTO.setProfileId(profileId);
         userRepository.save(userDTO.toEntity());
