@@ -66,5 +66,27 @@ const doctorDepartments = [
   "Critical Care",
   "Emergency Medicine"
 ]
+const appointmentReason = [
+  "Maternity / Prenatal Checkup",
+  "Pediatric Consultation",
+  "General Health Checkup",
+  "Follow-up Visit",
+  "Chronic Disease Management",
+  "Post-Surgery Follow-up",
+  "Cardiology Consultation",
+  "Orthopedic Consultation",
+  "Dermatology (Skin Issues)",
+  "ENT (Ear, Nose, Throat)",
+  "Neurology Consultation",
+  "Gynecology Consultation",
+  "Ophthalmology (Eye Checkup)",
+  "Dental Checkup",
+  "Psychiatry / Counseling",
+  "Physiotherapy Session",
+  "Immunization / Vaccination",
+  "Lab Test / Diagnostic Report Review",
+  "Diet & Nutrition Consultation",
+  "Emergency / Urgent Care"
+];
 
-export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup}
+export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason}

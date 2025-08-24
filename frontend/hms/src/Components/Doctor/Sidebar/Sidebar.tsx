@@ -4,7 +4,7 @@ import {
   IconHeartbeat,
   IconLayoutGrid,
   IconMoodCry,
-  IconStethoscope,
+ 
   IconUser,
   IconVaccine,
 } from "@tabler/icons-react";

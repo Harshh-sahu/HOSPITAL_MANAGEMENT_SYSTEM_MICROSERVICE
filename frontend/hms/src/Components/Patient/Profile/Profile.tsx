@@ -15,22 +15,13 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { bloodGroup, bloodGroups } from "../../../Data/DropDownData";
 import { useDisclosure } from "@mantine/hooks";
-import { getDoctor } from "../../../Service/DoctorProfileService";
+
 import { getPatient, updatePatient } from "../../../Service/PatientProfileService";
 import { formatDate } from "../../../Utility/DateUtility";
 import { useForm } from "@mantine/form";
 import { errorNotification, successNotification } from "../../../Utility/NotificationUtil";
 import { arrayToCSV, parseToArray } from "../../../Utility/OtherUtility";
 
-const patient: any = {
-  dob: "1998-05-14",
-  phone: "+91 9876543210",
-  address: "123, MG Road, Bhopal",
-  aadharNo: "1234-5678-9012",
-  bloodGroup: "O+",
-  allergies: "Pollen, Dust",
-  chronicDisease: "Diabetes",
-};
 
 function Profile() {
   const user = useSelector((state: any) => state.user);

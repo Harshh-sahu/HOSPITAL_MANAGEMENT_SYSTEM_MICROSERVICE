@@ -21,5 +21,14 @@ const updateDoctor = async (doctor: any) =>{
     });
 }
 
+const getDoctorDropdown = async()=>{
+  return axiosInstance
+    .get("/profile/doctor/dropdowns")
+    .then((response: any) => response.data)
+    .catch((error: any) => {
+      console.error("Error fetching doctor dropdown:", error);
+      throw error;
+    });
+}
 
-export {getDoctor , updateDoctor};
+export {getDoctor , updateDoctor, getDoctorDropdown};

@@ -10,6 +10,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import PatientDashboard from "../Layout/PatientDashboard";
 import DoctorDashboard from "../Layout/DoctorDashboard";
 import DoctorProfilePage from "../Pages/Doctor/DoctorProfilePage";
+import PatientAppointmentPage from "../Pages/Patient/PatientAppointmentPage";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -39,7 +40,7 @@ const AppRoutes = () => {
 
           <Route path="dashboard" element={<Random />} />
           <Route path="profile" element={<PatientProfilePage/>} />
-          <Route path="appointment" element={<Random />} />          
+          <Route path="appointment" element={<PatientAppointmentPage />} />          
         </Route>
       </Routes>
     </BrowserRouter>

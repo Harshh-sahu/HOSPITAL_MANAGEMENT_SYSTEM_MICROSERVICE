@@ -3,7 +3,7 @@ import "@mantine/core/styles.css";
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/notifications/styles.css";
 import '@mantine/dates/styles.css';
-
+import {PrimeReactProvider} from 'primereact/api';
 import AppRoutes from "./Routes/AppRoutes";
 import { Notifications } from "@mantine/notifications";
 import { Provider } from "react-redux";
@@ -56,8 +56,11 @@ function App() {
     <Provider store={Store}>
 
     <MantineProvider theme={theme}>
-      <Notifications position="top-center" />
+      <PrimeReactProvider> 
+           <Notifications position="top-center" />
       <AppRoutes />
+      </PrimeReactProvider>
+  
     </MantineProvider>
     </Provider>
   );
