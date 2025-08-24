@@ -12,4 +12,5 @@ public UserDTO login(UserDTO userDTO)throws HmsException;
 public UserDTO getUserById(Long userId) throws HmsException;
 public void updateUser( UserDTO userDTO);
 public UserDTO getUser(String email)throws HmsException;
+
 }

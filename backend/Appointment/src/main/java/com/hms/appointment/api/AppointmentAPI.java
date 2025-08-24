@@ -1,6 +1,7 @@
 package com.hms.appointment.api;
 
 import com.hms.appointment.dto.AppointmentDTO;
+import com.hms.appointment.dto.AppointmentDetails;
 import com.hms.appointment.exception.HmsException;
 import com.hms.appointment.service.AppointmentService;
 import org.apache.coyote.Response;
@@ -35,5 +36,11 @@ public class AppointmentAPI {
     public ResponseEntity<AppointmentDTO> getAppointmentDetails(@PathVariable Long appointmentId) throws HmsException {
         AppointmentDTO appointmentDTO = appointmentService.getAppointmentDetails(appointmentId);
         return new ResponseEntity<>(appointmentDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/get/details/{appointmentId}")
+    public ResponseEntity<AppointmentDetails> getAppointmentDetailsWithName(@PathVariable Long appointmentId) throws HmsException {
+        AppointmentDetails  appointmentDetails= appointmentService.getAppointmentDetailsWithName(appointmentId);
+        return new ResponseEntity<>(appointmentDetails, HttpStatus.OK);
     }
 }
