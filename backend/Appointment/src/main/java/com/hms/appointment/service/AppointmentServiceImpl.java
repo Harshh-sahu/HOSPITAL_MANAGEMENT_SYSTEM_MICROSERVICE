@@ -8,6 +8,8 @@ import com.hms.appointment.repository.AppointmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 @Autowired
@@ -69,6 +71,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (doctorDTO == null || patientDTO == null) {
             throw new HmsException("DOCTOR_OR_PATIENT_NOT_FOUND");
         }
-     return new AppointmentDetails(appointmentDTO.getId(),appointmentDTO.getPatientId(),appointmentDTO.getDoctorId(),patientDTO.getName(),doctorDTO.getName(),appointmentDTO.getAppointmentTime(),appointmentDTO.getStatus(),appointmentDTO.getReason(),appointmentDTO.getNotes(), patientDTO.getEmail(), patientDTO.getPhone());
+     return new AppointmentDetails(appointmentDTO.getId(),appointmentDTO.getPatientId(),patientDTO.getName(),patientDTO.getEmail(),patientDTO.getPhone(),appointmentDTO.getDoctorId(),doctorDTO.getName(),appointmentDTO.getAppointmentTime(),appointmentDTO.getStatus(),appointmentDTO.getReason(),appointmentDTO.getNotes());
+    }
+
+    @Override
+    public List<AppointmentDetails> getAllAppointmentsByPatientId(Long patientId) throws HmsException {
+
+        return appointmentRepository.findAllByPatientId(patientId).stream()
+                .map(appointment-> {
+                    DoctorDTO doctorDTO = profileClient.getDoctorById(appointment.getDoctorId());
+                    appointment.setDoctorName(doctorDTO.getName());
+return appointment;
+                }).toList();
     }
 }

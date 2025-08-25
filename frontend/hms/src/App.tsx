@@ -1,9 +1,11 @@
 import "./App.css";
 import "@mantine/core/styles.css";
 import { createTheme, MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+
 import "@mantine/notifications/styles.css";
-import '@mantine/dates/styles.css';
-import {PrimeReactProvider} from 'primereact/api';
+import "@mantine/dates/styles.css";
+import { PrimeReactProvider } from "primereact/api";
 import AppRoutes from "./Routes/AppRoutes";
 import { Notifications } from "@mantine/notifications";
 import { Provider } from "react-redux";
@@ -54,14 +56,14 @@ const theme = createTheme({
 function App() {
   return (
     <Provider store={Store}>
-
-    <MantineProvider theme={theme}>
-      <PrimeReactProvider> 
-           <Notifications position="top-center" />
-      <AppRoutes />
-      </PrimeReactProvider>
-  
-    </MantineProvider>
+      <MantineProvider theme={theme}>
+        <ModalsProvider>
+          <PrimeReactProvider>
+            <Notifications position="top-center" />
+            <AppRoutes />
+          </PrimeReactProvider>
+        </ModalsProvider>
+      </MantineProvider>
     </Provider>
   );
 }

@@ -43,4 +43,11 @@ public class AppointmentAPI {
         AppointmentDetails  appointmentDetails= appointmentService.getAppointmentDetailsWithName(appointmentId);
         return new ResponseEntity<>(appointmentDetails, HttpStatus.OK);
     }
+@GetMapping("/getAllByPatient/{patientId}")
+    public ResponseEntity<?> getAllAppointmentsByPatientId(@PathVariable Long patientId) throws HmsException {
+        return new ResponseEntity<>(appointmentService.getAllAppointmentsByPatientId(patientId), HttpStatus.OK);
+    }
+
+
+
 }

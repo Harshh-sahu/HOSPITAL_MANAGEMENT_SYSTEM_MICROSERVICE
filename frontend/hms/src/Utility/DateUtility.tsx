@@ -25,4 +25,23 @@ function formatDate(dateString: any) {
     return `${day} ${month} ${year}`;
 }
 
-export { formatDate };
+
+const formatDateWithTime = (dateString: any) => {
+    if (!dateString) return undefined;
+
+    const date = new Date(dateString);
+
+    // Format options
+    const options: Intl.DateTimeFormatOptions = {
+        year: "numeric",
+        month: "short",   // "Jan", "Feb", etc. | use "long" for full name
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true      // 12-hour format with AM/PM, use false for 24-hour
+    };
+
+    return date.toLocaleString("en-US", options);
+};
+
+export { formatDate, formatDateWithTime };
