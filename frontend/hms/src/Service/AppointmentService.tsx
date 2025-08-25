@@ -47,4 +47,13 @@ const getAppointmentByPatient = async (patientId: any) => {
     });
 };
 
-export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient };
+const getAppointmentByDoctor= async (doctorId:any)=>{
+  return axiosInstance.get("/appointment/getAllByDoctor/"+doctorId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during fetching doctor all appointments:", error);
+    throw error;
+  });
+}
+
+export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor };

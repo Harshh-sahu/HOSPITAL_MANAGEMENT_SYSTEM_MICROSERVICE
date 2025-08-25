@@ -29,7 +29,7 @@ const links = [
   },
   {
     name: "Appointments",
-    url: "/doctor/appointments",
+    url: "/doctor/appointment",
     icon: <IconCalendarCheck stroke={1.5} />,
   },
   {

@@ -15,7 +15,7 @@ import { appointmentReason } from "../../../Data/DropDownData";
 import { useSelector } from "react-redux";
 import {
     cancelAppointment,
-  getAppointmentByPatient,
+  getAppointmentByDoctor,
   scheduleAppointment,
 } from "../../../Service/AppointmentService";
 import {
@@ -60,7 +60,7 @@ const Appointment = () => {
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    doctorName: {
+    patientName: {
       operator: FilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
     },
@@ -136,13 +136,13 @@ const Appointment = () => {
 
 
   const fetchDatas =()=>{
-       getAppointmentByPatient(users.profileId)
+       getAppointmentByDoctor(users.profileId)
       .then((data) => {
-        console.log("Patient appointments:", data);
+        console.log("Doctor appointments:", data);
         setAppointment(getCustomers(data));
       })
       .catch((error) => {
-        console.error("Error fetching patient appointments:", error);
+        console.error("Error fetching doctor appointments:", error);
       });
   };
   const timeTemplate = (rowData: any) => {
@@ -260,24 +260,24 @@ const Appointment = () => {
 
   const actionBodyTemplate = (rowData:any) => {
     return <div className="flex gap-2">
-        <ActionIcon>
+        {/* <ActionIcon>
             <IconEdit size={20} stroke={1.5} />
-        </ActionIcon>
+        </ActionIcon> */}
         <ActionIcon  onClick={() => handleDelete(rowData)} color="red">
             <IconTrash size={20} stroke={1.5} />
         </ActionIcon>
     </div>
   };
-   const leftToolbarTemplate = () => {
-        return (
-           <div className="flex flex-wrap gap-2 justify-between tems-center">
-        <Button onClick={open} leftSection={<IconPlus />} variant="filled">
-          Schedule Appointment
-        </Button>
+  //  const leftToolbarTemplate = () => {
+  //       return (
+  //          <div className="flex flex-wrap gap-2 justify-between tems-center">
+  //       <Button onClick={open} leftSection={<IconPlus />} variant="filled">
+  //         Schedule Appointment
+  //       </Button>
         
-      </div>
-        );
-    };
+  //     </div>
+  //       );
+  //   };
 
     const rightToolbarTemplate = () => {
         return <TextInput
@@ -321,7 +321,8 @@ const Appointment = () => {
   return (
     <div className="card">
         <Toolbar
-         className="mb-4"  start={leftToolbarTemplate} 
+         className="mb-4"
+          //  start={leftToolbarTemplate} 
           center={centerToolbarTemplate}
          end={rightToolbarTemplate}></Toolbar>
       <DataTable stripedRows size="small"
@@ -337,7 +338,7 @@ const Appointment = () => {
         filters={filters}
         filterDisplay="menu"
         globalFilterFields={[
-          "doctorName",
+          "patientName",
           "reason",
           "notes",
           "status",
@@ -347,11 +348,21 @@ const Appointment = () => {
       >
 
         <Column
-          field="doctorName"
-          header="Doctor"
+          field="patientName"
+          header="Patient"
           sortable
           filter
           filterPlaceholder="Search by doctor"
+          style={{ minWidth: "14rem" }}
+        />
+ 
+ 
+        <Column
+          field="patientPhone"
+          header="Phone"
+          sortable
+          filter
+          filterPlaceholder="Search by phone"
           style={{ minWidth: "14rem" }}
         />
  
@@ -384,16 +395,7 @@ const Appointment = () => {
           style={{ minWidth: "14rem" }}
        
         />
-         <Column
-          field="status"
-          header="Status"
-          sortable
-          filterMenuStyle={{ width: "14rem" }}
-          style={{ minWidth: "12rem" }}
-          body={statusBodyTemplate}
-          filter
         
-        />
         <Column
           headerStyle={{ width: "5rem", textAlign: "center" }}
           bodyStyle={{ textAlign: "center", overflow: "visible" }}
