@@ -28,7 +28,7 @@ private String reason;
 private String notes;
 
 
-public AppointmentDTO toDto(){
+public AppointmentDTO toDto() {
     return new AppointmentDTO(
             this.id,
             this.patientId,
@@ -39,4 +39,8 @@ public AppointmentDTO toDto(){
             this.notes
     );
 }
+    public Appointment(Long id){
+        this.id = id;
+    }
+
 }

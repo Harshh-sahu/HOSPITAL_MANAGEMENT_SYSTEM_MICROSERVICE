@@ -1,0 +1,53 @@
+package com.hms.appointment.service;
+
+import com.hms.appointment.dto.ApRecordDTO;
+import com.hms.appointment.entity.ApRecord;
+import com.hms.appointment.exception.HmsException;
+import com.hms.appointment.repository.ApRecordRepository;
+import com.hms.appointment.utility.StringListConverter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class ApRecordServiceImpl implements ApRecordService{
+
+    private final ApRecordRepository apRecordRepository;
+    @Override
+    public Long createApRecord(ApRecordDTO request) throws HmsException {
+        Optional<ApRecord> existingRecord = apRecordRepository.findByAppointment_Id(request.getAppointmentId());
+        if(existingRecord.isPresent()){
+            throw new HmsException("Appointment record already exists for appointment ID: " + request.getAppointmentId());
+        }
+        return apRecordRepository.save(request.toEntity()).getId();
+    }
+
+    @Override
+    public void updateApRecord(ApRecordDTO request) throws HmsException {
+        ApRecord existingRecord = apRecordRepository.findById(request.getId()).orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"));
+existingRecord.setNotes(request.getNotes());
+existingRecord.setDiagnosis(request.getDiagnosis());
+existingRecord.setFollowUpDate(request.getFollowUpDate());
+existingRecord.setSymptoms(StringListConverter.convertListToString(request.getSymptoms()));
+existingRecord.setTests(StringListConverter.convertListToString(request.getTests()));
+existingRecord.setReferral(request.getReferral());
+
+apRecordRepository.save(existingRecord);
+    }
+
+    @Override
+    public ApRecordDTO getApRecordByAppointmentId(Long appointmentId) throws HmsException {
+   return apRecordRepository.findByAppointment_Id(appointmentId)
+           .orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
+           .toDTO();
+    }
+
+    @Override
+    public ApRecordDTO getApRecordById(Long id) throws HmsException {
+        return apRecordRepository.findById(id)
+                .orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
+                .toDTO();
+    }
+}

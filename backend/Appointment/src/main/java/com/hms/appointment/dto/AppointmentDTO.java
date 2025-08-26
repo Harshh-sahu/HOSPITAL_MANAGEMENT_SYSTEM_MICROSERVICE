@@ -30,5 +30,6 @@ public class AppointmentDTO {
             this.reason,
             this.notes
         );
+
     }
 }
