@@ -5,6 +5,7 @@ import com.hms.appointment.entity.ApRecord;
 import com.hms.appointment.exception.HmsException;
 import com.hms.appointment.repository.ApRecordRepository;
 import com.hms.appointment.utility.StringListConverter;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +13,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ApRecordServiceImpl implements ApRecordService{
-
+private final PrescriptionService prescriptionService;
     private final ApRecordRepository apRecordRepository;
     @Override
     public Long createApRecord(ApRecordDTO request) throws HmsException {
@@ -21,7 +23,12 @@ public class ApRecordServiceImpl implements ApRecordService{
         if(existingRecord.isPresent()){
             throw new HmsException("Appointment record already exists for appointment ID: " + request.getAppointmentId());
         }
-        return apRecordRepository.save(request.toEntity()).getId();
+        Long id= apRecordRepository.save(request.toEntity()).getId();
+        if(request.getPrescription()!=null){
+            request.getPrescription().setAppointmentId(request.getAppointmentId());
+            prescriptionService.savePrescription(request.getPrescription());
+        }
+        return id;
     }
 
     @Override
@@ -42,6 +49,16 @@ apRecordRepository.save(existingRecord);
    return apRecordRepository.findByAppointment_Id(appointmentId)
            .orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
            .toDTO();
+    }
+
+    @Override
+    public ApRecordDTO getApRecordDetailsByAppointmentId(Long appointmentId) throws HmsException {
+        ApRecordDTO record= apRecordRepository.findByAppointment_Id(appointmentId)
+                .orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
+                .toDTO();
+      record.setPrescription(prescriptionService.getPrescriptionByAppointmentId(appointmentId));
+
+      return record;
     }
 
     @Override

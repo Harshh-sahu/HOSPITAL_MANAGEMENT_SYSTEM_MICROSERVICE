@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class ApRecord {
 
     @Id
@@ -47,6 +48,7 @@ public class ApRecord {
                 com.hms.appointment.utility.StringListConverter.convertStringToList(this.tests),
                 this.notes,
                 this.referral,
+                null,
                 this.followUpDate,
                 this.createdAt
         );

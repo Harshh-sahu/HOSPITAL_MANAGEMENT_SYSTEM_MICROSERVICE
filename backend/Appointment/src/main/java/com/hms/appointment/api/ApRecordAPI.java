@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/appointment-report")
+@RequestMapping("/appointment/report")
 @Validated
 @RequiredArgsConstructor
 public class ApRecordAPI {
@@ -40,6 +40,11 @@ public class ApRecordAPI {
 }
 
 
+
+    @GetMapping("/getDetailsByAppointmentId/{recordId}")
+    public ResponseEntity<ApRecordDTO> getAppointmentReportDeatilsByAppointmentId(@PathVariable Long recordId) throws  HmsException{
+        return new ResponseEntity<>(apRecordService.getApRecordDetailsByAppointmentId(recordId),HttpStatus.OK);
+    }
 
 
 

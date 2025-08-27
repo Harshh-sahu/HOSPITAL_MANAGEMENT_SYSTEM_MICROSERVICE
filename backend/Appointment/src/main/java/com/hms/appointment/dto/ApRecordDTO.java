@@ -28,7 +28,7 @@ public class ApRecordDTO {
     private List<String> tests;
     private String notes;
     private String referral;
-
+private PrescriptionDTO prescription;
     private LocalDate followUpDate;
     private LocalDateTime createdAt;
 

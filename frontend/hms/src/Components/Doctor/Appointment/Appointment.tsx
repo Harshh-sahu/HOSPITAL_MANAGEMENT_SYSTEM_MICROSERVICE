@@ -6,7 +6,7 @@ import { Column } from "primereact/column";
 import 'primereact/resources/themes/lara-light-blue/theme.css'
 import { Tag } from "primereact/tag";
 import { TextInput } from "@mantine/core";
-import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconEye, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { getDoctorDropdown } from "../../../Service/DoctorProfileService";
 import { DateTimePicker } from "@mantine/dates";
@@ -27,6 +27,7 @@ import { modals } from "@mantine/modals";
 import { Toolbar } from "primereact/toolbar";
 import { tab } from "@testing-library/user-event/dist/tab";
 import { toUSVString } from "util";
+import { useNavigate } from "react-router-dom";
 
 interface Country {
   name: string;
@@ -57,6 +58,7 @@ const Appointment = () => {
   const [loading, setLoading] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
 
+  const navigate = useNavigate();
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -142,7 +144,7 @@ const Appointment = () => {
         setAppointment(getCustomers(data));
       })
       .catch((error) => {
-        console.error("Error fetching doctor appointments:", error);
+        console.error("Error fetching doctofr appointments:", error);
       });
   };
   const timeTemplate = (rowData: any) => {
@@ -260,9 +262,9 @@ const Appointment = () => {
 
   const actionBodyTemplate = (rowData:any) => {
     return <div className="flex gap-2">
-        {/* <ActionIcon>
-            <IconEdit size={20} stroke={1.5} />
-        </ActionIcon> */}
+        <ActionIcon onClick={()=> navigate(""+rowData.id)}>
+            <IconEye size={20} stroke={1.5} />
+        </ActionIcon>
         <ActionIcon  onClick={() => handleDelete(rowData)} color="red">
             <IconTrash size={20} stroke={1.5} />
         </ActionIcon>
