@@ -88,5 +88,25 @@ const appointmentReason = [
   "Diet & Nutrition Consultation",
   "Emergency / Urgent Care"
 ];
+const symptoms = [
+  "Fever",
+  "Cough",
+  "Headache",
+  "Sore throat",
+  "Body pain",
+  "Fatigue",
+  "Nausea"
+];
 
-export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason}
+const tests = [
+  "Blood Test",
+  "X-Ray",
+  "Urine Test",
+  "ECG",
+  "MRI Scan",
+  "CT Scan",
+  "COVID-19 Test"
+];
+
+
+export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests }

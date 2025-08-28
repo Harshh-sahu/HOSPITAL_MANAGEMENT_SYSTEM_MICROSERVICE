@@ -21,6 +21,7 @@ import {
   IconStethoscope,
   IconVaccine,
 } from "@tabler/icons-react";
+import ApReport from "./ApReport";
 
 const AppointmentDetails = () => {
   const { id } = useParams();
@@ -117,7 +118,7 @@ const AppointmentDetails = () => {
 
         <Tabs.Panel value="prescriptions">Prescriptions </Tabs.Panel>
 
-        <Tabs.Panel value="reports">Reports </Tabs.Panel>
+        <Tabs.Panel value="report"> <ApReport/></Tabs.Panel>
       </Tabs>
     </div>
   );
