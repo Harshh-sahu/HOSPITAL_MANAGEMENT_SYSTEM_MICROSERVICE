@@ -118,7 +118,7 @@ const AppointmentDetails = () => {
 
         <Tabs.Panel value="prescriptions">Prescriptions </Tabs.Panel>
 
-        <Tabs.Panel value="report"> <ApReport/></Tabs.Panel>
+        <Tabs.Panel value="report"> <ApReport appointment={appointment} /></Tabs.Panel>
       </Tabs>
     </div>
   );

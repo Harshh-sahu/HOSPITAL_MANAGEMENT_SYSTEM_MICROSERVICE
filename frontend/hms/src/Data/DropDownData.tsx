@@ -107,6 +107,38 @@ const tests = [
   "CT Scan",
   "COVID-19 Test"
 ];
+const dosageFrequencies = [
+  "1-0-0", // Once in the morning
+  "0-1-0", // Once in the afternoon
+  "0-0-1", // Once at night
+  "1-0-1", // Morning and night
+  "1-1-0", // Morning and afternoon
+  "0-1-1", // Afternoon and night
+  "1-1-1", // Morning, afternoon, and night (thrice daily)
+  "2-0-2", // Two tablets morning and night
+  "1-1-1-1" // Four times a day (morning-afternoon-evening-night)
+];
+const routess=["Intravenous","oral","Topical","Inhalation"]
 
+const medicineTypes = [
+  "Tablet",
+  "Capsule",
+  "Syrup",
+  "Injection",
+  "Drops",
+  "Inhaler",
+  "Ointment",
+  "Cream",
+  "Gel",
+  "Powder",
+  "Spray",
+  "Suppository",
+  "Lozenge",
+  "Solution",
+  "Suspension",
+  "Patch",
+  "Ampoule",
+  "Vial"
+];
 
-export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests }
+export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes}

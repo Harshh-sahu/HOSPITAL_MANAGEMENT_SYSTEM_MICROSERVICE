@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -23,6 +25,7 @@ private final PrescriptionService prescriptionService;
         if(existingRecord.isPresent()){
             throw new HmsException("Appointment record already exists for appointment ID: " + request.getAppointmentId());
         }
+        request.setCreatedAt(LocalDateTime.now());
         Long id= apRecordRepository.save(request.toEntity()).getId();
         if(request.getPrescription()!=null){
             request.getPrescription().setAppointmentId(request.getAppointmentId());

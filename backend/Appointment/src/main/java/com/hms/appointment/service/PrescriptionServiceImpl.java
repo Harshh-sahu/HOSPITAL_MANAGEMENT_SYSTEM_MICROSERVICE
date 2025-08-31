@@ -8,6 +8,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -18,7 +21,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 private final MedicineService medicineService;
     @Override
     public Long savePrescription(PrescriptionDTO Request) {
-
+Request.setPrescriptionDate(LocalDate.now());
    Long prescriptionId= prescriptionRepository.save(Request.toEntity()).getId();
 Request.getMedicines().forEach(medicine -> {
     medicine.setPrescriptionId(prescriptionId);
