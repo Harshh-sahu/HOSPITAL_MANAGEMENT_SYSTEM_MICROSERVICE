@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MedicineDTO {
     private Long id;
-
     private String name;
     private Long medicineId;
     private String dosage;

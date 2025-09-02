@@ -22,6 +22,7 @@ import {
   IconVaccine,
 } from "@tabler/icons-react";
 import ApReport from "./ApReport";
+import Prescription from "./Prescription";
 
 const AppointmentDetails = () => {
   const { id } = useParams();
@@ -36,7 +37,7 @@ const AppointmentDetails = () => {
       .catch((error) => {
         console.error("Error fetching appointment details:", error);
       });
-  }, []);
+  }, [id]);
   return (
     <div>
       <Breadcrumbs mb="md">
@@ -116,7 +117,9 @@ const AppointmentDetails = () => {
       <Divider my="md"/>
         <Tabs.Panel value="medical">Medical History</Tabs.Panel>
 
-        <Tabs.Panel value="prescriptions">Prescriptions </Tabs.Panel>
+        <Tabs.Panel value="prescriptions">
+          <Prescription appointment={appointment} />
+        </Tabs.Panel>
 
         <Tabs.Panel value="report"> <ApReport appointment={appointment} /></Tabs.Panel>
       </Tabs>

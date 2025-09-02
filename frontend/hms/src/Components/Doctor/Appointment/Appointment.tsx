@@ -25,8 +25,6 @@ import {
 import { formatDateWithTime } from "../../../Utility/DateUtility";
 import { modals } from "@mantine/modals";
 import { Toolbar } from "primereact/toolbar";
-import { tab } from "@testing-library/user-event/dist/tab";
-import { toUSVString } from "util";
 import { useNavigate } from "react-router-dom";
 
 interface Country {
@@ -88,6 +86,11 @@ const Appointment = () => {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [tab, setTab] = useState<string>("Today");
 
+  const statusBodyTemplate = (rowData: Customer) => {
+    return (
+      <Tag value={rowData.status} severity={getSeverity(rowData.status)} />
+    );
+  };
 
   const getSeverity = (status: string) => {
     switch (status) {
@@ -225,12 +228,8 @@ const Appointment = () => {
 
 
 
-  const statusBodyTemplate = (rowData: Customer) => {
-    return (
-      <Tag value={rowData.status} severity={getSeverity(rowData.status)} />
-    );
-  };
 
+  
 
 
 
@@ -397,7 +396,9 @@ const Appointment = () => {
           style={{ minWidth: "14rem" }}
        
         />
-        
+        <Column field="status" header="Status" sortable filterMenuStyle={{width:'14rem'}}
+        style={{ minWidth: "12rem" }} body={statusBodyTemplate} filter />
+
         <Column
           headerStyle={{ width: "5rem", textAlign: "center" }}
           bodyStyle={{ textAlign: "center", overflow: "visible" }}

@@ -1,6 +1,7 @@
 package com.hms.appointment.entity;
 
 import com.hms.appointment.dto.ApRecordDTO;
+import com.hms.appointment.dto.RecordDetails;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -55,6 +56,23 @@ public class ApRecord {
     }
 
 
+    public RecordDetails toRecordDetails(){
+        return new RecordDetails(
+                this.id,
+                this.patientId,
+                this.doctorId,
+                null,
+                this.appointment.getId() ,
+                com.hms.appointment.utility.StringListConverter.convertStringToList(this.symptoms),
+                this.diagnosis,
+                com.hms.appointment.utility.StringListConverter.convertStringToList(this.tests),
+                this.notes,
+                this.referral,
+
+                this.followUpDate,
+                this.createdAt
+        );
+    }
 
 
 }

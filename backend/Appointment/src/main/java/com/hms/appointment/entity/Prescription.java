@@ -1,12 +1,14 @@
 package com.hms.appointment.entity;
 
 import com.hms.appointment.dto.PrescriptionDTO;
+import com.hms.appointment.dto.PrescriptionDetails;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Entity
@@ -44,6 +46,17 @@ public PrescriptionDTO toDTO(){
             null
     );
 }
+public PrescriptionDetails toDetails() {
 
+    return new PrescriptionDetails(
+            this.id,
+            this.patientId,
+            this.doctorId,
+            null,
+            this.appointment.getId(),
+            this.prescriptionDate,
+            this.notes,
+            null);
+}
 }
 

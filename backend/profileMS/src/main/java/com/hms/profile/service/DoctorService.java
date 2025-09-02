@@ -18,4 +18,5 @@ public Boolean doctorExists(Long id) throws HmsException;
 
    public DoctorDTO updateDoctor(DoctorDTO doctorDTO) throws  HmsException;
    public List<DoctorDropdown> getDoctorDropdowns() throws HmsException;
+   public List<DoctorDropdown> getDoctorsById(List<Long> ids)throws HmsException;
 }

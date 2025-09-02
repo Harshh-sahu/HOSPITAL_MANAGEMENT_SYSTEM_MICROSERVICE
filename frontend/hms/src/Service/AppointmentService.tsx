@@ -67,4 +67,34 @@ const createAppointmentReport = async (data: any) => {
     });
 };
 
-export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor, createAppointmentReport };
+const isReportExists = async (appointmentId: any) => {
+  return axiosInstance
+    .get("/appointment/report/isRecordExists/" + appointmentId)
+    .then((response: any) => response.data)
+    .catch((error: any) => {
+      console.error("Error during checking report existence:", error);
+      throw error;
+    });
+};
+
+const getReportByPatientId = async (patientId: any) => {
+  return axiosInstance
+    .get("/appointment/report/getRecordsByPatientId/" + patientId)
+    .then((response: any) => response.data)
+    .catch((error: any) => {
+      console.error("Error during fetching report by patient ID:", error);
+      throw error;
+    });
+};
+
+const getPrescriptionByPatientId = async (patientId: any) => {
+  return axiosInstance
+    .get("/appointment/report/getPrescriptionsByPatientId/" + patientId)
+    .then((response: any) => response.data)
+    .catch((error: any) => {
+      console.error("Error during fetching prescription by patient ID:", error);
+      throw error;
+    });
+};
+
+export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor, createAppointmentReport, isReportExists, getReportByPatientId , getPrescriptionByPatientId };
