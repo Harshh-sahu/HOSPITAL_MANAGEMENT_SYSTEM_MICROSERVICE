@@ -28,7 +28,7 @@ public class MedicineAPI {
 
     @PutMapping("/update")
     public ResponseEntity<ResponseDTO> updateMedicine(@RequestBody MedicineDTO medicineDTO) throws Exception {
-        
+
         medicineService.updateMedicine(medicineDTO);
         return new ResponseEntity<>(new ResponseDTO("Medicine Updated !"),HttpStatus.OK);
     }

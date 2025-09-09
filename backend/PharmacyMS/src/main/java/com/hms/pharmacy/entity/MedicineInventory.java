@@ -1,5 +1,6 @@
 package com.hms.pharmacy.entity;
 
+import com.hms.pharmacy.dto.MedicineInventoryDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +29,8 @@ private LocalDate addedDate;
 
 
 
+public MedicineInventoryDTO toDTO(){
+    return new MedicineInventoryDTO(id,medicine !=null ? medicine.getId() : null,batchNo,quantity,expiryDate,addedDate);
+}
 
 }
