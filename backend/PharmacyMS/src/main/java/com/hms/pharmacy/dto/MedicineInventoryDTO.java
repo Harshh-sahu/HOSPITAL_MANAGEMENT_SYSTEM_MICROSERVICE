@@ -2,6 +2,7 @@ package com.hms.pharmacy.dto;
 
 import com.hms.pharmacy.entity.Medicine;
 import com.hms.pharmacy.entity.MedicineInventory;
+import com.hms.pharmacy.entity.StockStatus;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -25,9 +26,9 @@ public class MedicineInventoryDTO {
     private Integer quantity;
     private LocalDate expiryDate;
     private LocalDate addedDate;
-
-
+private Integer initialQuantity;
+private StockStatus status;
     public MedicineInventory toEntity(){
-        return new MedicineInventory(id,new Medicine(medicineId),batchNo,quantity,expiryDate,addedDate);
+        return new MedicineInventory(id,new Medicine(medicineId),batchNo,quantity,expiryDate,addedDate,initialQuantity,status);
     }
 }

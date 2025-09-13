@@ -27,10 +27,12 @@ private Integer quantity;
 private LocalDate expiryDate;
 private LocalDate addedDate;
 
-
+private Integer initialQuantity;
+@Enumerated(EnumType.STRING)
+private StockStatus status;
 
 public MedicineInventoryDTO toDTO(){
-    return new MedicineInventoryDTO(id,medicine !=null ? medicine.getId() : null,batchNo,quantity,expiryDate,addedDate);
+    return new MedicineInventoryDTO(id,medicine !=null ? medicine.getId() : null,batchNo,quantity,expiryDate,addedDate,initialQuantity,status);
 }
 
 }

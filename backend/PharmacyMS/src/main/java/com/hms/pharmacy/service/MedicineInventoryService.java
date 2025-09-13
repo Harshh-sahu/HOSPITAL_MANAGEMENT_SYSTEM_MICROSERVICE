@@ -12,5 +12,6 @@ List<MedicineInventoryDTO> getAllMedicines() throws HmsException;
     MedicineInventoryDTO addMedicine(MedicineInventoryDTO medicine) throws HmsException;
     MedicineInventoryDTO updateMedicine(Long id,MedicineInventoryDTO medicine) throws HmsException;
 void deleteMedicine(Long id) throws HmsException;
+     public  void deleteExpiredMedicines() throws   HmsException;
 
 }
