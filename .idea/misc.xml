@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/backend/Appointment/pom.xml" />
         <option value="$PROJECT_DIR$/backend/EUREKA-SERVER/pom.xml" />
         <option value="$PROJECT_DIR$/backend/PharmacyMS/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/MediaMS/pom.xml" />
       </list>
     </option>
   </component>
