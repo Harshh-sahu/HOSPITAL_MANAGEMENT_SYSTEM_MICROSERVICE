@@ -141,4 +141,30 @@ const medicineTypes = [
   "Vial"
 ];
 
-export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes}
+const medicineCategories = [
+  { value: "ANTIBIOTIC", label: "antibiotic" },
+  { value: "ANALGESIC", label: "analgesic" },
+  { value: "ANTIHISTAMINE", label: "antihistamine" },
+  { value: "ANTISEPTIC", label: "antiseptic" },
+  { value: "VITAMIN", label: "vitamin" },
+  { value: "MINERAL", label: "mineral" },
+  { value: "HERBAL", label: "herbal" },
+  { value: "HOMEOPATHIC", label: "homeopathic" },
+  { value: "OTHER", label: "other" }
+];
+
+const medicineType = [
+  { value: "SYRUP", label: "syrup" },
+  { value: "TABLET", label: "tablet" },
+  { value: "CAPSULE", label: "capsule" },
+  { value: "INJECTION", label: "injection" },
+  { value: "OINTMENT", label: "ointment" },
+  { value: "LIQUID", label: "liquid" },
+  { value: "POWDER", label: "powder" },
+  { value: "CREAM", label: "cream" },
+  { value: "SPRAY", label: "spray" },
+  { value: "DROPS", label: "drops" }
+];
+
+
+export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes,medicineCategories,medicineType}

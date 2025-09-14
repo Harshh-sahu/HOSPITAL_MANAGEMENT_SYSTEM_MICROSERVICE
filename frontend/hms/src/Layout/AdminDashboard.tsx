@@ -1,7 +1,7 @@
 import React from 'react'
-import Sidebar from '../Components/Doctor/Sidebar/Sidebar'
 import Header from '../Components/Header/Header'
 import { Outlet } from 'react-router-dom'
+import Sidebar from '../Components/Admin/Sidebar/Sidebar'
 
 const AdminDashboard = () => {
   return (

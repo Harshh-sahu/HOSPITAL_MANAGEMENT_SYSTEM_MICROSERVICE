@@ -27,6 +27,7 @@ import { modals } from "@mantine/modals";
 import { Toolbar } from "primereact/toolbar";
 import { tab } from "@testing-library/user-event/dist/tab";
 import { toUSVString } from "util";
+import dayjs from "dayjs";
 
 interface Country {
   name: string;
@@ -181,10 +182,16 @@ const Appointment = () => {
   });
   const handleSubmit = (values: any) => {
     // Handle form submission
-    console.log("Form submitted:", values);
-    setLoading(true);
+const payload = {
+    ...values,
+    appointmentTime: dayjs(values.appointmentTime).format("YYYY-MM-DDTHH:mm:ss")
 
-    scheduleAppointment(values)
+  };
+
+  console.log("Payload to backend:", payload);
+
+  setLoading(true);
+  scheduleAppointment(payload)
       .then((data) => {
         setLoading(false);
         close();

@@ -13,6 +13,8 @@ import DoctorProfilePage from "../Pages/Doctor/DoctorProfilePage";
 import PatientAppointmentPage from "../Pages/Patient/PatientAppointmentPage";
 import DoctorAppointmentPage from "../Pages/Doctor/DoctorAppointmentPage";
 import DoctorAppointmentDetails from "../Pages/Doctor/DoctorAppointmentDetails";
+import AdminMedicinePage from "../Pages/Admin/AdminMedicinePage";
+import NotFoundPage from "../Pages/NotFoundPage";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -22,11 +24,13 @@ const AppRoutes = () => {
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
         {/* Admin dashboard layout with nested routes */}
-        <Route path="/" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Random />} />
-          <Route path="/pharmacy" element={<Random />} />
-          <Route path="/patients" element={<Random />} />
-          <Route path="/doctors" element={<Random />} />
+        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
+          <Route path="dashboard" element={<Random />} />
+          <Route path="medicine" element={<AdminMedicinePage />} />
+          <Route path="inventory" element={<Random />} />
+          <Route path="sales" element={<Random />} />
+          <Route path="patients" element={<Random />} />
+          <Route path="doctors" element={<Random />} />
        
         </Route>
         <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
@@ -46,6 +50,7 @@ const AppRoutes = () => {
           <Route path="profile" element={<PatientProfilePage/>} />
           <Route path="appointment" element={<PatientAppointmentPage />} />          
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
