@@ -1,10 +1,12 @@
 package com.hms.pharmacy.service;
 
 import com.hms.pharmacy.dto.MedicineInventoryDTO;
+import com.hms.pharmacy.entity.Medicine;
 import com.hms.pharmacy.entity.MedicineInventory;
 import com.hms.pharmacy.entity.StockStatus;
 import com.hms.pharmacy.exception.HmsException;
 import com.hms.pharmacy.repository.MedicineInventoryRepository;
+import com.hms.pharmacy.repository.MedicineRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -85,6 +87,50 @@ public class MedicineInventoryServiceImpl implements MedicineInventoryService {
             medicineService.removeStock(medicine.getMedicine().getId(), medicine.getQuantity());
         }
 this.markExpired(expiredMedicines);    }
+
+    @Override
+    @Transactional
+    public String sellStock(Long medicineId, Integer quantity) throws HmsException {
+
+List<MedicineInventory> inventories = medicineInventoryRepository.findByMedicineIdAndExpiryDateAfterAndQuantityGreaterThanAndStatusOrderByExpiryDateAsc(medicineId,LocalDate.now(),0,StockStatus.ACTIVE);
+if(inventories.isEmpty()){
+    throw new HmsException("OUT_OF_STOCK");
+
+}
+
+
+StringBuilder batchDetails = new StringBuilder();
+int remainingQuantity = quantity;
+for(MedicineInventory inventory : inventories){
+    if(remainingQuantity <=0)break;
+
+
+int availableQuantity =inventory.getQuantity();
+
+if(availableQuantity <= remainingQuantity){
+    batchDetails.append(String.format("Batch %s: %d units\n",inventory.getBatchNo(),availableQuantity));
+    remainingQuantity -=availableQuantity;
+    inventory.setQuantity(0);
+    inventory.setStatus(StockStatus.EXPIRED);
+}else{
+    batchDetails.append(String.format("Batch %s: %d units\n",inventory.getBatchNo(),availableQuantity));
+    inventory.setQuantity(availableQuantity-remainingQuantity);
+
+}
+
+
+}
+
+if(remainingQuantity>0){
+    throw  new HmsException("INSUFFICIENT_STOCK");
+}
+medicineService.removeStock(medicineId,quantity);
+
+medicineInventoryRepository.saveAll(inventories);
+
+
+return batchDetails.toString();
+    }
 
 
 }

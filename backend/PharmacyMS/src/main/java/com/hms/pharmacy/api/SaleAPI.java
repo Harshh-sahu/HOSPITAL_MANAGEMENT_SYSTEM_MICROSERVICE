@@ -3,6 +3,7 @@ package com.hms.pharmacy.api;
 import com.hms.pharmacy.dto.ResponseDTO;
 import com.hms.pharmacy.dto.SaleDTO;
 import com.hms.pharmacy.dto.SaleItemDTO;
+import com.hms.pharmacy.dto.SaleRequest;
 import com.hms.pharmacy.exception.HmsException;
 import com.hms.pharmacy.service.SaleItemService;
 import com.hms.pharmacy.service.SaleService;
@@ -23,7 +24,7 @@ public class SaleAPI {
     private final SaleItemService saleItemService;
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createSaleItem(@RequestBody SaleDTO saleDTO) throws HmsException {
+    public ResponseEntity<Long> createSaleItem(@RequestBody SaleRequest saleDTO) throws HmsException {
         return new ResponseEntity<>(saleService.createSale(saleDTO), org.springframework.http.HttpStatus.CREATED);
     }
 

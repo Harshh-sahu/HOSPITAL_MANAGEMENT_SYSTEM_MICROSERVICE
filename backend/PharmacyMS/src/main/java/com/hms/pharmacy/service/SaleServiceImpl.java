@@ -1,9 +1,13 @@
 package com.hms.pharmacy.service;
 
 import com.hms.pharmacy.dto.SaleDTO;
+import com.hms.pharmacy.dto.SaleItemDTO;
+import com.hms.pharmacy.dto.SaleRequest;
 import com.hms.pharmacy.entity.Sale;
 import com.hms.pharmacy.exception.HmsException;
+import com.hms.pharmacy.repository.SaleItemRepository;
 import com.hms.pharmacy.repository.SaleRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,16 +16,27 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class SaleServiceImpl implements SaleService {
-
+   private final MedicineInventoryService medicineInventoryService;
     private final SaleRepository saleRepository;
-    @Override
-    public Long createSale(SaleDTO dto) throws HmsException {
-if(saleRepository.existsByPrescriptionId(dto.getPrescriptionId())) {
-    throw new HmsException("SALE_ALREADY_EXISTS_FOR_PRESCRIPTION");
-}        dto.setSaleDate(LocalDateTime.now());
+    private final SaleItemRepository saleItemRepository;
+    private final SaleItemService saleItemService;
 
-        return saleRepository.save(dto.toEntity()).getId();
-    }
+    @Override
+    @Transactional
+    public Long createSale(SaleRequest dto) throws HmsException {
+        if (saleRepository.existsByPrescriptionId(dto.getPrescriptionId())) {
+            throw new HmsException("SALE_ALREADY_EXISTS_FOR_PRESCRIPTION");
+        }
+            for (SaleItemDTO saleItem : dto.getSaleItems()) {
+                saleItem.setBatchNo(
+                        medicineInventoryService.sellStock(saleItem.getMedicineId(), saleItem.getQuantity()));
+            }
+
+            Sale sale = new Sale(null, dto.getPrescriptionId(), LocalDateTime.now(), dto.getTotalAmount());
+            sale = saleRepository.save(sale);
+            saleItemService.createSaleItems(sale.getId(), dto.getSaleItems());
+            return sale.getId();
+        }
 
     @Override
     public void updateSale(SaleDTO dto) throws HmsException {

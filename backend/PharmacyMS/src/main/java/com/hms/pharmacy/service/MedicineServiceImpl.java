@@ -91,6 +91,7 @@ return medicineRepository.findStockById(id).orElseThrow(()->new HmsException("ME
 
         Medicine medicine = medicineRepository.findById(id).orElseThrow(() -> new HmsException("MEDICINE_NOT_FOUND"));
         medicine.setStock(medicine.getStock()!=null ?medicine.getStock() - quantity:quantity);
+
         medicineRepository.save(medicine);
         return medicine.getStock();
     }

@@ -1,0 +1,19 @@
+package com.hms.pharmacy.dto;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class SaleRequest {
+
+
+    private Long prescriptionId;
+    private Double totalAmount;
+    private List<SaleItemDTO> saleItems;
+}

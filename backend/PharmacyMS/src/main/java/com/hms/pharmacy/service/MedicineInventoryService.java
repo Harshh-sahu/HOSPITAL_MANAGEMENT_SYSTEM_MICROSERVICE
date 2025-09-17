@@ -14,4 +14,7 @@ List<MedicineInventoryDTO> getAllMedicines() throws HmsException;
 void deleteMedicine(Long id) throws HmsException;
      public  void deleteExpiredMedicines() throws   HmsException;
 
+     String sellStock(Long medicineId,Integer quantity)throws  HmsException;
+
+
 }

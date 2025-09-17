@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SaleServiceItemImpl implements SaleItemService{
-
+private final MedicineInventoryService medicineInventoryService;
   private final SaleItemRepository saleItemRepository;
     @Override
     public Long createSaleItem(SaleItemDTO saleItemDTO) throws HmsException {
@@ -21,6 +21,18 @@ public class SaleServiceItemImpl implements SaleItemService{
 
 
 return saleItemRepository.save(saleItemDTO.toEntity()).getId();
+    }
+
+    @Override
+    public void createSaleItems(Long saleId, List<SaleItemDTO> saleItemDTOS) throws HmsException {
+
+
+            saleItemDTOS.stream().map((x)->{
+                x.setSaleId(saleId);
+                return x.toEntity();
+
+            }).forEach(saleItemRepository::save);
+
     }
 
     @Override
