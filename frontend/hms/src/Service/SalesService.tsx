@@ -41,4 +41,15 @@ const updateSale  = async (id: any, data: any) => {
     });
 };
 
-export { addSale, getSale, getAllSaleItem, updateSale };
+
+const getAllsales = async () =>{
+  return axiosInstance
+  .get("/pharmacy/sales/getAll")
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during fetching all sales:", error);
+    throw error;
+  });
+}
+
+export { addSale, getSale, getAllSaleItem, updateSale, getAllsales };

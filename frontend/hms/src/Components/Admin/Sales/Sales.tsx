@@ -3,6 +3,9 @@ import {
   Button,
   Fieldset,
   Group,
+  Loader,
+  LoadingOverlay,
+  Modal,
   NumberInput,
   Select,
   SelectProps,
@@ -13,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import {
   IconCheck,
   IconEdit,
+  IconEye,
   IconPlus,
   icons,
   IconSearchOff,
@@ -35,8 +39,9 @@ import {
 } from "../../../Service/MedicineService";
 import { capitalizeFirstLetter } from "../../../Utility/OtherUtility";
 
-import { addSale } from "../../../Service/SalesService";
+import { addSale, getAllsales } from "../../../Service/SalesService";
 import { setegid } from "process";
+import { formatDate } from "../../../Utility/DateUtility";
 
 interface SaleItem {
   medicineId: string;
@@ -47,6 +52,8 @@ const Sales = () => {
 
   const form = useForm<any>({
     initialValues: {
+      buyerName: "",
+      buyerContact: "",
       saleItems: [
         { medicineId: "", quantity: 0 }
       ] as SaleItem[],
@@ -56,7 +63,7 @@ const Sales = () => {
         medicineId: (value) => (value ? null : "Medicine ID is required"),
 
         quantity: (value) =>
-          value >= 0 ? null : "Quantity cannot be negative",
+          value > 0 ? null : "Quantity cannot be negative",
       },
     },
   });
@@ -100,23 +107,30 @@ const Sales = () => {
   }, []);
 
   const fetchData = () => {
-    // getAllStock()
-    //   .then((res) => {
-    //     console.log("Fetched stock data:", res);
-    //     setMedicine(res);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching medicine data:", error);
-    //   });
+    getAllsales()
+      .then((res) => {
+        console.log("Fetched sales data:", res);
+        setData(res);
+      })
+      .catch((error) => {
+        console.error("Error fetching sales data:", error);
+      });
   };
 
   const handleSubmit = (values: any) => {
-    console.log("form submitted with value", values);
+
+    const saleItems = values.saleItems.map((x:any)=>({...x,unitPrice: medicineMap[x.medicineId]?.unitPrice
+    }));
+
+    const totalAmount = saleItems.reduce((acc:any, item:any) => acc + (item.unitPrice || 0) * item.quantity, 0);
+    console.log("form submitted with value", saleItems);
 
     setLoading(true);
 
-    addSale(values)
+    addSale({...values, saleItems, totalAmount })
+    
       .then((_res) => {
+
         successNotification("Sale added successfully");
         fetchData();
         form.reset();
@@ -127,6 +141,7 @@ const Sales = () => {
         errorNotification(`Error adding sale: ${error.message}`);
       })
       .finally(() => setLoading(false));
+      console.log("totalAmount", totalAmount);
   };
 
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,6 +202,7 @@ const Sales = () => {
         {option?.manufacturer && (
           <span style={{ fontStyle: "italic", color: "gray" }}>
             {option.manufacturer}
+            - {option.dosage}
           </span>
         )}
       </div>
@@ -197,8 +213,8 @@ const Sales = () => {
   const actionBodyTemplate = (rowData: any) => {
     return (
       <div className="flex gap-2">
-        <ActionIcon onClick={() => onEdit(rowData)}>
-          <IconEdit size={20} stroke={1.5} />
+        <ActionIcon >
+          <IconEye size={20} stroke={1.5} />
         </ActionIcon>
       </div>
     );
@@ -223,42 +239,61 @@ const Sales = () => {
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
           <Column
-            field="name"
-            header="Medicine"
-            body={(rowData) => medicineMap["" + rowData.medicineId]?.name}
-          />
-          <Column field="dosage" header="Dosage" />
-          <Column
-            field="category"
-            header="Category"
-            body={(rowData) => capitalizeFirstLetter(rowData.category) ?? ""}
-          />
-          <Column
-            field="type"
-            header="Type"
-            body={(rowData) => capitalizeFirstLetter(rowData.type) ?? ""}
-          />
-          <Column
-            field="manufacturer"
-            header="Manufacturer"
-            body={(rowData) =>
-              capitalizeFirstLetter(rowData.manufacturer) ?? ""
-            }
-          />
-          <Column
-            field="unitPrice"
-            header="Unit Price (₹)"
+            field="buyerName"
+            header="Buyer"
             sortable
-            body={(rowData) => rowData.unitPrice ?? ""}
+
+          />
+          <Column field="buyerContact" header="Contact" />
+          {/* <Column
+            field="Prescription"
+            header="Prescription"
+            body={(rowData) => capitalizeFirstLetter(rowData.buyerPrescription) ?? ""}
+          /> */}
+          <Column
+            field="totalAmount"
+            header="Total Amount"
+            sortable
           />
           <Column
-            headerStyle={{ width: "5rem", textAlign: "center" }}
-            bodyStyle={{ textAlign: "center", overflow: "visible" }}
-            body={actionBodyTemplate}
+            field="saleDate"
+            header="Sale Date"
+            sortable
+            body={(rowData) => formatDate(rowData.saleDate) ?? ""}
           />
+          <Column header="Actions" body={actionBodyTemplate} />
+  
         </DataTable>
       ) : (
         <form onSubmit={form.onSubmit(handleSubmit)}>
+          <LoadingOverlay visible={loading} />
+             <Fieldset
+            className="grid gap-5"
+            legend={
+              <span className="text-lg font-medium text-primary-500">
+                Buyer information
+              </span>
+            }
+            radius="md"
+          >
+          <div className="grid gap-8 grid-cols-2">
+              <TextInput
+              withAsterisk
+              placeholder="Enter Buyer Name"
+              label="Buyer Name"
+              {...form.getInputProps("buyerName")}
+            />
+            <NumberInput
+            maxLength={10}
+
+              withAsterisk
+              label="Buyer Contact"
+              placeholder="Enter Buyer Contact Number"
+              {...form.getInputProps("buyerContact")}
+            />
+          </div>
+
+          </Fieldset>
           <Fieldset
             className="grid gap-5"
             legend={
@@ -277,7 +312,7 @@ const Sales = () => {
                       {...form.getInputProps(`saleItems.${index}.medicineId`)}
                       label="Medicine"
                       placeholder="Select Medicine"
-                      data={Medicine.map((item) => ({
+                      data={Medicine.filter(x=>!form.values.saleItems.some((item1:any,idx:any )=>item1.medicineId ==x.id &&idx!=index)).map((item) => ({
                         ...item,
                         value: "" + item.id,
                         label: item.name,
@@ -286,12 +321,12 @@ const Sales = () => {
                   </div>
 
                   <div className="col-span-2">
-                    <NumberInput
+                    <NumberInput rightSectionWidth={80} rightSection={<div className="text-xs flex gap-1 text-gray-500">Stock: {medicineMap[item.medicineId]?.stock || 0}</div>}
                       {...form.getInputProps(`saleItems.${index}.quantity`)}
                       label="Quantity"
                       placeholder="Enter Quantity in stock"
                       min={0}
-                      max={50}
+                      max={medicineMap[item.medicineId]?.stock || 0}
                       clampBehavior="strict"
                     />
                   </div>
@@ -347,7 +382,71 @@ const Sales = () => {
           </div>
         </form>
       )}
+           {/* <Modal opened={opened} size="xl" onClose={close} title="Medicines" centered>
+    <div className="grid grid-cols-2 gap-5">
+    
+            {
+              medicineData?.map((data:any,index:number)=>(
+    
+              
+            <Card key={index} shadow="md" radius="md" withBorder padding="lg">
+    
+              <Title order={4} mb="sm" >
+    
+                {data.name} {data.type}
+    
+              </Title>
+              <Divider my="sm" />
+              <Grid>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Dosage:</Text>
+                <Text>{data.dosage}</Text>
+               </Grid.Col>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Frequency:</Text>
+                <Text>{data.frequency}</Text>
+               </Grid.Col>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Duration:</Text>
+                <Text>{data.duration}</Text>
+               </Grid.Col>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Route:</Text>
+                <Text>{data.route}</Text>
+               </Grid.Col>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Prescription ID:</Text>
+                <Text>{data.prescriptionId}</Text>
+               </Grid.Col>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Medicine ID:</Text>
+                <Text>{data.medicineId}</Text>
+               </Grid.Col>
+               <Grid.Col span={6}>
+                <Text size="sm" fw={500} >Instructions:</Text>
+                <Text>{data.instructions}</Text>
+               </Grid.Col>
+              </Grid>
+    
+    
+    
+    
+    
+            </Card>
+              ))}
+      
     </div>
+              {
+                medicineData.length ==0&&(
+                  <Text color="dimmed" size="sm" mt="md" >
+                    No medicines Prescribed for this appointment.
+                  </Text>
+                )
+              }
+          </Modal>
+     */}
+  
+      </div>
   );
 };
 

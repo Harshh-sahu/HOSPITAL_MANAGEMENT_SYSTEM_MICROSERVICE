@@ -80,6 +80,8 @@ const LoginPage = () => {
             size="md"
             radius="md"
             placeholder="Email"
+            classNames={{ input: "placeholder-!text-black" }}
+            color="black"
             {...form.getInputProps("email")}
           />
           <PasswordInput

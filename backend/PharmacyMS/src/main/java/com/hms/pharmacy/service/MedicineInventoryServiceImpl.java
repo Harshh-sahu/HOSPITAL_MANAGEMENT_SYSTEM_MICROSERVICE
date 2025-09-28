@@ -1,12 +1,10 @@
 package com.hms.pharmacy.service;
 
 import com.hms.pharmacy.dto.MedicineInventoryDTO;
-import com.hms.pharmacy.entity.Medicine;
 import com.hms.pharmacy.entity.MedicineInventory;
 import com.hms.pharmacy.entity.StockStatus;
 import com.hms.pharmacy.exception.HmsException;
 import com.hms.pharmacy.repository.MedicineInventoryRepository;
-import com.hms.pharmacy.repository.MedicineRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -69,13 +67,13 @@ public class MedicineInventoryServiceImpl implements MedicineInventoryService {
         medicineInventoryRepository.deleteById(id);
     }
 
-   private void markExpired(List<MedicineInventory> inventories)throws  HmsException{
-        for(MedicineInventory inventory:inventories){
-                inventory.setStatus(StockStatus.EXPIRED);
+    private void markExpired(List<MedicineInventory> inventories) throws HmsException {
+        for (MedicineInventory inventory : inventories) {
+            inventory.setStatus(StockStatus.EXPIRED);
 
-            }
-            medicineInventoryRepository.saveAll(inventories);
         }
+        medicineInventoryRepository.saveAll(inventories);
+    }
 
     @Override
     @Scheduled(cron = "0 27 22 * * ?")
@@ -86,51 +84,52 @@ public class MedicineInventoryServiceImpl implements MedicineInventoryService {
         for (MedicineInventory medicine : expiredMedicines) {
             medicineService.removeStock(medicine.getMedicine().getId(), medicine.getQuantity());
         }
-this.markExpired(expiredMedicines);    }
+        this.markExpired(expiredMedicines);
+    }
 
     @Override
     @Transactional
     public String sellStock(Long medicineId, Integer quantity) throws HmsException {
 
-List<MedicineInventory> inventories = medicineInventoryRepository.findByMedicineIdAndExpiryDateAfterAndQuantityGreaterThanAndStatusOrderByExpiryDateAsc(medicineId,LocalDate.now(),0,StockStatus.ACTIVE);
-if(inventories.isEmpty()){
-    throw new HmsException("OUT_OF_STOCK");
+        List<MedicineInventory> inventories =
+                medicineInventoryRepository.findByMedicineIdAndExpiryDateAfterAndQuantityGreaterThanAndStatusOrderByExpiryDateAsc(
+                        medicineId, LocalDate.now(), 0, StockStatus.ACTIVE);
 
-}
+        if (inventories.isEmpty()) {
+            throw new HmsException("OUT_OF_STOCK");
+        }
 
+        StringBuilder batchDetails = new StringBuilder();
+        int remainingQuantity = quantity;
 
-StringBuilder batchDetails = new StringBuilder();
-int remainingQuantity = quantity;
-for(MedicineInventory inventory : inventories){
-    if(remainingQuantity <=0)break;
+        for (MedicineInventory inventory : inventories) {
+            if (remainingQuantity <= 0) break;
 
+            int availableQuantity = inventory.getQuantity();
+            int soldQuantity = Math.min(availableQuantity, remainingQuantity);
 
-int availableQuantity =inventory.getQuantity();
+            // ✅ Log actual sold quantity
+            batchDetails.append(String.format("Batch %s: %d units\n", inventory.getBatchNo(), soldQuantity));
 
-if(availableQuantity <= remainingQuantity){
-    batchDetails.append(String.format("Batch %s: %d units\n",inventory.getBatchNo(),availableQuantity));
-    remainingQuantity -=availableQuantity;
-    inventory.setQuantity(0);
-    inventory.setStatus(StockStatus.EXPIRED);
-}else{
-    batchDetails.append(String.format("Batch %s: %d units\n",inventory.getBatchNo(),availableQuantity));
-    inventory.setQuantity(availableQuantity-remainingQuantity);
+            // ✅ Update stock
+            inventory.setQuantity(availableQuantity - soldQuantity);
 
-}
+            // ✅ If fully sold, mark as SOLD_OUT (not EXPIRED)
+            if (inventory.getQuantity() == 0) {
+                inventory.setStatus(StockStatus.EXPIRED); // <-- add SOLD_OUT in your enum
+            }
 
+            remainingQuantity -= soldQuantity;
+        }
 
-}
+        if (remainingQuantity > 0) {
+            throw new HmsException("INSUFFICIENT_STOCK");
+        }
 
-if(remainingQuantity>0){
-    throw  new HmsException("INSUFFICIENT_STOCK");
-}
-medicineService.removeStock(medicineId,quantity);
+        medicineService.removeStock(medicineId, quantity);
+        medicineInventoryRepository.saveAll(inventories);
 
-medicineInventoryRepository.saveAll(inventories);
-
-
-return batchDetails.toString();
+        return batchDetails.toString();
     }
-
 
 }

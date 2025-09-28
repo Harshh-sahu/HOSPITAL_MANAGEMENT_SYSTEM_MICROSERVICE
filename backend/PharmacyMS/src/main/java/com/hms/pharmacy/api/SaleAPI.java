@@ -47,5 +47,11 @@ public class SaleAPI {
         SaleDTO saleDTO = saleService.getSale(id);
         return new ResponseEntity<>(saleDTO, HttpStatus.OK);
     }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<SaleDTO>> getAllSales() throws HmsException{
+        List<SaleDTO> sales = saleService.getAllSales();
+        return new ResponseEntity<>(sales, HttpStatus.OK);
+    }
 }
 

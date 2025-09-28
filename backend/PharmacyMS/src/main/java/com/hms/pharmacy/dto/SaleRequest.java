@@ -14,6 +14,8 @@ public class SaleRequest {
 
 
     private Long prescriptionId;
+    private String buyerName;
+    private String buyerContact;
     private Double totalAmount;
     private List<SaleItemDTO> saleItems;
 }

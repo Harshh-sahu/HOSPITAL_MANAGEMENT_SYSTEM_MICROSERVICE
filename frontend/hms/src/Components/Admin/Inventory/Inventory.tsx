@@ -261,7 +261,7 @@ const handleSubmit = (values: any) => {
               placeholder="Select Medicine"
               data={Medicine.map(item =>({
                 ...item,
-                value:""+item.id,label:item.name
+                value:""+item.id,  label: item.name ?? "Unnamed Medicine" 
               }))}
             />
             
