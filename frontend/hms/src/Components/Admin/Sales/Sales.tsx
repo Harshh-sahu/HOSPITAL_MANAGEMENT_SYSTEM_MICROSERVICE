@@ -1,24 +1,26 @@
 import {
   ActionIcon,
   Button,
+  Card,
+  Divider,
   Fieldset,
+  Grid,
   Group,
-  Loader,
   LoadingOverlay,
   Modal,
   NumberInput,
   Select,
   SelectProps,
+  Text,
   TextInput,
+  Title,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 
 import {
   IconCheck,
-  IconEdit,
   IconEye,
   IconPlus,
-  icons,
   IconSearchOff,
   IconTrash,
 } from "@tabler/icons-react";
@@ -27,8 +29,6 @@ import {
   errorNotification,
   successNotification,
 } from "../../../Utility/NotificationUtil";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { FilterMatchMode } from "primereact/api";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -37,11 +37,10 @@ import {
   getAllMedicines,
 
 } from "../../../Service/MedicineService";
-import { capitalizeFirstLetter } from "../../../Utility/OtherUtility";
 
-import { addSale, getAllsales } from "../../../Service/SalesService";
-import { setegid } from "process";
+import { addSale, getAllSaleItem, getAllsales } from "../../../Service/SalesService";
 import { formatDate } from "../../../Utility/DateUtility";
+import { useDisclosure } from "@mantine/hooks";
 
 interface SaleItem {
   medicineId: string;
@@ -67,7 +66,8 @@ const Sales = () => {
       },
     },
   });
-
+   const [opened,{ open, close }] = useDisclosure(false);
+    const [saleItems,setSaleItems] = useState<any[]>([]);
   const [data, setData] = useState<any[]>([]);
   const [Medicine, setMedicine] = useState<any[]>([]);
   const [edit, setEdit] = useState<boolean>(false);
@@ -190,6 +190,19 @@ const Sales = () => {
     });
   };
 
+  const handleDetails = (rowData: any) =>{
+open();
+setLoading(true);
+getAllSaleItem(rowData.id).then((res)=>{
+  setSaleItems(res);
+  console.log("Fetched sale items:", res);
+}).catch((error)=>{
+  console.error("Error fetching sale items:", error);
+  }
+  ).finally(()=>setLoading(false));
+  }
+
+
   const header = renderHeader();
 
   const renderSelectOption: SelectProps["renderOption"] = ({
@@ -213,7 +226,7 @@ const Sales = () => {
   const actionBodyTemplate = (rowData: any) => {
     return (
       <div className="flex gap-2">
-        <ActionIcon >
+        <ActionIcon onClick={() => handleDetails(rowData)} color="blue">
           <IconEye size={20} stroke={1.5} />
         </ActionIcon>
       </div>
@@ -382,49 +395,37 @@ const Sales = () => {
           </div>
         </form>
       )}
-           {/* <Modal opened={opened} size="xl" onClose={close} title="Medicines" centered>
+           <Modal opened={opened} size="xl" onClose={close} title="Sold Medicines" centered>
     <div className="grid grid-cols-2 gap-5">
     
             {
-              medicineData?.map((data:any,index:number)=>(
+              saleItems?.map((data:any,index:number)=>(
     
               
             <Card key={index} shadow="md" radius="md" withBorder padding="lg">
     
               <Title order={4} mb="sm" >
     
-                {data.name} {data.type}
+                {medicineMap[data.medicineId]?.name} - {medicineMap[data.medicineId]?.dosage}(<span className="text-gray-500">{medicineMap[data.medicineId]?.manufacturer}</span>)
     
               </Title>
-              <Divider my="sm" />
+
+<Text size="sm" color="dimmed" >
+ {data.batchNo}
+</Text>
+              <Divider my="xs" />
               <Grid>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Dosage:</Text>
-                <Text>{data.dosage}</Text>
+               <Grid.Col span={4}>
+                <Text size="sm" fw={500} >Quantity:</Text>
+                <Text>{data.quantity}</Text>
                </Grid.Col>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Frequency:</Text>
-                <Text>{data.frequency}</Text>
+               <Grid.Col span={4}>
+                <Text size="sm" fw={500} >Unit Price:</Text>
+                <Text>₹{data.unitPrice}</Text>
                </Grid.Col>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Duration:</Text>
-                <Text>{data.duration}</Text>
-               </Grid.Col>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Route:</Text>
-                <Text>{data.route}</Text>
-               </Grid.Col>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Prescription ID:</Text>
-                <Text>{data.prescriptionId}</Text>
-               </Grid.Col>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Medicine ID:</Text>
-                <Text>{data.medicineId}</Text>
-               </Grid.Col>
-               <Grid.Col span={6}>
-                <Text size="sm" fw={500} >Instructions:</Text>
-                <Text>{data.instructions}</Text>
+               <Grid.Col span={4}>
+                <Text size="sm" fw={500} >Total:</Text>
+                <Text>₹{data.quantity * data.unitPrice}</Text>
                </Grid.Col>
               </Grid>
     
@@ -437,14 +438,14 @@ const Sales = () => {
       
     </div>
               {
-                medicineData.length ==0&&(
+                saleItems.length ==0&&(
                   <Text color="dimmed" size="sm" mt="md" >
                     No medicines Prescribed for this appointment.
                   </Text>
                 )
               }
           </Modal>
-     */}
+    
   
       </div>
   );

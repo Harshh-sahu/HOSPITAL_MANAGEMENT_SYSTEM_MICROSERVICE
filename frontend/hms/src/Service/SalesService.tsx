@@ -23,7 +23,7 @@ const getSale = async (id: any) => {
 
 const getAllSaleItem = async (id:any) => {
   return axiosInstance
-    .get("/pharmacy/sales/getSaleItems/"+id)
+    .get("/pharmacy/sales/getSaleItem/"+id)
     .then((response: any) => response.data)
     .catch((error: any) => {
       console.error("Error during fetching all Sale:", error);

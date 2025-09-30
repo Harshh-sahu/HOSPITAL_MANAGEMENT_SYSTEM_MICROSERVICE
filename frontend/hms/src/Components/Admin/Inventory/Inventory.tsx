@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Badge,
   Button,
   Fieldset,
   Group,
@@ -86,6 +87,7 @@ const [medicineMap, setMedicineMap] = useState<Record<string, any>>({});
       .then((res) => {
         console.log("Fetched stock data:", res);
         setMedicine(res);
+        setData(res);
       })
       .catch((error) => {
         console.error("Error fetching medicine data:", error);
@@ -162,12 +164,10 @@ const handleSubmit = (values: any) => {
     console.log("rowData:", rowData);
     form.setValues({
       ...rowData,
-      name: rowData.name,
-      dosage: rowData.dosage,
-      category: rowData.category,
-      type: rowData.type,
-      manufacturer: rowData.manufacturer,
-      unitPrice: rowData.unitPrice,
+     medicineId:String(rowData.medicineId),
+     batchNo:rowData.batchNo,
+      quantity:rowData.quantity,
+      expiryDate: new Date(rowData.expiryDate),
     });
   };
 
@@ -193,6 +193,16 @@ const handleSubmit = (values: any) => {
     );
   };
 
+  const statusBody=(rowData: any) =>{
+
+    const isExpired = new Date(rowData.expiryDate) < new Date();
+    return (
+      <Badge color={isExpired ? "red" : "green"} variant="filled">
+        {isExpired ? "Expired" : "Valid"}
+      </Badge>
+    );
+  }
+
   return (
     <div>
       {!edit ? (
@@ -214,35 +224,34 @@ const handleSubmit = (values: any) => {
           <Column field="name" header="Medicine"
           body={(rowData) => medicineMap[""+rowData.medicineId]?.name}
           />
-          <Column field="dosage" header="Dosage" />
-          <Column
-            field="category"
-            header="Category"
-            body={(rowData) => capitalizeFirstLetter(rowData.category) ?? ""}
+          <Column field="batchNo" header="Batch No." />
+                    <Column
+            field="initialQuantity"
+            header="Quantity"
+          
           />
           <Column
-            field="type"
-            header="Type"
-            body={(rowData) => capitalizeFirstLetter(rowData.type) ?? ""}
+            field="quantity"
+            header="Remaining Quantity"
+          
           />
+
+         
           <Column
-            field="manufacturer"
-            header="Manufacturer"
-            body={(rowData) =>
-              capitalizeFirstLetter(rowData.manufacturer) ?? ""
-            }
-          />
-          <Column
-            field="unitPrice"
-            header="Unit Price (₹)"
+            field="expiryDate"
+            header="Expiry Date"
             sortable
-            body={(rowData) => rowData.unitPrice ?? ""}
+            body={(rowData) => rowData.expiryDate ?? ""}
           />
           <Column
-            headerStyle={{ width: "5rem", textAlign: "center" }}
-            bodyStyle={{ textAlign: "center", overflow: "visible" }}
-            body={actionBodyTemplate}
+            field="status"
+            header="Status"
+            sortable
+            body={statusBody}
           />
+
+          <Column headerStyle={{ textAlign: "center" }} bodyStyle={{textAlign: "center", overflow: "visible"}} body={actionBodyTemplate} />
+      
         </DataTable>
       ) : (
         <form onSubmit={form.onSubmit(handleSubmit)}>

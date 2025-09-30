@@ -186,6 +186,7 @@ const handleSubmit = (values: any) => {
         >
           <Column field="name" header="Name" />
           <Column field="dosage" header="Dosage" />
+          <Column field="stock" header="Stock" />
           <Column
             field="category"
             header="Category"
