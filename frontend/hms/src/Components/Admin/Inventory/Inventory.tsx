@@ -10,33 +10,25 @@ import {
   TextInput,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import {
-  medicineCategories,
-  medicineType,
-} from "../../../Data/DropDownData";
-import { IconCheck, IconEdit, icons, IconSearchOff } from "@tabler/icons-react";
+
+import { IconCheck, IconEdit, IconSearchOff } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import {
   errorNotification,
   successNotification,
 } from "../../../Utility/NotificationUtil";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+
 import { FilterMatchMode } from "primereact/api";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
-  addMedicine,
   getAllMedicines,
-  updateMedicine,
 } from "../../../Service/MedicineService";
-import { capitalizeFirstLetter } from "../../../Utility/OtherUtility";
 import { DateInput } from "@mantine/dates";
 import { addStock, getAllStock, updateStock } from "../../../Service/MedicineInventoryService";
 
 const Inventory = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
-  const dispatch = useDispatch();
 
   const form = useForm<any>({
     initialValues: {
@@ -64,7 +56,6 @@ const Inventory = ({ appointment }: any) => {
 const [medicineMap, setMedicineMap] = useState<Record<string, any>>({});
 
   const [globalFilterValue, setGlobalFilterValue] = useState<string>("");
-  const navigate = useNavigate();
 
   useEffect(() => {
      getAllMedicines()

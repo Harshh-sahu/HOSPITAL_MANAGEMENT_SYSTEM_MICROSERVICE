@@ -17,8 +17,6 @@ import {
   errorNotification,
   successNotification,
 } from "../../../Utility/NotificationUtil";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { FilterMatchMode } from "primereact/api";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -31,7 +29,6 @@ import { capitalizeFirstLetter } from "../../../Utility/OtherUtility";
 
 const Medicine = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
-  const dispatch = useDispatch();
 
   const form = useForm<any>({
     initialValues: {
@@ -58,7 +55,6 @@ const Medicine = ({ appointment }: any) => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
   const [globalFilterValue, setGlobalFilterValue] = useState<string>("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();

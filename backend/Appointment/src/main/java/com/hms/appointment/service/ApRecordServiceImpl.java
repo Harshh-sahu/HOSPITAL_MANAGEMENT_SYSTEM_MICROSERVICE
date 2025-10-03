@@ -2,7 +2,6 @@ package com.hms.appointment.service;
 
 import com.hms.appointment.client.ProfileClient;
 import com.hms.appointment.dto.ApRecordDTO;
-import com.hms.appointment.dto.DoctorDTO;
 import com.hms.appointment.dto.DoctorName;
 import com.hms.appointment.dto.RecordDetails;
 import com.hms.appointment.entity.ApRecord;
@@ -13,7 +12,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
