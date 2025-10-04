@@ -10,6 +10,7 @@
     "@mantine/hooks": "^8.1.2",
     "@mantine/modals": "^8.1.2",
     "@mantine/notifications": "^8.1.2",
+    "@mantine/spotlight": "^8.1.2",
     "@reduxjs/toolkit": "^2.8.2",
     "@tabler/icons-react": "^3.34.0",
     "@testing-library/dom": "^10.4.0",

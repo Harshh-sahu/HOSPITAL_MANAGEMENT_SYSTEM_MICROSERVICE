@@ -1,11 +1,14 @@
 package com.hms.profile.service;
 
+import com.hms.profile.dto.DoctorDropdown;
 import com.hms.profile.dto.PatientDTO;
 import com.hms.profile.entity.Patient;
 import com.hms.profile.exception.HmsException;
 import com.hms.profile.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PatientServiceImpl implements PatientService{
@@ -41,5 +44,11 @@ return patientRepository.existsById(id);    }
 
 
         return patientRepository.save(patientDTO.toEntity()).toDTO();
+    }
+
+    @Override
+    public List<DoctorDropdown> getPatientsById(List<Long> ids) throws HmsException {
+        return patientRepository.findAllPatientsDropdownsByIds(ids);
+
     }
 }

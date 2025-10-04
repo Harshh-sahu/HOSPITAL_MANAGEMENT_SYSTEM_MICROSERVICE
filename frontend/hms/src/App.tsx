@@ -5,6 +5,8 @@ import { ModalsProvider } from "@mantine/modals";
 
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
+import '@mantine/spotlight/styles.css';
+
 import { PrimeReactProvider } from "primereact/api";
 import AppRoutes from "./Routes/AppRoutes";
 import { Notifications } from "@mantine/notifications";

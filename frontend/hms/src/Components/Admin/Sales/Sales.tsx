@@ -19,8 +19,12 @@ import React, { useEffect, useState } from "react";
 
 import {
   IconCheck,
+  IconDashboard,
   IconEye,
+  IconFileText,
+  IconHome,
   IconPlus,
+  IconSearch,
   IconSearchOff,
   IconTrash,
 } from "@tabler/icons-react";
@@ -41,6 +45,9 @@ import {
 import { addSale, getAllSaleItem, getAllsales } from "../../../Service/SalesService";
 import { formatDate } from "../../../Utility/DateUtility";
 import { useDisclosure } from "@mantine/hooks";
+import { spotlight, Spotlight, SpotlightActionData } from "@mantine/spotlight";
+import { getAllPrescriptions, getMedicinesByPrescriptionId } from "../../../Service/AppointmentService";
+import { freqMap } from "../../../Data/DropDownData";
 
 interface SaleItem {
   medicineId: string;
@@ -74,6 +81,7 @@ const Sales = () => {
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
+  const [actions, setActions] = useState<SpotlightActionData[]>([]);
 
   const cancel = () => {
     form.reset();
@@ -103,8 +111,49 @@ const Sales = () => {
       .catch((error) => {
         console.error("Error fetching medicine data:", error);
       });
+
+
+      getAllPrescriptions().then((res)=>{
+         console.table(res);
+        setActions(res.map((item:any)=>({
+          id: String(item.id),
+          label: item.patientName,
+          description: `Prescription by Dr. ${item.doctorName} on ${formatDate(item.prescriptionDate)}`,
+          onClick:() => handleImport(item)
+        })));
+      }).catch((error)=>{
+        console.error("Error fetching prescription data:", error);
+      });
     fetchData();
   }, []);
+
+  const handleImport = (item:any) => {
+
+        setLoading(true);
+        getMedicinesByPrescriptionId(item.id).then((res)=>{
+         successNotification("Prescription imported successfully");
+         setSaleItems(res);
+         form.setValues({
+          buyerName: item.patientName,
+        
+          saleItems: res.filter((x:any)=>x.medicineId != null).map((x:any)=>({medicineId: String(x.medicineId), quantity: calculateQuantity(x.frequency,x.duration)}))
+         });
+
+         
+          console.log("res:", res);
+        }).catch((error)=>{
+          console.error("Error fetching medicines by prescription ID:", error);
+          errorNotification(`Error fetching medicines: ${error.message}`);
+        } ).finally(()=>setLoading(false));
+
+    }
+
+    const calculateQuantity = (freq:string, duration:number)=>{
+      const freqValue = freqMap[freq];
+      if(!freqValue) return 0;
+
+      return Math.ceil(freqValue * duration );
+  };
 
   const fetchData = () => {
     getAllsales()
@@ -118,7 +167,7 @@ const Sales = () => {
   };
 
   const handleSubmit = (values: any) => {
-
+   let update = false;
     const saleItems = values.saleItems.map((x:any)=>({...x,unitPrice: medicineMap[x.medicineId]?.unitPrice
     }));
 
@@ -176,6 +225,15 @@ const Sales = () => {
     );
   };
 
+//   const actions: SpotlightActionData[] = [
+//   {
+//     id: 'home',
+//     label: 'Home',
+//     description: 'Get to home page',
+//     onClick: () => console.log('Home'),
+//     leftSection: <IconHome size={24} stroke={1.5} />,
+//   }
+// ];
   const onEdit = (rowData: any) => {
     setEdit(true);
     console.log("rowData:", rowData);
@@ -233,6 +291,10 @@ getAllSaleItem(rowData.id).then((res)=>{
     );
   };
 
+  const handleSpotlight = ()=>{
+   spotlight.open();
+
+  }
   return (
     <div>
       {!edit ? (
@@ -277,7 +339,16 @@ getAllSaleItem(rowData.id).then((res)=>{
           <Column header="Actions" body={actionBodyTemplate} />
   
         </DataTable>
-      ) : (
+      ) : (<div>
+
+        <div className="mb-5 flex items-center justify-between">
+            <h3 className="text-xl font-medium text-primary-500" >Sell Medicine</h3>
+
+            <Button variant="filled" leftSection={<IconPlus />} onClick={handleSpotlight} >
+              Import Prescription
+            </Button>
+
+        </div>
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <LoadingOverlay visible={loading} />
              <Fieldset
@@ -394,6 +465,7 @@ getAllSaleItem(rowData.id).then((res)=>{
             </Button>
           </div>
         </form>
+        </div>
       )}
            <Modal opened={opened} size="xl" onClose={close} title="Sold Medicines" centered>
     <div className="grid grid-cols-2 gap-5">
@@ -445,7 +517,15 @@ getAllSaleItem(rowData.id).then((res)=>{
                 )
               }
           </Modal>
-    
+      <Spotlight
+        actions={actions}
+        nothingFound="Nothing found..."
+        highlightQuery
+        searchProps={{
+          leftSection: <IconSearch size={20} stroke={1.5} />,
+          placeholder: 'Search...',
+        }}
+      />
   
       </div>
   );

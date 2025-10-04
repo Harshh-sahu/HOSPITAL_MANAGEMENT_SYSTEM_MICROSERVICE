@@ -116,8 +116,24 @@ const dosageFrequencies = [
   "0-1-1", // Afternoon and night
   "1-1-1", // Morning, afternoon, and night (thrice daily)
   "2-0-2", // Two tablets morning and night
-  "1-1-1-1" // Four times a day (morning-afternoon-evening-night)
+  "1-0-0.5", // One tablet in the morning and half a tablet at night
+  "1-1-1-1", // Four times a day (morning-afternoon-evening-night)
 ];
+
+const freqMap: Record<string,number>={
+  "1-0-0":1,
+  "0-1-0":1,
+  "0-0-1":1,
+  "1-0-1":2,
+  "1-1-0":2,
+  "0-1-1":2,
+  "1-1-1":3,
+  "2-0-2":4,
+  "1-0-0.5":1.5,
+  "1-1-1-1":4
+};
+
+
 const routess=["Intravenous","oral","Topical","Inhalation"]
 
 const medicineTypes = [
@@ -167,4 +183,4 @@ const medicineType = [
 ];
 
 
-export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes,medicineCategories,medicineType}
+export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes,medicineCategories,medicineType,freqMap}

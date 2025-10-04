@@ -97,4 +97,27 @@ const getPrescriptionByPatientId = async (patientId: any) => {
     });
 };
 
-export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor, createAppointmentReport, isReportExists, getReportByPatientId , getPrescriptionByPatientId };
+
+const getAllPrescriptions = async()=>{
+
+  return axiosInstance
+  .get("/appointment/report/getAllPrescriptions")
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during fetching all prescriptions:", error);
+    throw error;
+  });
+}
+
+const getMedicinesByPrescriptionId = async(prescriptionId:any)=>{
+
+  return axiosInstance
+  .get("/appointment/report/getMedicinesByPrescriptionId/"+prescriptionId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during fetching medicines by prescription ID:", error);
+    throw error;
+  });
+}
+
+export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor, createAppointmentReport, isReportExists, getReportByPatientId , getPrescriptionByPatientId ,getAllPrescriptions, getMedicinesByPrescriptionId};

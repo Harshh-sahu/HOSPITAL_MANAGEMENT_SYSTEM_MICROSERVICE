@@ -23,6 +23,12 @@ public interface ProfileClient {
     @GetMapping("/profile/doctor/get/{id}")
     DoctorDTO getDoctorById(@PathVariable  Long id);
 
+
+
     @GetMapping("/profile/doctor/getDoctorsById")
     List<DoctorName> getDoctorsById(@RequestParam List<Long> ids);
+
+    @GetMapping("/profile/patient/getPatientsById")
+    List<DoctorName> getPatientsById(@RequestParam List<Long> ids);
+
 }

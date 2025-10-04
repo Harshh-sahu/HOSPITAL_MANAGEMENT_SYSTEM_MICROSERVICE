@@ -53,6 +53,7 @@ public PrescriptionDetails toDetails() {
             this.patientId,
             this.doctorId,
             null,
+            null,
             this.appointment.getId(),
             this.prescriptionDate,
             this.notes,
