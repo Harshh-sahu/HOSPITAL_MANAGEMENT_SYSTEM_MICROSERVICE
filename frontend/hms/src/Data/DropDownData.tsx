@@ -10,7 +10,7 @@ const bloodGroup: Record<string, string> = {
   O_POSITIVE: "O+",
   O_NEGATIVE: "O-",
 };
-
+const bloodGroupMap = bloodGroup;
 const doctorSpecializations =[
   "Cardiology",
   "Neurology",
@@ -183,4 +183,4 @@ const medicineType = [
 ];
 
 
-export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes,medicineCategories,medicineType,freqMap}
+export {bloodGroups,doctorSpecializations,doctorDepartments,bloodGroup,appointmentReason,symptoms,tests,dosageFrequencies ,routess,medicineTypes,medicineCategories,medicineType,freqMap,bloodGroupMap};

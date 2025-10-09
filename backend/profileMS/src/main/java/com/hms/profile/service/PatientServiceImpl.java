@@ -47,6 +47,12 @@ return patientRepository.existsById(id);    }
     }
 
     @Override
+    public List<PatientDTO> getAllPatients() throws HmsException {
+
+        return ((List<Patient>) patientRepository.findAll()).stream().map(patient -> patient.toDTO()).toList();
+    }
+
+    @Override
     public List<DoctorDropdown> getPatientsById(List<Long> ids) throws HmsException {
         return patientRepository.findAllPatientsDropdownsByIds(ids);
 

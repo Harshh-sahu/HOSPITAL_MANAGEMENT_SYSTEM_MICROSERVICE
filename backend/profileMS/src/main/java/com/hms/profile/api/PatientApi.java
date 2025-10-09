@@ -52,5 +52,9 @@ public class PatientApi {
     }
 
 
+    @GetMapping("/getAll")
+    public ResponseEntity<List<PatientDTO>> getAllPatients() throws HmsException{
+        return new ResponseEntity<>(patientService.getAllPatients(),HttpStatus.OK);     }
+
 }
 

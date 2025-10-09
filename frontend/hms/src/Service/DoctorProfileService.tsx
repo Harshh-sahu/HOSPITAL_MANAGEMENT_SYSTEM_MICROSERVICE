@@ -31,4 +31,12 @@ const getDoctorDropdown = async()=>{
     });
 }
 
-export {getDoctor , updateDoctor, getDoctorDropdown};
+const getAllDoctor =async()=>{
+  return axiosInstance.get("/profile/doctor/getAll")
+  .then((response: any) => response.data)   
+  .catch((error: any) => {
+    console.error("Error during getAll:", error);
+    throw error;
+  });
+}
+export {getDoctor , updateDoctor, getDoctorDropdown, getAllDoctor};

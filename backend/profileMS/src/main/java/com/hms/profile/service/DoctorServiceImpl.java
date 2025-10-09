@@ -2,6 +2,8 @@ package com.hms.profile.service;
 
 import com.hms.profile.dto.DoctorDTO;
 import com.hms.profile.dto.DoctorDropdown;
+import com.hms.profile.entity.Doctor;
+import com.hms.profile.entity.Patient;
 import com.hms.profile.exception.HmsException;
 import com.hms.profile.repository.DoctorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +57,12 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public List<DoctorDropdown> getDoctorsById(List<Long> ids) throws HmsException {
         return doctorRepository.findAllDoctorDropdownsByIds(ids);
+    }
+
+    @Override
+    public List<DoctorDTO> getAllDoctors() throws HmsException {
+
+        return ((List<Doctor>) doctorRepository.findAll()).stream().map(patient -> patient.toDTO()).toList();
+
     }
 }

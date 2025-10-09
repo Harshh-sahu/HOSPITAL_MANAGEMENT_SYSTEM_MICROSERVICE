@@ -22,4 +22,13 @@ const updatePatient = async (patient: any) =>{
 }
 
 
-export {getPatient , updatePatient};
+const getAllPatient =async()=>{
+  return axiosInstance.get("/profile/patient/getAll")
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during getAll:", error);
+    throw error;
+  });
+}
+
+export {getPatient , updatePatient , getAllPatient};
