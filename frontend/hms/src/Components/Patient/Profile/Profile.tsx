@@ -21,6 +21,8 @@ import { formatDate } from "../../../Utility/DateUtility";
 import { useForm } from "@mantine/form";
 import { errorNotification, successNotification } from "../../../Utility/NotificationUtil";
 import { arrayToCSV, parseToArray } from "../../../Utility/OtherUtility";
+import { Dropzone } from "@mantine/dropzone";
+import { DropzoneButton } from "../../Utility/Dropzone/DropzoneButton";
 
 
 function Profile() {
@@ -313,7 +315,8 @@ updatePatient({
           <span className="text-xl font-medium">Upload Profile Picture</span>
         }
       >
-        {/* Modal content */}
+
+        <DropzoneButton/>
       </Modal>
     </div>
   );

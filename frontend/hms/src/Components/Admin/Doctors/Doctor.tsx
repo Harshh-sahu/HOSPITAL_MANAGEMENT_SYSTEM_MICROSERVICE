@@ -17,7 +17,7 @@ getAllDoctor().then((res)=>{
 
 
   return (
-    <div>
+    <div className='p-5'>
        
        <div className='text-xl  mb-5 text-primary-500 font-semibold'>
           Doctor

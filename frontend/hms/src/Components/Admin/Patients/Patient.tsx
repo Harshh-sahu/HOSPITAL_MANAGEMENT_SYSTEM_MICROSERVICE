@@ -35,3 +35,20 @@ getAllPatient().then((res)=>{
 }
 
 export default Patient
+
+
+// <div className='p-5'>
+       
+//        <div className='text-xl  mb-5 text-primary-500 font-semibold'>
+//           Doctor
+//        </div>
+
+
+//        <div className='grid grid-cols-4 gap-5 '>
+//         {Doctor.map((Doctor) => (
+//         <DoctorCard  key={Doctor.id} {...Doctor}   />
+//        ))}
+//        </div>
+        
+        
+//     </div>

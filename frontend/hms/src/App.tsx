@@ -12,6 +12,8 @@ import AppRoutes from "./Routes/AppRoutes";
 import { Notifications } from "@mantine/notifications";
 import { Provider } from "react-redux";
 import Store from "./Store";
+import '@mantine/dropzone/styles.css';
+
 
 const theme = createTheme({
   /** Put your mantine theme override here */
