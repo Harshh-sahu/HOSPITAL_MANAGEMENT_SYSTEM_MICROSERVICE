@@ -1,5 +1,6 @@
 package com.hms.user.api;
 
+import com.hms.user.clients.Profile;
 import com.hms.user.dto.LoginDTO;
 import com.hms.user.dto.ResponseDTO;
 import com.hms.user.jwt.JwtUtil;
@@ -65,9 +66,16 @@ final String jwt = jwtUtil.generateToken(userDetails);
 return new ResponseEntity<>(jwt,HttpStatus.OK);
     }
 
+
 @GetMapping("/test")
     public ResponseEntity<String> test(){
         return new ResponseEntity<>("Test",HttpStatus.OK);
 }
 
+
+
+@GetMapping("/getProfile/{id}")
+    public ResponseEntity<Long> getProfile(@PathVariable Long id) throws HmsException{
+        return new ResponseEntity<>(userService.getProfile(id),HttpStatus.OK);
+}
 }

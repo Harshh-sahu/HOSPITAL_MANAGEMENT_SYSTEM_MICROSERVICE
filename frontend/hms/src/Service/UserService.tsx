@@ -22,4 +22,14 @@ const loginUser = async (user: any) => {
     });
 };
 
-export { registerUser, loginUser };
+const getUserProfile = async (id: any) => {
+  return axiosInstance
+    .get("/user/getProfile/" + id)
+    .then((response: any) => response.data)
+    .catch((error: any) => {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    });
+};
+
+export { registerUser, loginUser, getUserProfile };

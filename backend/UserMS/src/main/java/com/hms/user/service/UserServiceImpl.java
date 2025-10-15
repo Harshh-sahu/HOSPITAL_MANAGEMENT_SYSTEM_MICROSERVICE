@@ -2,6 +2,7 @@ package com.hms.user.service;
 
 import java.util.Optional;
 
+import com.hms.user.clients.Profile;
 import com.hms.user.clients.ProfileClient;
 import com.hms.user.dto.Roles;
 import jakarta.transaction.Transactional;
@@ -83,5 +84,16 @@ profileId=profileClient.addPatient(userDTO);
         return userRepository.findByEmail(email).orElseThrow(() -> new HmsException("USER_NOT_FOUND")).toDTO();
     }
 
+    @Override
+    public Long getProfile(Long id) throws HmsException {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new HmsException("USER_NOT_FOUND"));
+        if (user.getRole().equals(Roles.DOCTOR)) {
+            return profileClient.getDoctor(user.getProfileId());
+        } else if (user.getRole().equals(Roles.PATIENT)) {
+            return profileClient.getPatient(user.getProfileId());
+        }
+        throw new HmsException("INVALID_ROLE");
+    }
 
 }

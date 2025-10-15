@@ -21,8 +21,9 @@ import { formatDate } from "../../../Utility/DateUtility";
 import { useForm } from "@mantine/form";
 import { errorNotification, successNotification } from "../../../Utility/NotificationUtil";
 import { arrayToCSV, parseToArray } from "../../../Utility/OtherUtility";
-import { Dropzone } from "@mantine/dropzone";
+
 import { DropzoneButton } from "../../Utility/Dropzone/DropzoneButton";
+import useProtectedImage from "../../../Utility/useProtectedImage";
 
 
 function Profile() {
@@ -54,6 +55,7 @@ useEffect(() => {
       phone: profile.phone,
       address: profile.address,
       aadharNo: profile.aadharNo,
+      profilePictureId: profile.profilePictureId,
       bloodGroup: profile.bloodGroup,
       allergies: profile.allergies,
       chronicDisease: profile.chronicDisease,
@@ -77,6 +79,8 @@ const handleEdit = () => {
   });
   setEdit(true);
 };
+console.log(profile.profilePictureId);
+const url =  useProtectedImage(profile.profilePictureId);
 
 const handleSubmit = (e: any) => {
   form.validate();  
@@ -118,7 +122,7 @@ updatePatient({
             <Avatar
               variant="filled"
               size={150}
-              src="/avatar.png"
+              src={url}
               alt="it's me"
             />
             {editmode && (
@@ -316,7 +320,7 @@ updatePatient({
         }
       >
 
-        <DropzoneButton/>
+        <DropzoneButton close={close} form={form} id="profilePictureId" />
       </Modal>
     </div>
   );

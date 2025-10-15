@@ -19,6 +19,7 @@ import AdminInventoryPage from "../Pages/Admin/AdminInventoryPage";
 import AdminSalesPage from "../Pages/Admin/AdminSalesPage";
 import AdminPatientPage from "../Pages/Admin/AdminPatientPage";
 import Doctor from "../Components/Admin/Doctors/Doctor";
+import AdminDashboardPage from "../Pages/Admin/AdminDashboardPage";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -29,7 +30,7 @@ const AppRoutes = () => {
 
         {/* Admin dashboard layout with nested routes */}
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
-          <Route path="dashboard" element={<Random />} />
+          <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="medicine" element={<AdminMedicinePage />} />
           <Route path="inventory" element={<AdminInventoryPage />} />
           <Route path="sales" element={<AdminSalesPage />} />

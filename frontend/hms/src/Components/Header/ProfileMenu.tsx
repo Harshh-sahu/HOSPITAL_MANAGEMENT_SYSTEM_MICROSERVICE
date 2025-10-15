@@ -7,17 +7,37 @@ import {
   IconTrash,
   IconArrowsLeftRight,
 } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getUserProfile } from "../../Service/UserService";
+import useProtectedImage from "../../Utility/useProtectedImage";
 
 const ProfileMenu = () => {
    const user = useSelector((state: any) => state.user);
-   console.log("User from Redux:", user);
-  return (
+
+   const [picId,setPicId]=useState<string | null>(null);
+
+   useEffect(()=>{
+    
+      if(!user)return;
+getUserProfile(user.id).then((res)=>{
+  setPicId(res);
+}).catch((err)=>{
+  console.error("Error fetching user profile:", err);
+});},[]);
+
+const url = useProtectedImage(picId);
+
+
+
+
+
+   return (
     <Menu shadow="md" width={200}>
       <Menu.Target>
         <div className=" flex items-center gap-3 cursor-pointer" >
           <span className="font-medium text-lg text-neutral-900">{user.name}</span>
-          <Avatar variant="filled" size={45} src="/avatar.png" alt="it's me" />
+          <Avatar variant="filled" size={45} src={url} alt="it's me" />
         </div>
       </Menu.Target>
 

@@ -1,18 +1,46 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { IconCloudUpload, IconDownload, IconX } from '@tabler/icons-react';
 import { Button, Group, Text, useMantineTheme } from '@mantine/core';
-import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import { Dropzone, FileWithPath, MIME_TYPES } from '@mantine/dropzone';
 import classes from './DropzoneButton.module.css';
 
-export function DropzoneButton() {
+import { uploadMedia } from '../../../Service/MediaService';
+import { successNotification } from '../../../Utility/NotificationUtil';
+
+export function DropzoneButton({close,form,id} :any) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
+ const [file,setFile] = useState<FileWithPath | null>(null);
+  const [fileId,setFileId] = useState<string | null>(null);
 
+ const handleDrop = async(files:FileWithPath[])=>{
+  setFile(files[0]);
+  
+  uploadMedia(files[0]).then((res)=>{
+    console.log("File uploaded successfully:", res);
+
+   setFileId(res.id);
+
+  
+    
+  }).catch((err)=>{
+    console.error("Error uploading file:", err);
+  });
+
+ }
+
+ const handleSave=()=>{
+form.setFieldValue("profilePictureId",fileId);
+close();
+ successNotification("File uploaded successfully");
+ }
   return (
     <div className={classes.wrapper}>
-      <Dropzone
+     {
+     !file ?
+     <Dropzone
         openRef={openRef}
-        onDrop={(files) => console.log('accepted files', files)}
+        onDrop={handleDrop}
         multiple={false}
         className={classes.dropzone}
         radius="md"
@@ -44,10 +72,27 @@ export function DropzoneButton() {
           </Text>
         </div>
       </Dropzone>
+:
+      <img src={URL.createObjectURL(file)} alt="preview"
+      className={classes.imagePreview} />
+      }
 
-      <Button className={classes.control} size="md" radius="xl" onClick={() => openRef.current?.()}>
-        Select files
+     {!file? <Button className={classes.control} size="md" radius="xl" onClick={() => openRef.current?.()}>
+      
+      Select Photo
       </Button>
+      :
+      <div className='flex gap-3 mt-3 items-center justify-center'>
+        <Button 
+         color='red' size="md" radius="xl" onClick={() => setFile(null)}>
+          Change Photo
+        </Button><Button 
+       color='green'
+        size="md" radius="xl" onClick={handleSave}>
+      Save 
+      </Button>
+      </div>
+      }
     </div>
   );
 }
