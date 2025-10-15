@@ -20,6 +20,8 @@ import AdminSalesPage from "../Pages/Admin/AdminSalesPage";
 import AdminPatientPage from "../Pages/Admin/AdminPatientPage";
 import Doctor from "../Components/Admin/Doctors/Doctor";
 import AdminDashboardPage from "../Pages/Admin/AdminDashboardPage";
+import DoctorDashboardPage from "../Pages/Doctor/DoctorDashboardPage";
+import PatientDashboardPage from "../Pages/Patient/PatientDashboardPage";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -39,7 +41,7 @@ const AppRoutes = () => {
        
         </Route>
         <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
-          <Route path="dashboard" element={<Random />} />
+          <Route path="dashboard" element={<DoctorDashboardPage />} />
                     <Route path="profile" element={<DoctorProfilePage/>} />
 
           <Route path="pharmacy" element={<Random />} />
@@ -51,7 +53,7 @@ const AppRoutes = () => {
         </Route>
             <Route path="patient" element={<ProtectedRoute><PatientDashboard /></ProtectedRoute>}>
 
-          <Route path="dashboard" element={<Random />} />
+          <Route path="dashboard" element={<PatientDashboardPage />} />
           <Route path="profile" element={<PatientProfilePage/>} />
           <Route path="appointment" element={<PatientAppointmentPage />} />          
         </Route>
