@@ -3,6 +3,7 @@ package com.hms.appointment.service;
 
 import com.hms.appointment.client.ProfileClient;
 import com.hms.appointment.dto.DoctorName;
+import com.hms.appointment.dto.MedicineDTO;
 import com.hms.appointment.dto.PrescriptionDTO;
 import com.hms.appointment.dto.PrescriptionDetails;
 import com.hms.appointment.entity.Prescription;
@@ -131,5 +132,14 @@ medicineService.saveAllMedicines(Request.getMedicines());
             }
         });
         return prescriptionDetails;
+    }
+
+    @Override
+    public List<MedicineDTO> getMedicineByPatientId(Long patientId) throws HmsException {
+
+        List<Long>Pids = prescriptionRepository.findAllPrescriptionIdByPatientId(patientId);
+
+        return medicineService.getMedicinesByPrescriptionIds(Pids);
+
     }
 }

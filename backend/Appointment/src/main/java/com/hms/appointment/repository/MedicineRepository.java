@@ -11,4 +11,5 @@ public interface MedicineRepository extends CrudRepository<Medicine,Long> {
 
 
     List<Medicine> findAllByPrescription_Id(Long prescriptionId);
+    List<Medicine> findAllByPrescription_IdIn(List<Long> prescriptionIds);
 }
