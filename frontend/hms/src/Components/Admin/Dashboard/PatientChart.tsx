@@ -1,9 +1,4 @@
-
 import { useEffect, useState } from "react";
-import {
-  patients,
-
-} from "../../../Data/DashboardData";
 import { ScrollArea } from "@mantine/core";
 import { getAllPatient } from "../../../Service/PatientProfileService";
 import { bloodGroupMap } from "../../../Data/DropDownData";

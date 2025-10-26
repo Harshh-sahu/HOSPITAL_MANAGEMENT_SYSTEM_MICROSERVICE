@@ -1,11 +1,24 @@
 
+import { useEffect, useState } from "react";
 import {
   patients,
 
 } from "../../../Data/DashboardData";
 import { ScrollArea } from "@mantine/core";
+import { getAllPatient } from "../../../Service/PatientProfileService";
+import { bloodGroupMap } from "../../../Data/DropDownData";
 
 const PatientChart = () => {
+    useEffect(()=>{
+    getAllPatient().then((res)=>{
+    
+        setPatient(res);
+        console.log("Patients data:",res);
+    }).catch((error)=>{
+        console.error(error);
+    });
+        },[])
+        const [patient,setPatient] = useState<any[]>([]);
   const card = (app: any) => {
     return (
       <div className="p-3 m-3 border rounded-xl justify-between border-l-4
@@ -15,8 +28,8 @@ const PatientChart = () => {
           <div className="text-sm text-gray-500">{app.email}</div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-500">{app.location}</div>
-          <div className="text-sm text-gray-500">BloodGroup: {app.bloodGroup}</div>
+          <div className="text-sm text-gray-500">{app.address}</div>
+          <div className="text-sm text-gray-500">BloodGroup: {bloodGroupMap[app.bloodGroup]}</div>
         </div>
       </div>
     );
@@ -27,7 +40,7 @@ const PatientChart = () => {
       <div className="font-xl font-semibold"> Patients</div>
       <div>
         <ScrollArea.Autosize mah={300} mx="auto">
-          {patients.map((app) => card(app))}
+          {patient.map((app) => card(app))}
         </ScrollArea.Autosize>
       </div>
     </div>

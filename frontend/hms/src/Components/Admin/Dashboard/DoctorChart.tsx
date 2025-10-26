@@ -1,9 +1,5 @@
 
 import { useEffect, useState } from "react";
-import {
-  doctors,
-
-} from "../../../Data/DashboardData";
 
 import { ScrollArea } from "@mantine/core";
 import { getAllDoctor } from "../../../Service/DoctorProfileService";
@@ -12,7 +8,6 @@ const DoctorChart = () => {
   
       useEffect(()=>{
   getAllDoctor().then((res)=>{
-      console.log(res);
       setDoctor(res);
   }).catch((error)=>{
       console.error(error);

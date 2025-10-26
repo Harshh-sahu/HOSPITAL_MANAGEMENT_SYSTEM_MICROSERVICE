@@ -1,20 +1,24 @@
 import { AreaChart } from '@mantine/charts'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { countAppointmentByDoctor } from '../../../Service/AppointmentService';
+import { useSelector } from 'react-redux';
+import { addZeroMonths } from '../../../Utility/OtherUtility';
 
 
 const Metrices = () => {
-  const data = [
-    {date:"2023-10-01", appointments:10},
-    {date:"2023-10-02", appointments:15},
-    {date:"2023-10-03", appointments:12},
-    {date:"2023-10-04", appointments:20},
-    {date:"2023-10-05", appointments:18},
-    {date:"2023-10-06", appointments:25},
-    {date:"2023-10-07", appointments:22},
-    {date:"2023-10-08", appointments:30},
-    {date:"2023-10-09", appointments:28},
-    {date:"2023-10-10", appointments:35},
-  ]
+const [appointments,setAppointments] = React.useState<any[]>([]);
+
+const user= useSelector((state:any)=>state.user);
+  useEffect(()=>{
+    
+    countAppointmentByDoctor(user.profileId).then((res)=>{
+      setAppointments(addZeroMonths(res,"month","count"));
+    }).catch((err)=>{
+      console.error("Error fetching appointment metrics:",err);
+    });
+
+  },[])
+  
   const getSum = (data:any[], key:string) => {
     return data.reduce((sum, item) => sum + item[key], 0);
   }
@@ -23,10 +27,10 @@ const Metrices = () => {
       <div className='flex justify-between p-5 items-center'>
          <div>
           <div className='font-semibold'>Appointments</div>
-          <div className='text-xs text-gray-500'>Last 7 days</div>
+          <div className='text-xs text-gray-500'>{new Date().getFullYear()}</div>
          </div>
          <div className='text-2xl font-bold text-violet-500'>
-           {getSum(data,"appointments")}
+           {getSum(appointments,"count")}
          </div>
 
       </div>
@@ -39,9 +43,9 @@ const Metrices = () => {
              withGradient
              fillOpacity={0.70}
                h={100}
-               data={data}
-               dataKey="date"
-               series={[{ name:  "appointments" , color:  "violet"  }]}
+               data={appointments}
+               dataKey="month"
+               series={[{ name:  "count" , color:  "violet"  }]}
                curveType="bump"
                tickLine="none"
                gridAxis="none"

@@ -1,23 +1,23 @@
 import { AreaChart } from '@mantine/charts'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux';
+import { countAppointmentByPatient } from '../../../Service/AppointmentService';
+import { addZeroMonths } from '../../../Utility/OtherUtility';
 
 
 const Appointments = () => {
-  const data = [
-    {date: 'January', Visits: 30},
-    {date: 'February', Visits: 45},
-    {date: 'March', Visits: 28},
-    {date: 'April', Visits: 60},
-    {date: 'May', Visits: 50},
-    {date: 'June', Visits: 75},
-    {date: 'July', Visits: 65},
-    {date: 'August', Visits: 80},
-    {date: 'September', Visits: 70},
-    {date: 'October', Visits: 90},
-    {date: 'November', Visits: 85},
-    {date: 'December', Visits: 100},
-
-  ]
+  const [appointments,setAppointments] = React.useState<any[]>([]);
+  
+  const user= useSelector((state:any)=>state.user);
+    useEffect(()=>{
+      
+      countAppointmentByPatient(user.profileId).then((res)=>{
+        setAppointments(addZeroMonths(res,"month","count"));
+      }).catch((err)=>{
+        console.error("Error fetching appointment metrics:",err);
+      });
+  
+    })
   const getSum = (data:any[], key:string) => {
     return data.reduce((sum, item) => sum + item[key], 0);
   }
@@ -29,7 +29,7 @@ const Appointments = () => {
           <div className='text-xs text-gray-500'>{new Date().getFullYear()}</div>
          </div>
          <div className='text-2xl font-bold text-violet-500'>
-           {getSum(data,"Visits")}
+           {getSum(appointments,"count")}
          </div>
 
       </div>
@@ -42,9 +42,9 @@ const Appointments = () => {
              withGradient
              fillOpacity={0.70}
                h={150}
-               data={data}
-               dataKey="date"
-               series={[{ name:  "Visits" , color:  "violet"  }]}
+               data={appointments}
+               dataKey="month"
+               series={[{ name:  "count" , color:  "violet"  }]}
                curveType="bump"
                tickLine="none"
                gridAxis="none"

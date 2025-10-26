@@ -152,7 +152,7 @@ const countAllAppointments = async()=>{
 
 const countReasonByPatient = async(patientId:any)=>{
   return axiosInstance
-  .get("/appointment/countReasonByPatient/"+patientId)
+  .get("/appointment/countReasonsByPatient/"+patientId)
   .then((response: any) => response.data)
   .catch((error: any) => {
     console.error("Error during counting reason by patient:", error);
@@ -162,7 +162,7 @@ const countReasonByPatient = async(patientId:any)=>{
 
 const countReasonByDoctor = async(doctorId:any)=>{
   return axiosInstance
-  .get("/appointment/countReasonByDoctor/"+doctorId)
+  .get("/appointment/countReasonsByDoctor/"+doctorId)
   .then((response: any) => response.data)
   .catch((error: any) => {
     console.error("Error during counting reason by doctor:", error);

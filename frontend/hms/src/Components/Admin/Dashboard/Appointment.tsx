@@ -1,4 +1,3 @@
-import { AreaChart } from "@mantine/charts";
 
 import {
   appointments,

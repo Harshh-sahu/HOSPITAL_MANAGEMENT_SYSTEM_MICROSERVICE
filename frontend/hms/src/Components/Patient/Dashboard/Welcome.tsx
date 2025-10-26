@@ -3,10 +3,14 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getUserProfile } from "../../../Service/UserService";
 import useProtectedImage from "../../../Utility/useProtectedImage";
+import { getPatient } from "../../../Service/PatientProfileService";
+import { bloodGroupMap } from "../../../Data/DropDownData";
 
 const Welcome = () => {
   const user = useSelector((state: any) => state.user);
   const [picId,setPicId]=useState<string | null>(null);
+
+  const [patientInfo,setPatientInfo]=useState<any>({});
 
    useEffect(()=>{
     
@@ -15,7 +19,15 @@ getUserProfile(user.id).then((res)=>{
   setPicId(res);
 }).catch((err)=>{
   console.error("Error fetching user profile:", err);
-});},[]);
+});
+
+      getPatient(user.profileId).then((res) => {
+        setPatientInfo(res);
+        console.log("Patient profile:", res);
+      }).catch((err) => {
+        console.error("Error fetching patient profile:", err);
+      });
+},[]);
 
 const url = useProtectedImage(picId);
 
@@ -25,7 +37,7 @@ const url = useProtectedImage(picId);
         <div>
           <div className="font-extrabold">Welcome Back</div>
           <div className="text-3xl font-semibold text-blue-600" >{user?.name} !</div>
-          <div className="text-sm">A+, India</div>
+          <div className="text-sm">{bloodGroupMap[patientInfo.bloodGroup]}, {patientInfo.address}</div>
         </div>
         <Avatar src={url} size={100} alt="it's me" radius="xl" />
       </div>
