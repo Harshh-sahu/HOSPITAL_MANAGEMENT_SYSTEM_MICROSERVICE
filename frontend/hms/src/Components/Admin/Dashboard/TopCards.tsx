@@ -1,11 +1,41 @@
 import { AreaChart } from "@mantine/charts";
 
 import { appointmentData, doctorData, patientData } from "../../../Data/DashboardData";
-import { IconFile, IconPhoto, IconStethoscope, IconUser } from "@tabler/icons-react";
+import { IconFile,IconStethoscope, IconUser } from "@tabler/icons-react";
 import { ThemeIcon } from "@mantine/core";
-import { ReactNode } from "react";
+import React, {  useEffect, useState } from "react";
+import { countAllAppointments } from "../../../Service/AppointmentService";
+import { addZeroMonths } from "../../../Utility/OtherUtility";
+import { getRegistrationCounts } from "../../../Service/UserService";
 
 const TopCards = () => {
+
+  const [apData,setApData]=useState<any[]>(appointmentData);
+  const [drData,setDrData]=useState<any[]>(doctorData);
+  const [ptData,setPtData]=useState<any[]>(patientData);
+
+
+  useEffect(()=>{
+
+    countAllAppointments().then((res)=>{
+      
+      setApData(addZeroMonths(res,"month","count"));
+    }).catch((err)=>{
+      console.error("Error fetching appointment counts:", err);
+    });
+    
+
+    getRegistrationCounts().then((res)=>{
+      setPtData(addZeroMonths(res.patientCounts,"month","count"));
+      setDrData(addZeroMonths(res.doctorCounts,"month","count"));
+    }).catch((err)=>{
+      console.error("Error fetching registration counts:", err);
+    });
+
+
+  },[]);
+
+
 
   const getSum = (data: any[], key: string) => {
     return data.reduce((sum, item) => sum + item[key], 0);
@@ -35,7 +65,7 @@ const TopCards = () => {
         fillOpacity={0.70}
           h={100}
           data={data}
-          dataKey="date"
+          dataKey="month"
           series={[{ name:  id , color:  color  }]}
           curveType="bump"
           tickLine="none"
@@ -50,28 +80,28 @@ const TopCards = () => {
   const cards=[
     {
       name:"Appointments",
-      id:"appointments",
+      id:"count",
       color:"blue",
       bg:"bg-blue-100",
       icon:<IconFile/>,
-      data: appointmentData
+      data: apData
     },
     {
       name:"Patients",
-      id:"patients",
+      id:"count",
       color:"green",
       bg:"bg-green-100",
       icon:<IconUser/>, 
-      data: patientData
+      data: ptData
 
     },
     {
       name:"Doctors",
-      id:"doctors",
+      id:"count",
       color:"red",
       bg:"bg-red-100",
       icon:<IconStethoscope/>,
-      data: doctorData
+      data: drData
     }
   ]
   return <div className="grid grid-cols-3 gap-5 ">{cards.map((cardData) => card(cardData.name, cardData.id, cardData.color, cardData.bg, cardData.icon, cardData.data))}</div>;

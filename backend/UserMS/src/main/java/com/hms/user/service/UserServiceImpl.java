@@ -1,9 +1,12 @@
 package com.hms.user.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.hms.user.clients.Profile;
 import com.hms.user.clients.ProfileClient;
+import com.hms.user.dto.MonthlyRoleCountDTO;
+import com.hms.user.dto.RegistrationCountDTO;
 import com.hms.user.dto.Roles;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +97,14 @@ profileId=profileClient.addPatient(userDTO);
             return profileClient.getPatient(user.getProfileId());
         }
         throw new HmsException("INVALID_ROLE");
+    }
+
+    @Override
+    public RegistrationCountDTO getMonthlyRegistrationCounts() throws HmsException {
+        List<MonthlyRoleCountDTO>  doctorCounts = userRepository.countRegistrationsByRoleGroupedByMonth(Roles.DOCTOR);
+        List<MonthlyRoleCountDTO>  patientCounts = userRepository.countRegistrationsByRoleGroupedByMonth(Roles.PATIENT);
+
+        return new RegistrationCountDTO(doctorCounts, patientCounts);
     }
 
 }

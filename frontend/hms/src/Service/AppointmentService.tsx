@@ -120,4 +120,95 @@ const getMedicinesByPrescriptionId = async(prescriptionId:any)=>{
   });
 }
 
-export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor, createAppointmentReport, isReportExists, getReportByPatientId , getPrescriptionByPatientId ,getAllPrescriptions, getMedicinesByPrescriptionId};
+const countAppointmentByPatient = async(patientId:any)=>{
+  return axiosInstance
+  .get("/appointment/countByPatient/"+patientId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during counting appointments by patient:", error);
+    throw error;
+  });
+}
+
+const countAppointmentByDoctor = async(doctorId:any)=>{
+  return axiosInstance
+  .get("/appointment/countByDoctor/"+doctorId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during counting appointments by doctor:", error);
+    throw error;
+  });
+}
+
+const countAllAppointments = async()=>{
+  return axiosInstance
+  .get("/appointment/visitCount") 
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during counting all appointments:", error);
+    throw error;
+  });
+}
+
+const countReasonByPatient = async(patientId:any)=>{
+  return axiosInstance
+  .get("/appointment/countReasonByPatient/"+patientId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during counting reason by patient:", error);
+    throw error;
+  });
+};
+
+const countReasonByDoctor = async(doctorId:any)=>{
+  return axiosInstance
+  .get("/appointment/countReasonByDoctor/"+doctorId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during counting reason by doctor:", error);
+    throw error;
+  });
+};
+
+
+const countAllReasons = async()=>{
+  return axiosInstance
+  .get("/appointment/countReasons")
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during counting all reasons:", error);
+    throw error;
+  });
+};
+
+
+const getMedicineConsumeByPatient = async(patientId:any)=>{
+
+  return axiosInstance
+  .get("/appointment/getMedicinesByPatient/"+patientId)
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during fetching medicine consumption by patient ID:", error);
+    throw error;
+  });
+};
+
+const getTodaysAppointments = async()=>{
+
+  return axiosInstance
+  .get("/appointment/today")
+  .then((response: any) => response.data)
+  .catch((error: any) => {
+    console.error("Error during fetching today's appointments:", error);
+    throw error;
+  });
+};
+
+export { scheduleAppointment, cancelAppointment, getAppointment, getAppointmentDetails, getAppointmentByPatient, getAppointmentByDoctor, createAppointmentReport, isReportExists, getReportByPatientId , getPrescriptionByPatientId ,getAllPrescriptions, getMedicinesByPrescriptionId, countAppointmentByPatient , countAppointmentByDoctor,
+  countAllAppointments,
+  countReasonByPatient,
+  countAllReasons,
+  countReasonByDoctor,
+  getMedicineConsumeByPatient,
+  getTodaysAppointments
+};

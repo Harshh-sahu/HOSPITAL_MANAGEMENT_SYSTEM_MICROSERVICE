@@ -1,12 +1,25 @@
 
+import { useEffect, useState } from "react";
 import {
   doctors,
 
 } from "../../../Data/DashboardData";
 
 import { ScrollArea } from "@mantine/core";
+import { getAllDoctor } from "../../../Service/DoctorProfileService";
 
 const DoctorChart = () => {
+  
+      useEffect(()=>{
+  getAllDoctor().then((res)=>{
+      console.log(res);
+      setDoctor(res);
+  }).catch((error)=>{
+      console.error(error);
+  });
+      },[])
+      const [Doctor,setDoctor] = useState<any[]>([]);
+  
   const card = (app: any) => {
     return (
       <div className="p-3 m-3 border rounded-xl justify-between border-l-4
@@ -16,7 +29,7 @@ const DoctorChart = () => {
           <div className="text-sm text-gray-500">{app.email}</div>
         </div>
         <div className="text-right">
-          <div className="text-sm text-gray-500">{app.location}</div>
+          <div className="text-sm text-gray-500">{app.address}</div>
           <div className="text-sm text-gray-500"> {app.department}</div>
         </div>
       </div>
@@ -28,7 +41,7 @@ const DoctorChart = () => {
       <div className="font-xl font-semibold"> Doctors</div>
       <div>
         <ScrollArea.Autosize mah={300} mx="auto">
-          {doctors.map((app) => card(app))}
+          {Doctor.map((app) => card(app))}
         </ScrollArea.Autosize>
       </div>
     </div>

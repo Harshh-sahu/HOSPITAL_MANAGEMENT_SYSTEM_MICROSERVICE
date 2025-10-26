@@ -32,4 +32,14 @@ const getUserProfile = async (id: any) => {
     });
 };
 
-export { registerUser, loginUser, getUserProfile };
+const getRegistrationCounts = async () => {
+  return axiosInstance
+    .get("/user/getRegistrationCounts")
+    .then((response: any) => response.data)
+    .catch((error: any) => {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    });
+};
+
+export { registerUser, loginUser, getUserProfile, getRegistrationCounts };
