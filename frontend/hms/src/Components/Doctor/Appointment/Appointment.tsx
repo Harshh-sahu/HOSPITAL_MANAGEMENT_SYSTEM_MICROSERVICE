@@ -6,7 +6,7 @@ import { Column } from "primereact/column";
 import 'primereact/resources/themes/lara-light-blue/theme.css'
 import { Tag } from "primereact/tag";
 import { TextInput } from "@mantine/core";
-import { IconEdit, IconEye, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconEye, IconLayoutGrid, IconPlus, IconSearch, IconTable, IconTrash } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { getDoctorDropdown } from "../../../Service/DoctorProfileService";
 import { DateTimePicker } from "@mantine/dates";
@@ -26,6 +26,7 @@ import { formatDateWithTime } from "../../../Utility/DateUtility";
 import { modals } from "@mantine/modals";
 import { Toolbar } from "primereact/toolbar";
 import { useNavigate } from "react-router-dom";
+import ApCard from "./ApCard";
 
 interface Country {
   name: string;
@@ -57,6 +58,7 @@ const Appointment = () => {
   const [opened, { open, close }] = useDisclosure(false);
 
   const navigate = useNavigate();
+  const [view, setView] = useState<string>("table");
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -280,14 +282,29 @@ const Appointment = () => {
   //       );
   //   };
 
-    const rightToolbarTemplate = () => {
-        return <TextInput
+          const rightToolbarTemplate = () => {
+ 
+
+        return <div className="flex gap-5 items-center">
+
+           <SegmentedControl
+      value={view}
+      color="primary"
+      onChange={setView}
+      data={[
+        { label: <IconTable />, value: 'table' },
+        { label: <IconLayoutGrid />, value: 'card' }
+      
+      ]}
+    />
+
+         <TextInput
           leftSection={<IconSearch />}
           fw={400}
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
           placeholder="Keyword Search"
-        />
+        /></div>
     };
     const centerToolbarTemplate=()=>{
      return   <SegmentedControl
@@ -324,9 +341,9 @@ const Appointment = () => {
         <Toolbar
          className="mb-4"
           //  start={leftToolbarTemplate} 
-          center={centerToolbarTemplate}
+          start={centerToolbarTemplate}
          end={rightToolbarTemplate}></Toolbar>
-      <DataTable stripedRows size="small"
+    {view == "table"?  <DataTable stripedRows size="small"
         value={filteredAppointment}
         paginator
         
@@ -404,7 +421,15 @@ const Appointment = () => {
           bodyStyle={{ textAlign: "center", overflow: "visible" }}
           body={actionBodyTemplate}
         />
-      </DataTable>
+      </DataTable>:<div className="grid grid-cols-4 gap-5">
+        {
+
+          filteredAppointment.map((app)=> <ApCard key={app.id} {...app} />)
+        }
+        {
+          filteredAppointment.length==0 && <div className="col-span-4 text-center text-gray-500">No Appointment found.</div>
+        }
+      </div>}
       <Modal
         opened={opened}
         size="lg"

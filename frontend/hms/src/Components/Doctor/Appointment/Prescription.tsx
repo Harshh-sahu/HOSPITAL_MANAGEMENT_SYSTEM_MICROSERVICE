@@ -1,16 +1,18 @@
-import { ActionIcon, Button, Card, Divider, Grid, Modal, Text, TextInput, Title } from "@mantine/core";
-import { IconEye, IconMedicineSyrup, IconSearchOff, IconTrash } from "@tabler/icons-react";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
+import { ActionIcon, Card, Divider, Grid, Modal, SegmentedControl, Text, TextInput, Title } from "@mantine/core";
+import { IconEye, IconLayoutGrid, IconMedicineSyrup, IconSearch, IconTable } from "@tabler/icons-react";
+import { FilterMatchMode } from "primereact/api";
 import { Column } from "primereact/column";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import React, { useEffect, useState } from "react";
 import { getPrescriptionByPatientId } from "../../../Service/AppointmentService";
 import { formatDate } from "../../../Utility/DateUtility";
-import { Tag } from "primereact/tag";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
+import { Toolbar } from "primereact/toolbar";
+import PresCard from "./PresCard";
 
 const Prescription = ({ appointment }: any) => {
+  const [view,setView] = useState<string>("table");
     const [opened,{open,close}] = useDisclosure(false);
   const [data, setData] = useState<any[]>([]);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
@@ -60,25 +62,39 @@ if(!appointment?.patientId)return;
     open();
     setMedicineData(medicines);
   }
-  const renderHeader = () => {
-    return (
-      <div className="flex flex-wrap gap-2 justify-end tems-center">
-        <TextInput
-          leftSection={<IconSearchOff />}
+  const rightToolbarTemplate = () => {
+     return <div className="flex gap-5 items-center">
+
+           <SegmentedControl
+      value={view}
+      color="primary"
+      onChange={setView}
+      data={[
+        { label: <IconTable />, value: 'table' },
+        { label: <IconLayoutGrid />, value: 'card' }
+      
+      ]}
+    />
+
+         <TextInput
+          leftSection={<IconSearch
+             />}
           fw={400}
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
           placeholder="Keyword Search"
-        />
-      </div>
-    );
-  };
-  const header = renderHeader();
+        /></div>
+    };
 
   return (
     <div>
-      <DataTable
-        header={header}
+       <Toolbar
+               className="mb-4 !p-1"
+                //  start={leftToolbarTemplate} 
+          
+               end={rightToolbarTemplate}></Toolbar>
+    {view === "table"?  <DataTable
+
         stripedRows
         size="small"
         value={data}
@@ -116,12 +132,16 @@ if(!appointment?.patientId)return;
           bodyStyle={{ textAlign: "center", overflow: "visible" }}
           body={actionBodyTemplate}
         />
-        {/* <Column
-               headerStyle={{ width: "5rem", textAlign: "center" }}
-               bodyStyle={{ textAlign: "center", overflow: "visible" }}
-               body={actionBodyTemplate}
-             /> */}
-      </DataTable>
+     
+      </DataTable>:  <div className="grid grid-cols-4 gap-5">
+        {
+
+          data?.map((app)=> <PresCard key={app.id} handleMedicine={handleMedicine} {...app} />)
+        }
+        {
+          data?.length===0 && <div className="col-span-4 text-center text-gray-500">No Prescription found.</div>
+        }
+      </div> }
        <Modal opened={opened} size="xl" onClose={close} title="Medicines" centered>
 <div className="grid grid-cols-2 gap-5">
 

@@ -5,6 +5,7 @@ import {
   Group,
   MultiSelect,
   NumberInput,
+  SegmentedControl,
   Select,
   SelectProps,
   Textarea,
@@ -14,14 +15,16 @@ import React, { useEffect, useState } from "react";
 import {
   dosageFrequencies,
   medicineTypes,
-  routess,
   symptoms,
   tests,
 } from "../../../Data/DropDownData";
 import {
   IconCheck,
   IconEye,
+  IconLayoutGrid,
+  IconSearch,
   IconSearchOff,
+  IconTable,
   IconTrash,
 } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
@@ -34,18 +37,18 @@ import {
   errorNotification,
   successNotification,
 } from "../../../Utility/NotificationUtil";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FilterMatchMode } from "primereact/api";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { formatDate } from "../../../Utility/DateUtility";
-import { render } from "@testing-library/react";
 import { getAllMedicines } from "../../../Service/MedicineService";
+import { Toolbar } from "primereact/toolbar";
+import PresCard from "./PresCard";
+import ReportCard from "./ReportCard";
 
 const ApReport = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
-  const dispatch = useDispatch();
 
   type Medicine = {
     name: string;
@@ -57,6 +60,7 @@ const ApReport = ({ appointment }: any) => {
     instructions: string;
     prescriptionId?: number;
   };
+  const [view,setView] = useState<string>("table");
 
   const form = useForm<any>({
     initialValues: {
@@ -139,7 +143,7 @@ const ApReport = ({ appointment }: any) => {
       })
       .catch((error) => {
         console.error("Error checking report existence:", error);
-        setAllowAdd(true);
+        setAllowAdd(!false);
       });
   };
   const renderSelectOption: SelectProps["renderOption"] = ({
@@ -261,48 +265,51 @@ const ApReport = ({ appointment }: any) => {
     }
   }
 
-  const renderHeader = () => {
-    return (
-      <div className="flex flex-wrap gap-2 justify-between tems-center">
-        {allowAdd && (
-          <Button onClick={() => setEdit(true)} variant="filled">
-            Add Report
-          </Button>
-        )}
-        <TextInput
-          leftSection={<IconSearchOff />}
-          fw={400}
-          value={globalFilterValue}
-          onChange={onGlobalFilterChange}
-          placeholder="Keyword Search"
-        />
-      </div>
-    );
-  };
 
 
+  const startToolbarTemplate = () => {
+    return allowAdd && <Button variant="filled" onClick={()=> setEdit(true)} > Add Report</Button>
+  }
 
-  const header = renderHeader();
-  const actionBodyTemplate = (rowData: any) => {
-    return (
-      <div className="flex gap-2">
-        <ActionIcon
-          onClick={() =>
-            navigate("/doctor/appointment/" + rowData.appointmentId)
-          }
-        >
-          <IconEye size={20} stroke={1.5} />
-        </ActionIcon>
-      </div>
-    );
-  };
+    const rightToolbarTemplate = () => {
+       return <div className="flex gap-5 items-center">
+  
+             <SegmentedControl
+        value={view}
+        color="primary"
+        onChange={setView}
+        data={[
+          { label: <IconTable />, value: 'table' },
+          { label: <IconLayoutGrid />, value: 'card' }
+        
+        ]}
+      />
+  
+           <TextInput
+            leftSection={<IconSearch
+               />}
+            fw={400}
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          /></div>
+      };
 
   return (
     <div>
       {!edit ? (
-        <DataTable
-          header={header}
-          stripedRows
+ 
+<div>
+
+       <Toolbar
+               className="mb-4 !p-1"
+                 start={startToolbarTemplate} 
+          
+               end={rightToolbarTemplate}></Toolbar>
+ 
+       {view=="table"? <DataTable
+
+stripedRows
           size="small"
           value={data}
           paginator
@@ -331,17 +338,18 @@ const ApReport = ({ appointment }: any) => {
           />
 
           <Column field="notes" header="Notes" />
-          {/* <Column
-          headerStyle={{ width: "5rem", textAlign: "center" }}
-          bodyStyle={{ textAlign: "center", overflow: "visible" }}
-          body={actionBodyTemplate}
-        /> */}
-          {/* <Column
-                     headerStyle={{ width: "5rem", textAlign: "center" }}
-                     bodyStyle={{ textAlign: "center", overflow: "visible" }}
-                     body={actionBodyTemplate}
-                   /> */}
-        </DataTable>
+         
+        </DataTable>:         <div className="grid grid-cols-4 gap-5">
+        {
+
+          data?.map((app)=> <ReportCard key={app.id} {...app} />)
+        }
+        {
+          data?.length==0 && <div className="col-span-4 text-center text-gray-500">No Prescription found.</div>
+        }
+      </div>}
+        </div>
+
       ) : (
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Fieldset
@@ -428,7 +436,7 @@ const ApReport = ({ appointment }: any) => {
                       (x: any) =>
                         !form.values.prescription.medicines.some(
                           (item1: any, idx: any) =>
-                            item1.medicineId == x.id && idx != index
+                            item1.medicineId === x.id && idx !== index
                         )
                     ).map((item) => ({
                       ...item,
@@ -451,7 +459,7 @@ const ApReport = ({ appointment }: any) => {
                       `prescription.medicines.${index}.dosage`
                     )}
 
-                    disabled={med.medicineId == "OTHER"}
+                    disabled={med.medicineId === "OTHER"}
                     label="Dosage"
                     placeholder="Enter dosage "
                     withAsterisk
