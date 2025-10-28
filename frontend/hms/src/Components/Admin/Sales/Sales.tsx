@@ -9,6 +9,7 @@ import {
   LoadingOverlay,
   Modal,
   NumberInput,
+  SegmentedControl,
   Select,
   SelectProps,
   Text,
@@ -23,9 +24,11 @@ import {
   IconEye,
   IconFileText,
   IconHome,
+  IconLayoutGrid,
   IconPlus,
   IconSearch,
   IconSearchOff,
+  IconTable,
   IconTrash,
 } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
@@ -48,6 +51,9 @@ import { useDisclosure } from "@mantine/hooks";
 import { spotlight, Spotlight, SpotlightActionData } from "@mantine/spotlight";
 import { getAllPrescriptions, getMedicinesByPrescriptionId } from "../../../Service/AppointmentService";
 import { freqMap } from "../../../Data/DropDownData";
+import { Toolbar } from "primereact/toolbar";
+import MedCard from "../Medicine/MedCard";
+import SaleCard from "./SaleCard";
 
 interface SaleItem {
   medicineId: string;
@@ -55,7 +61,7 @@ interface SaleItem {
 }
 const Sales = () => {
   const [loading, setLoading] = React.useState(false);
-
+  const [view, setView] = useState<string>("table");
   const form = useForm<any>({
     initialValues: {
       buyerName: "",
@@ -202,38 +208,9 @@ const Sales = () => {
     setGlobalFilterValue(value);
   };
 
-  const renderHeader = () => {
-    return (
-      <div className="flex flex-wrap gap-2 justify-between items-center">
-        <Button
-          onClick={() => {
-            form.reset(); // 👈 ensure add mode clears old id
-            setEdit(true);
-          }}
-          variant="filled"
-        >
-          Sell Medicine
-        </Button>
-        <TextInput
-          leftSection={<IconSearchOff />}
-          fw={400}
-          value={globalFilterValue}
-          onChange={onGlobalFilterChange}
-          placeholder="Keyword Search"
-        />
-      </div>
-    );
-  };
 
-//   const actions: SpotlightActionData[] = [
-//   {
-//     id: 'home',
-//     label: 'Home',
-//     description: 'Get to home page',
-//     onClick: () => console.log('Home'),
-//     leftSection: <IconHome size={24} stroke={1.5} />,
-//   }
-// ];
+
+
   const onEdit = (rowData: any) => {
     setEdit(true);
     console.log("rowData:", rowData);
@@ -261,8 +238,44 @@ getAllSaleItem(rowData.id).then((res)=>{
   }
 
 
-  const header = renderHeader();
 
+   const startToolbarTemplate = () => {
+      return (
+         <Button
+            onClick={() => {
+              form.reset(); // 👈 ensure add mode clears old id
+              setEdit(true);
+            }}
+            variant="filled"
+          >
+            Sell Medicine
+          </Button>
+      )
+    }
+  
+      const rightToolbarTemplate = () => {
+         return <div className="flex gap-5 items-center">
+    
+               <SegmentedControl
+          value={view}
+          color="primary"
+          onChange={setView}
+          data={[
+            { label: <IconTable />, value: 'table' },
+            { label: <IconLayoutGrid />, value: 'card' }
+          
+          ]}
+        />
+    
+             <TextInput
+              leftSection={<IconSearch
+                 />}
+              fw={400}
+              value={globalFilterValue}
+              onChange={onGlobalFilterChange}
+              placeholder="Keyword Search"
+            /></div>
+        };
   const renderSelectOption: SelectProps["renderOption"] = ({
     option,
     checked,
@@ -298,8 +311,16 @@ getAllSaleItem(rowData.id).then((res)=>{
   return (
     <div>
       {!edit ? (
+          <div>
+                
+                       <Toolbar
+                               className="mb-4 !p-1"
+                                 start={startToolbarTemplate} 
+                          
+                               end={rightToolbarTemplate}></Toolbar>
+                 
+                       {view==="table"?
         <DataTable
-          header={header}
           stripedRows
           size="small"
           value={data}
@@ -339,7 +360,23 @@ getAllSaleItem(rowData.id).then((res)=>{
           <Column header="Actions" body={actionBodyTemplate} />
   
         </DataTable>
-      ) : (<div>
+      
+          :         <div className="grid grid-cols-4 gap-5">
+                      {
+              
+                        data?.map((app)=> <SaleCard key={app.id} onView={() => handleDetails(app)}
+                            buyerName={app.buyerName}
+    buyerContact={app.buyerContact}
+    saleDate={app.saleDate}
+    totalAmount={app.totalAmount}
+
+ />)
+                      }
+                      {
+                        data?.length===0 && <div className="col-span-4 text-center text-gray-500">No Medicine found.</div>
+                      }
+                    </div>}
+                      </div>) : (<div>
 
         <div className="mb-5 flex items-center justify-between">
             <h3 className="text-xl font-medium text-primary-500" >Sell Medicine</h3>
@@ -396,7 +433,7 @@ getAllSaleItem(rowData.id).then((res)=>{
                       {...form.getInputProps(`saleItems.${index}.medicineId`)}
                       label="Medicine"
                       placeholder="Select Medicine"
-                      data={Medicine.filter(x=>!form.values.saleItems.some((item1:any,idx:any )=>item1.medicineId ==x.id &&idx!=index)).map((item) => ({
+                      data={Medicine.filter(x=>!form.values.saleItems.some((item1:any,idx:any )=>item1.medicineId ===x.id &&idx!==index)).map((item) => ({
                         ...item,
                         value: "" + item.id,
                         label: item.name,
@@ -510,7 +547,7 @@ getAllSaleItem(rowData.id).then((res)=>{
       
     </div>
               {
-                saleItems.length ==0&&(
+                saleItems.length ===0&&(
                   <Text color="dimmed" size="sm" mt="md" >
                     No medicines Prescribed for this appointment.
                   </Text>

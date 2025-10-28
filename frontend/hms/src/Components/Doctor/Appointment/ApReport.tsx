@@ -307,7 +307,7 @@ const ApReport = ({ appointment }: any) => {
           
                end={rightToolbarTemplate}></Toolbar>
  
-       {view=="table"? <DataTable
+       {view==="table"? <DataTable
 
 stripedRows
           size="small"

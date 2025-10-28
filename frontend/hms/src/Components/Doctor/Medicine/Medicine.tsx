@@ -141,20 +141,6 @@ const handleSubmit = (values: any) => {
     );
   };
 
-  const startToolbarTemplate = () => {
-    return (
-       <Button
-          onClick={() => {
-            form.reset(); // 👈 ensure add mode clears old id
-            setEdit(true);
-          }}
-          variant="filled"
-        >
-          Add Medicine
-        </Button>
-    )
-  }
-
     const rightToolbarTemplate = () => {
        return <div className="flex gap-5 items-center">
   
@@ -192,17 +178,6 @@ const handleSubmit = (values: any) => {
     });
   };
 
-  const header = renderHeader();
-
-  const actionBodyTemplate = (rowData: any) => {
-    return (
-      <div className="flex gap-2">
-        <ActionIcon onClick={() => onEdit(rowData)}>
-          <IconEdit size={20} stroke={1.5} />
-        </ActionIcon>
-      </div>
-    );
-  };
 
   return (
     <div>
@@ -211,7 +186,6 @@ const handleSubmit = (values: any) => {
         
                <Toolbar
                        className="mb-4 !p-1"
-                         start={startToolbarTemplate} 
                   
                        end={rightToolbarTemplate}></Toolbar>
          
@@ -259,13 +233,13 @@ const handleSubmit = (values: any) => {
           <Column
             headerStyle={{ width: "5rem", textAlign: "center" }}
             bodyStyle={{ textAlign: "center", overflow: "visible" }}
-            body={actionBodyTemplate}
+        
           />
         </DataTable>
         :         <div className="grid grid-cols-4 gap-5">
                 {
         
-                  data?.map((app)=> <MedCard key={app.id} {...app} onEdit={()=> onEdit(appointment)} />)
+                  data?.map((app)=> <MedCard key={app.id} {...app}  />)
                 }
                 {
                   data?.length===0 && <div className="col-span-4 text-center text-gray-500">No Medicine found.</div>

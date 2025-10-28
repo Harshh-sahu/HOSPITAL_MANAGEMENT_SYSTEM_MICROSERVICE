@@ -5,13 +5,14 @@ import {
   Fieldset,
   Group,
   NumberInput,
+  SegmentedControl,
   Select,
   SelectProps,
   TextInput,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 
-import { IconCheck, IconEdit, IconSearchOff } from "@tabler/icons-react";
+import { IconCheck, IconEdit, IconLayoutGrid, IconSearch, IconTable } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import {
   errorNotification,
@@ -26,6 +27,9 @@ import {
 } from "../../../Service/MedicineService";
 import { DateInput } from "@mantine/dates";
 import { addStock, getAllStock, updateStock } from "../../../Service/MedicineInventoryService";
+import { Toolbar } from "primereact/toolbar";
+import MedCard from "../Medicine/MedCard";
+import InvCard from "./InvCard";
 
 const Inventory = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
@@ -117,7 +121,7 @@ const handleSubmit = (values: any) => {
       .finally(() => setLoading(false));
   }
 };
-
+const [view,setView]=useState<string>('table');
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let _filters: any = { ...filters };
@@ -127,42 +131,20 @@ const handleSubmit = (values: any) => {
     setGlobalFilterValue(value);
   };
 
-  const renderHeader = () => {
-    return (
-      <div className="flex flex-wrap gap-2 justify-between items-center">
-        <Button
-          onClick={() => {
-            form.reset(); // 👈 ensure add mode clears old id
-            setEdit(true);
-          }}
-          variant="filled"
-        >
-          Add Stock
-        </Button>
-        <TextInput
-          leftSection={<IconSearchOff />}
-          fw={400}
-          value={globalFilterValue}
-          onChange={onGlobalFilterChange}
-          placeholder="Keyword Search"
-        />
-      </div>
-    );
-  };
+
 
   const onEdit = (rowData: any) => {
     setEdit(true);
     console.log("rowData:", rowData);
     form.setValues({
       ...rowData,
-     medicineId:String(rowData.medicineId),
-     batchNo:rowData.batchNo,
-      quantity:rowData.quantity,
-      expiryDate: new Date(rowData.expiryDate),
+     medicineId:String(rowData?.medicineId),
+     batchNo:rowData?.batchNo,
+      quantity:rowData?.quantity,
+      expiryDate: new Date(rowData?.expiryDate),
     });
   };
 
-  const header = renderHeader();
 
   const renderSelectOption: SelectProps['renderOption'] = ({ option, checked }:any) => (
   <Group flex="1" gap="xs">
@@ -174,6 +156,43 @@ const handleSubmit = (values: any) => {
   </Group>
 );
 
+  const startToolbarTemplate = () => {
+    return (
+       <Button
+          onClick={() => {
+            form.reset(); // 👈 ensure add mode clears old id
+            setEdit(true);
+          }}
+          variant="filled"
+        >
+          Add Stock
+        </Button>
+    )
+  }
+
+    const rightToolbarTemplate = () => {
+       return <div className="flex gap-5 items-center">
+  
+             <SegmentedControl
+        value={view}
+        color="primary"
+        onChange={setView}
+        data={[
+          { label: <IconTable />, value: 'table' },
+          { label: <IconLayoutGrid />, value: 'card' }
+        
+        ]}
+      />
+  
+           <TextInput
+            leftSection={<IconSearch
+               />}
+            fw={400}
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          /></div>
+      };
   const actionBodyTemplate = (rowData: any) => {
     return (
       <div className="flex gap-2">
@@ -197,8 +216,17 @@ const handleSubmit = (values: any) => {
   return (
     <div>
       {!edit ? (
+         <div>
+                
+                       <Toolbar
+                               className="mb-4 !p-1"
+                                 start={startToolbarTemplate} 
+                          
+                               end={rightToolbarTemplate}></Toolbar>
+                 
+                       {view==="table"?
         <DataTable
-          header={header}
+    
           stripedRows
           size="small"
           value={data}
@@ -244,6 +272,17 @@ const handleSubmit = (values: any) => {
           <Column headerStyle={{ textAlign: "center" }} bodyStyle={{textAlign: "center", overflow: "visible"}} body={actionBodyTemplate} />
       
         </DataTable>
+         :         <div className="grid grid-cols-4 gap-5">
+                        {
+                
+                          data?.map((app)=> <InvCard medicineMap={medicineMap} key={app.id} {...app} onEdit={()=> onEdit(appointment)} />)
+                        }
+                        {
+                          data?.length===0 && <div className="col-span-4 text-center text-gray-500">No Medicine found.</div>
+                        }
+                      </div>}
+                        </div>
+                
       ) : (
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Fieldset
