@@ -16,7 +16,7 @@ import {
   doctorDepartments,
   doctorSpecializations,
 } from "../../../Data/DropDownData";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { getDoctor, updateDoctor } from "../../../Service/DoctorProfileService";
 
 import {
@@ -28,6 +28,7 @@ import { useForm } from "@mantine/form";
 import { formatDate } from "../../../Utility/DateUtility";
 
 function Profile() {
+  const matches = useMediaQuery('(max-width: 768px)');
   const user = useSelector((state: any) => state.user);
   const [opened, { open, close }] = useDisclosure(false);
   const [editmode, setEdit] = useState(false);
@@ -94,13 +95,13 @@ function Profile() {
       });
   };
   return (
-    <div className="p-10">
-      <div className="flex justify-between items-start">
+    <div className="md:p-10 p-5">
+      <div className="flex lg:flex-row flex-col justify-between items-center">
         <div className="flex gap-5 items-center">
           <div className="flex flex-col items-center gap-3">
             <Avatar
               variant="filled"
-              size={150}
+              size={matches ? 120 : 150}
               src="/avatar.png"
               alt="it's me"
             />
@@ -111,7 +112,7 @@ function Profile() {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <div className="text-3xl font-medium text-neutral-900">
+            <div className="md:text-3xl text-xl font-medium text-neutral-900">
               {user.name}
             </div>
             <div className="text-xl mb-5 text-neutral-700">{user.email}</div>

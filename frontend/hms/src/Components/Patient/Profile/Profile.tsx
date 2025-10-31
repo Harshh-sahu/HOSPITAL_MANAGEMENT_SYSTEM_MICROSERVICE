@@ -14,7 +14,7 @@ import { IconEdit } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { bloodGroup, bloodGroups } from "../../../Data/DropDownData";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 
 import { getPatient, updatePatient } from "../../../Service/PatientProfileService";
 import { formatDate } from "../../../Utility/DateUtility";
@@ -31,7 +31,7 @@ function Profile() {
   const [opened, { open, close }] = useDisclosure(false);
   const [editmode, setEdit] = useState(false);
   const [profile, setProfile] = useState<any>({});
-
+  const matches = useMediaQuery('(max-width: 768px)');
 useEffect(() => {
   if (user && user.profileId) {
     getPatient(user.profileId)
@@ -115,13 +115,13 @@ updatePatient({
 
 
   return (
-    <div className="p-10" >
-      <div className="flex justify-between items-start">
+    <div className="md:p-10 p-5">
+      <div className="flex lg:flex-row flex-col justify-between items-center">
         <div className="flex gap-5 items-center">
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex  flex-col items-center gap-3">
             <Avatar
               variant="filled"
-              size={150}
+              size={matches ? 120 : 150}
               src={url}
               alt="it's me"
             />
@@ -132,7 +132,7 @@ updatePatient({
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <div className="text-3xl font-medium text-neutral-900">
+            <div className="md:text-3xl text-xl font-medium text-neutral-900">
               {user.name}
             </div>
             <div className="text-xl mb-5 text-neutral-700">{user.email}</div>

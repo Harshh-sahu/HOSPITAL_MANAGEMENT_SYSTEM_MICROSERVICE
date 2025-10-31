@@ -9,19 +9,19 @@ import Appointment from './Appointment'
 const Dashboard = () => {
   return (
     <div className='flex flex-col gap-5'>
-          <div className='grid grid-cols-2 gap-5'>
+          <div className='grid lg:grid-cols-2 gap-5'>
             <Welcome/>
             <Metrices/>
 
           </div>
-          <div className='grid grid-cols-3 gap-5'>
+          <div className='grid lg:grid-cols-3 gap-5'>
             <DiseaseChart/>
-            <div className='col-span-2'>
+            <div className='lg:col-span-2'>
               
   <PatientMetrics/>
             </div>
           </div>
-          <div className='grid grid-cols-2 gap-5'>
+          <div className='grid lg:grid-cols-2 gap-5'>
             <PatientChart/>
             <Appointment/>
           </div>

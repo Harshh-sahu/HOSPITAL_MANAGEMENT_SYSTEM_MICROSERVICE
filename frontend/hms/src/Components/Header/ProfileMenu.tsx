@@ -11,10 +11,12 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getUserProfile } from "../../Service/UserService";
 import useProtectedImage from "../../Utility/useProtectedImage";
+import { useMediaQuery } from "@mantine/hooks";
 
 const ProfileMenu = () => {
    const user = useSelector((state: any) => state.user);
 
+  const matches = useMediaQuery('(max-width: 768px)');
    const [picId,setPicId]=useState<string | null>(null);
 
    useEffect(()=>{
@@ -24,7 +26,7 @@ getUserProfile(user.id).then((res)=>{
   setPicId(res);
 }).catch((err)=>{
   console.error("Error fetching user profile:", err);
-});},[]);
+});});
 
 const url = useProtectedImage(picId);
 
@@ -36,7 +38,7 @@ const url = useProtectedImage(picId);
     <Menu shadow="md" width={200}>
       <Menu.Target>
         <div className=" flex items-center gap-3 cursor-pointer" >
-          <span className="font-medium text-lg text-neutral-900">{user.name}</span>
+    { !matches &&     <span className="font-medium text-lg text-neutral-900">{user.name}</span>}
           <Avatar variant="filled" size={45} src={url} alt="it's me" />
         </div>
       </Menu.Target>
