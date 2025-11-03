@@ -16,7 +16,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 
 import {
   IconCheck,
@@ -47,7 +47,7 @@ import {
 
 import { addSale, getAllSaleItem, getAllsales } from "../../../Service/SalesService";
 import { formatDate } from "../../../Utility/DateUtility";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { spotlight, Spotlight, SpotlightActionData } from "@mantine/spotlight";
 import { getAllPrescriptions, getMedicinesByPrescriptionId } from "../../../Service/AppointmentService";
 import { freqMap } from "../../../Data/DropDownData";
@@ -153,6 +153,7 @@ const Sales = () => {
         } ).finally(()=>setLoading(false));
 
     }
+    const matches = useMediaQuery('(max-width: 768px)');
 
     const calculateQuantity = (freq:string, duration:number)=>{
       const freqValue = freqMap[freq];
@@ -254,10 +255,11 @@ getAllSaleItem(rowData.id).then((res)=>{
     }
   
       const rightToolbarTemplate = () => {
-         return <div className="flex gap-5 items-center">
+         return <div className="md:flex hidden gap-5 items-center">
     
                <SegmentedControl
           value={view}
+          size={matches ? "sm":"md"}
           color="primary"
           onChange={setView}
           data={[
@@ -268,6 +270,7 @@ getAllSaleItem(rowData.id).then((res)=>{
         />
     
              <TextInput
+             className="lg:block hidden"
               leftSection={<IconSearch
                  />}
               fw={400}
@@ -319,7 +322,7 @@ getAllSaleItem(rowData.id).then((res)=>{
                           
                                end={rightToolbarTemplate}></Toolbar>
                  
-                       {view==="table"?
+                       {view==="table"&&!matches? 
         <DataTable
           stripedRows
           size="small"
@@ -361,7 +364,7 @@ getAllSaleItem(rowData.id).then((res)=>{
   
         </DataTable>
       
-          :         <div className="grid grid-cols-4 gap-5">
+          :         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
                       {
               
                         data?.map((app)=> <SaleCard key={app.id} onView={() => handleDetails(app)}
@@ -397,7 +400,7 @@ getAllSaleItem(rowData.id).then((res)=>{
             }
             radius="md"
           >
-          <div className="grid gap-8 grid-cols-2">
+          <div className="grid gap-8 sm:grid-cols-2">
               <TextInput
               withAsterisk
               placeholder="Enter Buyer Name"
@@ -424,7 +427,7 @@ getAllSaleItem(rowData.id).then((res)=>{
             }
             radius="md"
           >
-            <div className="grid gap-4 grid-cols-5">
+            <div className="grid gap-4 sm:grid-cols-5">
               {form.values.saleItems.map((item: any, index: number) => (
                 <React.Fragment key={index}>
                   <div className="col-span-2">
@@ -505,7 +508,7 @@ getAllSaleItem(rowData.id).then((res)=>{
         </div>
       )}
            <Modal opened={opened} size="xl" onClose={close} title="Sold Medicines" centered>
-    <div className="grid grid-cols-2 gap-5">
+    <div className="grid sm:grid-cols-2 gap-5">
     
             {
               saleItems?.map((data:any,index:number)=>(

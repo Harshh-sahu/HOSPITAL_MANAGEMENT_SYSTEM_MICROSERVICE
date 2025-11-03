@@ -104,7 +104,7 @@ const TopCards = () => {
       data: drData
     }
   ]
-  return <div className="grid grid-cols-3 gap-5 ">{cards.map((cardData) => card(cardData.name, cardData.id, cardData.color, cardData.bg, cardData.icon, cardData.data))}</div>;
+  return <div className="grid lg:grid-cols-3 gap-5 ">{cards.map((cardData) => card(cardData.name, cardData.id, cardData.color, cardData.bg, cardData.icon, cardData.data))}</div>;
 };
 
 export default TopCards;

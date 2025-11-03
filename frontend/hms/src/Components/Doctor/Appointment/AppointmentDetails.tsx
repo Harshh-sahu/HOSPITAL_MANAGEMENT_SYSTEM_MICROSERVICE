@@ -15,18 +15,15 @@ import { getAppointmentDetails } from "../../../Service/AppointmentService";
 import { formatDateWithTime } from "../../../Utility/DateUtility";
 import {
     IconClipboardHeart,
-  IconMessageCircle,
-  IconPhoto,
-  IconSettings,
-  IconStethoscope,
   IconVaccine,
 } from "@tabler/icons-react";
 import ApReport from "./ApReport";
 import Prescription from "./Prescription";
+import { useMediaQuery } from "@mantine/hooks";
 
 const AppointmentDetails = () => {
   const { id } = useParams();
-
+  const matches  = useMediaQuery('(max-width: 768px)');
   const [appointment, setAppointment] = useState<any>({});
   useEffect(() => {
     getAppointmentDetails(id)
@@ -72,7 +69,7 @@ const AppointmentDetails = () => {
         <Text fw={700} size="sm" mt="sm">
           🧑 Patient Info
         </Text>
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid md:grid-cols-2 grid-cols-1 md:gap-5 gap-3 mb-2">
           <Text>Email: {appointment.patientEmail}</Text>
           <Text>Phone: {appointment.patientPhone}</Text>
         </div>
@@ -81,7 +78,7 @@ const AppointmentDetails = () => {
         <Text fw={700} size="sm" mt="md">
           📅 Appointment Info
         </Text>
-        <div className="grid grid-cols-2 gap-5 mt-1">
+        <div className="grid md:grid-cols-2 grid-cols-1 md:gap-5 gap-3 mb-2">
           <Text>Reason: {appointment.reason}</Text>
           <Text>Time: {formatDateWithTime(appointment.appointmentTime)}</Text>
         </div>
@@ -99,11 +96,11 @@ const AppointmentDetails = () => {
         <Text>{appointment.notes}</Text>
       </Card>
 
-      <Tabs variant="pills" my="md" defaultValue="medical">
+      <Tabs variant="pills" my="md" defaultValue="prescriptions">
         <Tabs.List>
-          <Tabs.Tab value="medical" leftSection={<IconStethoscope size={20} />}>
+          {/* <Tabs.Tab value="medical" leftSection={<IconStethoscope size={20} />}>
             Medical History
-          </Tabs.Tab>
+          </Tabs.Tab> */}
           <Tabs.Tab
             value="prescriptions"
             leftSection={<IconVaccine size={20} />}

@@ -30,6 +30,7 @@ import { capitalizeFirstLetter } from "../../../Utility/OtherUtility";
 import { Toolbar } from "primereact/toolbar";
 import MedCard from "./MedCard";
 import ReportCard from "../../Doctor/Appointment/ReportCard";
+import { useMediaQuery } from "@mantine/hooks";
 
 const Medicine = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
@@ -52,7 +53,7 @@ const Medicine = ({ appointment }: any) => {
       unitPrice: (value) => (value ? null : "Unit Price is required"),
     },
   });
-
+const matches = useMediaQuery('(max-width: 768px)');
   const [data, setData] = useState<any[]>([]);
   const [edit, setEdit] = useState<boolean>(false);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
@@ -156,11 +157,12 @@ const handleSubmit = (values: any) => {
   }
 
     const rightToolbarTemplate = () => {
-       return <div className="flex gap-5 items-center">
+       return <div className="md:flex  hidden gap-5 items-center">
   
              <SegmentedControl
         value={view}
         color="primary"
+        size={matches ? "sm":"md"}
         onChange={setView}
         data={[
           { label: <IconTable />, value: 'table' },
@@ -170,6 +172,7 @@ const handleSubmit = (values: any) => {
       />
   
            <TextInput
+           className="lg:block hidden"
             leftSection={<IconSearch
                />}
             fw={400}
@@ -206,7 +209,7 @@ const handleSubmit = (values: any) => {
 
   return (
     <div>
-      {!edit ? (
+      {!edit && !matches ? (
         <div>
         
                <Toolbar
@@ -215,7 +218,7 @@ const handleSubmit = (values: any) => {
                   
                        end={rightToolbarTemplate}></Toolbar>
          
-               {view==="table"?
+               {view==="table" && !matches?
         <DataTable
           stripedRows
           size="small"
@@ -262,7 +265,7 @@ const handleSubmit = (values: any) => {
             body={actionBodyTemplate}
           />
         </DataTable>
-        :         <div className="grid grid-cols-4 gap-5">
+        :         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
                 {
         
                   data?.map((app)=> <MedCard key={app.id} {...app} onEdit={()=> onEdit(appointment)} />)
@@ -276,7 +279,7 @@ const handleSubmit = (values: any) => {
       ) : (
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Fieldset
-            className="grid gap-5 grid-cols-2"
+            className="grid gap-5 sm:grid-cols-2"
             legend={
               <span className="text-lg font-medium text-primary-500">
                 Medicine information
@@ -332,7 +335,8 @@ const handleSubmit = (values: any) => {
               {form.values.id ? "Update Medicine" : "Add Medicine"}
             </Button>
             <Button
-              loading={loading}
+              type="button" 
+              loading={false}
               className="w-full"
               variant="filled"
               color="red"

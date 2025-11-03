@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
 import { getAllDoctor } from '../../../Service/DoctorProfileService'
 import DoctorCard from './DoctorCard';
+import { useMediaQuery } from '@mantine/hooks';
 
 
 const Doctor = () => {
 
+  const matches = useMediaQuery('(max-width: 768px)');
     useEffect(()=>{
 getAllDoctor().then((res)=>{
     console.log(res);
@@ -24,7 +26,7 @@ getAllDoctor().then((res)=>{
        </div>
 
 
-       <div className='grid grid-cols-4 gap-5 '>
+       <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
         {Doctor.map((Doctor) => (
         <DoctorCard  key={Doctor.id} {...Doctor}   />
        ))}

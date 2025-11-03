@@ -30,9 +30,11 @@ import { capitalizeFirstLetter } from "../../../Utility/OtherUtility";
 import { Toolbar } from "primereact/toolbar";
 import MedCard from "./MedCard";
 import ReportCard from "../../Doctor/Appointment/ReportCard";
+import { useMediaQuery } from "@mantine/hooks";
 
 const Medicine = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
+  const matches = useMediaQuery('(max-width: 768px)');
 
   const form = useForm<any>({
     initialValues: {
@@ -142,12 +144,13 @@ const handleSubmit = (values: any) => {
   };
 
     const rightToolbarTemplate = () => {
-       return <div className="flex gap-5 items-center">
+       return <div className="md:flex hidden gap-5 items-center">
   
              <SegmentedControl
         value={view}
         color="primary"
         onChange={setView}
+        size={matches ? "sm" : "md"}
         data={[
           { label: <IconTable />, value: 'table' },
           { label: <IconLayoutGrid />, value: 'card' }
@@ -156,6 +159,7 @@ const handleSubmit = (values: any) => {
       />
   
            <TextInput
+           className="lg:block hidden"
             leftSection={<IconSearch
                />}
             fw={400}
@@ -185,11 +189,11 @@ const handleSubmit = (values: any) => {
         <div>
         
                <Toolbar
-                       className="mb-4 !p-1"
+                       className="mb-4 md:block md:p-3 hidden !p-1"
                   
                        end={rightToolbarTemplate}></Toolbar>
          
-               {view==="table"?
+               {view==="table"&&!matches?
         <DataTable
           stripedRows
           size="small"
@@ -236,7 +240,7 @@ const handleSubmit = (values: any) => {
         
           />
         </DataTable>
-        :         <div className="grid grid-cols-4 gap-5">
+        :         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5">
                 {
         
                   data?.map((app)=> <MedCard key={app.id} {...app}  />)

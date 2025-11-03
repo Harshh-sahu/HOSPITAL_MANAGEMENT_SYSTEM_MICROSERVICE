@@ -15,6 +15,8 @@ diagnosis
 }: any) => {
 
 
+
+
   return (
     <div className="border p-4 flex flex-col gap-2 hover:bg-primary-50 transition duration-300 rounded-xl shadow-sm  hover:shadow-[0_0_5px_1px_blue] !shadow-primary-600 ease-in-out cursor-pointer space-y-2">
     

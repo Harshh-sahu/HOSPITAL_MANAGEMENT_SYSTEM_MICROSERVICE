@@ -46,8 +46,10 @@ import { getAllMedicines } from "../../../Service/MedicineService";
 import { Toolbar } from "primereact/toolbar";
 import PresCard from "./PresCard";
 import ReportCard from "./ReportCard";
+import { useMediaQuery } from "@mantine/hooks";
 
 const ApReport = ({ appointment }: any) => {
+  const matches = useMediaQuery('(max-width: 768px)');
   const [loading, setLoading] = React.useState(false);
 
   type Medicine = {
@@ -268,14 +270,15 @@ const ApReport = ({ appointment }: any) => {
 
 
   const startToolbarTemplate = () => {
-    return allowAdd && <Button variant="filled" onClick={()=> setEdit(true)} > Add Report</Button>
+    return  <Button variant="filled" onClick={()=> setEdit(true)} > Add Report</Button>
   }
 
     const rightToolbarTemplate = () => {
-       return <div className="flex gap-5 items-center">
+       return <div className="md:flex hidden gap-5 items-center">
   
              <SegmentedControl
         value={view}
+        size={matches ? "sm":"md"}
         color="primary"
         onChange={setView}
         data={[
@@ -286,6 +289,7 @@ const ApReport = ({ appointment }: any) => {
       />
   
            <TextInput
+           className="lg:block hidden"
             leftSection={<IconSearch
                />}
             fw={400}
@@ -306,8 +310,8 @@ const ApReport = ({ appointment }: any) => {
                  start={startToolbarTemplate} 
           
                end={rightToolbarTemplate}></Toolbar>
- 
-       {view==="table"? <DataTable
+
+       {view==="table"&& !matches ? <DataTable
 
 stripedRows
           size="small"
@@ -339,7 +343,7 @@ stripedRows
 
           <Column field="notes" header="Notes" />
          
-        </DataTable>:         <div className="grid grid-cols-4 gap-5">
+        </DataTable>:         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
         {
 
           data?.map((app)=> <ReportCard key={app.id} {...app} />)
@@ -381,10 +385,13 @@ stripedRows
               label="Diagnosis"
               placeholder="Enter Diagnosis"
               withAsterisk
+              className="col-span-2 sm:col-span-1"
             />
             <TextInput
               {...form.getInputProps("referral")}
               label="Referral"
+                            className="col-span-2 sm:col-span-1"
+
               placeholder="Enter Referral details"
             />
             <Textarea
@@ -422,7 +429,7 @@ stripedRows
                       </ActionIcon>
                     </div>
                   }
-                  className="grid gap-5 col-span-2 grid-cols-2"
+                  className="grid gap-5 col-span-2 sm:grid-cols-2"
                 >
                   <Select
                     renderOption={renderSelectOption}

@@ -7,13 +7,14 @@ import React, { useEffect, useState } from "react";
 import { getPrescriptionByPatientId } from "../../../Service/AppointmentService";
 import { formatDate } from "../../../Utility/DateUtility";
 import { useNavigate } from "react-router-dom";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Toolbar } from "primereact/toolbar";
 import PresCard from "./PresCard";
 
 const Prescription = ({ appointment }: any) => {
   const [view,setView] = useState<string>("table");
     const [opened,{open,close}] = useDisclosure(false);
+    const matches = useMediaQuery('(max-width: 768px)');
   const [data, setData] = useState<any[]>([]);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -63,10 +64,11 @@ if(!appointment?.patientId)return;
     setMedicineData(medicines);
   }
   const rightToolbarTemplate = () => {
-     return <div className="flex gap-5 items-center">
+     return <div className="md:flex hidden gap-5 items-center">
 
            <SegmentedControl
       value={view}
+      size={matches? "sm":"md"}
       color="primary"
       onChange={setView}
       data={[
@@ -76,7 +78,7 @@ if(!appointment?.patientId)return;
       ]}
     />
 
-         <TextInput
+         <TextInput className="lg:block hidden"
           leftSection={<IconSearch
              />}
           fw={400}
@@ -93,7 +95,7 @@ if(!appointment?.patientId)return;
                 //  start={leftToolbarTemplate} 
           
                end={rightToolbarTemplate}></Toolbar>
-    {view === "table"?  <DataTable
+    {view === "table"&&!matches?  <DataTable
 
         stripedRows
         size="small"
@@ -133,7 +135,7 @@ if(!appointment?.patientId)return;
           body={actionBodyTemplate}
         />
      
-      </DataTable>:  <div className="grid grid-cols-4 gap-5">
+      </DataTable>:  <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
         {
 
           data?.map((app)=> <PresCard key={app.id} handleMedicine={handleMedicine} {...app} />)
@@ -143,7 +145,7 @@ if(!appointment?.patientId)return;
         }
       </div> }
        <Modal opened={opened} size="xl" onClose={close} title="Medicines" centered>
-<div className="grid grid-cols-2 gap-5">
+<div className="grid md:grid-cols-2  grid-cols-1 gap-5">
 
         {
           medicineData?.map((data:any,index:number)=>(

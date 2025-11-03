@@ -65,7 +65,7 @@ const LoginPage = () => {
         <span className="font-handling font-semibold text-4xl">Pulse</span>
       </div>
 
-      <div className="w-[450px] backdrop-blur-md p-10 py-8 rounded-lg">
+      <div className="sm:w-[450px] w-[380px] backdrop-blur-md sm:p-10 p-4 py-8 rounded-lg">
         <form
           onSubmit={form.onSubmit(handleSubmit)}
           // Corrected the Tailwind CSS arbitrary variant syntax here
@@ -74,22 +74,22 @@ const LoginPage = () => {
           <div className="self-center font-medium bg-fontFamily-heading text-white text-xl">
             Login
           </div>
-          <TextInput
-            className="transition duration-300"
-            variant="unstyled"
-            size="md"
-            radius="md"
-            placeholder="Email"
-            classNames={{ input: "placeholder-!text-black" }}
-            color="black"
-            {...form.getInputProps("email")}
-          />
+     <TextInput
+  className="transition duration-300 text-black [&_.mantine-Input-input]:!text-black [&_.mantine-Input-input::placeholder]:!text-black"
+  variant="unstyled"
+  size="md"
+  radius="md"
+  placeholder="Email"
+  {...form.getInputProps("email")}
+/>
+
           <PasswordInput
+          
             variant="unstyled"
             size="md"
             radius="md"
             placeholder="Password"
-            className="transition duration-300"
+            className="transition duration-300 [&_input]:!text-black"
             {...form.getInputProps("password")}
           />
           <Button loading={loading} radius="md" size="md" type="submit" color="pink">

@@ -12,7 +12,13 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 
-import { IconCheck, IconEdit, IconLayoutGrid, IconSearch, IconTable } from "@tabler/icons-react";
+import {
+  IconCheck,
+  IconEdit,
+  IconLayoutGrid,
+  IconSearch,
+  IconTable,
+} from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import {
   errorNotification,
@@ -22,31 +28,35 @@ import {
 import { FilterMatchMode } from "primereact/api";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Column } from "primereact/column";
-import {
-  getAllMedicines,
-} from "../../../Service/MedicineService";
+import { getAllMedicines } from "../../../Service/MedicineService";
 import { DateInput } from "@mantine/dates";
-import { addStock, getAllStock, updateStock } from "../../../Service/MedicineInventoryService";
+import {
+  addStock,
+  getAllStock,
+  updateStock,
+} from "../../../Service/MedicineInventoryService";
 import { Toolbar } from "primereact/toolbar";
 import MedCard from "../Medicine/MedCard";
 import InvCard from "./InvCard";
+import { useMediaQuery } from "@mantine/hooks";
 
 const Inventory = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
+  const matches = useMediaQuery('(max-width: 768px)');
 
   const form = useForm<any>({
     initialValues: {
-      id:null,
-      medicineId: '',
-      batchNo: '',
+      id: null,
+      medicineId: "",
+      batchNo: "",
       quantity: 0,
-      expiryDate:"",
+      expiryDate: "",
     },
     validate: {
-       medicineId: (value) => (value ? null : "Medicine ID is required"),
-        batchNo: (value) => (value ? null : "Batch Number is required"),
-        quantity: (value) => (value >= 0 ? null : "Quantity cannot be negative"),
-        expiryDate: (value) => (value ? null : "Expiry Date is required"),
+      medicineId: (value) => (value ? null : "Medicine ID is required"),
+      batchNo: (value) => (value ? null : "Batch Number is required"),
+      quantity: (value) => (value >= 0 ? null : "Quantity cannot be negative"),
+      expiryDate: (value) => (value ? null : "Expiry Date is required"),
     },
   });
 
@@ -57,19 +67,21 @@ const Inventory = ({ appointment }: any) => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
 
-const [medicineMap, setMedicineMap] = useState<Record<string, any>>({});
+  const [medicineMap, setMedicineMap] = useState<Record<string, any>>({});
 
   const [globalFilterValue, setGlobalFilterValue] = useState<string>("");
 
   useEffect(() => {
-     getAllMedicines()
+    getAllMedicines()
       .then((res) => {
         console.log("Fetched stock medicine data:", res);
         setMedicine(res);
-        setMedicineMap(res.reduce((acc:any, item:any) => {
-          acc[item.id] = item;
-          return acc;
-        }, {}));
+        setMedicineMap(
+          res.reduce((acc: any, item: any) => {
+            acc[item.id] = item;
+            return acc;
+          }, {})
+        );
       })
       .catch((error) => {
         console.error("Error fetching medicine data:", error);
@@ -88,40 +100,40 @@ const [medicineMap, setMedicineMap] = useState<Record<string, any>>({});
         console.error("Error fetching medicine data:", error);
       });
   };
-const handleSubmit = (values: any) => {
-  console.log("form submitted with value", values);
+  const handleSubmit = (values: any) => {
+    console.log("form submitted with value", values);
 
-  setLoading(true);
+    setLoading(true);
 
-  if (values.id) {
-    updateStock(values.id, values)  // 👈 id aur values dono bhejo
-      .then((_res) => {
-        successNotification("Stock updated successfully");
-        fetchData();
-        form.reset();
-        setEdit(false);
-      })
-      .catch((error) => {
-        console.error("Error updating stock:", error);
-        errorNotification(`Error updating stock: ${error.message}`);
-      })
-      .finally(() => setLoading(false));
-  } else {
-    addStock(values)
-      .then((_res) => {
-        successNotification("Stock   added successfully");
-        fetchData();
-        form.reset();
-        setEdit(false);
-      })
-      .catch((error) => {
-        console.error("Error adding stock:", error);
-        errorNotification(`Error adding stock: ${error.message}`);
-      })
-      .finally(() => setLoading(false));
-  }
-};
-const [view,setView]=useState<string>('table');
+    if (values.id) {
+      updateStock(values.id, values) // 👈 id aur values dono bhejo
+        .then((_res) => {
+          successNotification("Stock updated successfully");
+          fetchData();
+          form.reset();
+          setEdit(false);
+        })
+        .catch((error) => {
+          console.error("Error updating stock:", error);
+          errorNotification(`Error updating stock: ${error.message}`);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      addStock(values)
+        .then((_res) => {
+          successNotification("Stock   added successfully");
+          fetchData();
+          form.reset();
+          setEdit(false);
+        })
+        .catch((error) => {
+          console.error("Error adding stock:", error);
+          errorNotification(`Error adding stock: ${error.message}`);
+        })
+        .finally(() => setLoading(false));
+    }
+  };
+  const [view, setView] = useState<string>("table");
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let _filters: any = { ...filters };
@@ -131,68 +143,74 @@ const [view,setView]=useState<string>('table');
     setGlobalFilterValue(value);
   };
 
-
-
   const onEdit = (rowData: any) => {
     setEdit(true);
     console.log("rowData:", rowData);
     form.setValues({
       ...rowData,
-     medicineId:String(rowData?.medicineId),
-     batchNo:rowData?.batchNo,
-      quantity:rowData?.quantity,
+      medicineId: String(rowData?.medicineId),
+      batchNo: rowData?.batchNo,
+      quantity: rowData?.quantity,
       expiryDate: new Date(rowData?.expiryDate),
     });
   };
 
-
-  const renderSelectOption: SelectProps['renderOption'] = ({ option, checked }:any) => (
-  <Group flex="1" gap="xs">
-  <div className="flex gap-5 items-center">
-      {option.label}
-    {option?.manufacturer && <span style={{ fontStyle: 'italic', color: 'gray' }}>{option.manufacturer}</span>}
-  </div>
-    {checked && <IconCheck style={{ marginInlineStart: 'auto' }}  />}
-  </Group>
-);
+  const renderSelectOption: SelectProps["renderOption"] = ({
+    option,
+    checked,
+  }: any) => (
+    <Group flex="1" gap="xs">
+      <div className="flex gap-5 items-center">
+        {option.label}
+        {option?.manufacturer && (
+          <span style={{ fontStyle: "italic", color: "gray" }}>
+            {option.manufacturer}
+          </span>
+        )}
+      </div>
+      {checked && <IconCheck style={{ marginInlineStart: "auto" }} />}
+    </Group>
+  );
 
   const startToolbarTemplate = () => {
     return (
-       <Button
-          onClick={() => {
-            form.reset(); // 👈 ensure add mode clears old id
-            setEdit(true);
-          }}
-          variant="filled"
-        >
-          Add Stock
-        </Button>
-    )
-  }
+      <Button
+        onClick={() => {
+          form.reset(); // 👈 ensure add mode clears old id
+          setEdit(true);
+        }}
+        variant="filled"
+      >
+        Add Stock
+      </Button>
+    );
+  };
 
-    const rightToolbarTemplate = () => {
-       return <div className="flex gap-5 items-center">
-  
-             <SegmentedControl
-        value={view}
-        color="primary"
-        onChange={setView}
-        data={[
-          { label: <IconTable />, value: 'table' },
-          { label: <IconLayoutGrid />, value: 'card' }
-        
-        ]}
-      />
-  
-           <TextInput
-            leftSection={<IconSearch
-               />}
-            fw={400}
-            value={globalFilterValue}
-            onChange={onGlobalFilterChange}
-            placeholder="Keyword Search"
-          /></div>
-      };
+  const rightToolbarTemplate = () => {
+    return (
+      <div className="md:flex hidden gap-5 items-center">
+        <SegmentedControl
+          value={view}
+          color="primary"
+          size={matches ? "sm" : "md"}
+          onChange={setView}
+          data={[
+            { label: <IconTable />, value: "table" },
+            { label: <IconLayoutGrid />, value: "card" },
+          ]}
+        />
+
+        <TextInput
+        className="hidden lg:block"
+          leftSection={<IconSearch />}
+          fw={400}
+          value={globalFilterValue}
+          onChange={onGlobalFilterChange}
+          placeholder="Keyword Search"
+        />
+      </div>
+    );
+  };
   const actionBodyTemplate = (rowData: any) => {
     return (
       <div className="flex gap-2">
@@ -203,90 +221,90 @@ const [view,setView]=useState<string>('table');
     );
   };
 
-  const statusBody=(rowData: any) =>{
-
+  const statusBody = (rowData: any) => {
     const isExpired = new Date(rowData.expiryDate) < new Date();
     return (
       <Badge color={isExpired ? "red" : "green"} variant="filled">
         {isExpired ? "Expired" : "Valid"}
       </Badge>
     );
-  }
+  };
 
   return (
     <div>
       {!edit ? (
-         <div>
-                
-                       <Toolbar
-                               className="mb-4 !p-1"
-                                 start={startToolbarTemplate} 
-                          
-                               end={rightToolbarTemplate}></Toolbar>
-                 
-                       {view==="table"?
-        <DataTable
-    
-          stripedRows
-          size="small"
-          value={data}
-          paginator
-          rows={10}
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          rowsPerPageOptions={[10, 25, 50]}
-          dataKey="medicineId"
-          filterDisplay="menu"
-          globalFilterFields={["name", "manufacturer", "category", "type"]}
-          emptyMessage="No Medicine found."
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        >
-          <Column field="name" header="Medicine"
-          body={(rowData) => medicineMap[""+rowData.medicineId]?.name}
-          />
-          <Column field="batchNo" header="Batch No." />
-                    <Column
-            field="initialQuantity"
-            header="Quantity"
-          
-          />
-          <Column
-            field="quantity"
-            header="Remaining Quantity"
-          
-          />
+        <div>
+          <Toolbar
+            className="mb-4 !p-1"
+            start={startToolbarTemplate}
+            end={rightToolbarTemplate}
+          ></Toolbar>
 
-         
-          <Column
-            field="expiryDate"
-            header="Expiry Date"
-            sortable
-            body={(rowData) => rowData.expiryDate ?? ""}
-          />
-          <Column
-            field="status"
-            header="Status"
-            sortable
-            body={statusBody}
-          />
+          {view === "table" &&!matches? (
+            <DataTable
+              stripedRows
+              size="small"
+              value={data}
+              paginator
+              rows={10}
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+              rowsPerPageOptions={[10, 25, 50]}
+              dataKey="medicineId"
+              filterDisplay="menu"
+              globalFilterFields={["name", "manufacturer", "category", "type"]}
+              emptyMessage="No Medicine found."
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            >
+              <Column
+                field="name"
+                header="Medicine"
+                body={(rowData) => medicineMap["" + rowData.medicineId]?.name}
+              />
+              <Column field="batchNo" header="Batch No." />
+              <Column field="initialQuantity" header="Quantity" />
+              <Column field="quantity" header="Remaining Quantity" />
 
-          <Column headerStyle={{ textAlign: "center" }} bodyStyle={{textAlign: "center", overflow: "visible"}} body={actionBodyTemplate} />
-      
-        </DataTable>
-         :         <div className="grid grid-cols-4 gap-5">
-                        {
-                
-                          data?.map((app)=> <InvCard medicineMap={medicineMap} key={app.id} {...app} onEdit={()=> onEdit(appointment)} />)
-                        }
-                        {
-                          data?.length===0 && <div className="col-span-4 text-center text-gray-500">No Medicine found.</div>
-                        }
-                      </div>}
-                        </div>
-                
+              <Column
+                field="expiryDate"
+                header="Expiry Date"
+                sortable
+                body={(rowData) => rowData.expiryDate ?? ""}
+              />
+              <Column
+                field="status"
+                header="Status"
+                sortable
+                body={statusBody}
+              />
+
+              <Column
+                headerStyle={{ textAlign: "center" }}
+                bodyStyle={{ textAlign: "center", overflow: "visible" }}
+                body={actionBodyTemplate}
+              />
+            </DataTable>
+          ) : (
+            <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
+              {data?.map((app) => (
+                <InvCard
+                  medicineMap={medicineMap}
+                  key={app.id}
+                  {...app}
+                  onEdit={() => onEdit(appointment)}
+                />
+              ))}
+              {data?.length === 0 && (
+                <div className="col-span-4 text-center text-gray-500">
+                  No Medicine found.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       ) : (
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Fieldset
-            className="grid gap-5 grid-cols-2"
+            className="grid gap-5 sm:grid-cols-2"
             legend={
               <span className="text-lg font-medium text-primary-500">
                 Medicine information
@@ -294,23 +312,25 @@ const [view,setView]=useState<string>('table');
             }
             radius="md"
           >
-              <Select renderOption={renderSelectOption}
+            <Select
+              renderOption={renderSelectOption}
               {...form.getInputProps("medicineId")}
               label="Medicine"
               placeholder="Select Medicine"
-              data={Medicine.map(item =>({
+              data={Medicine.map((item) => ({
                 ...item,
-                value:""+item.id,  label: item.name ?? "Unnamed Medicine" 
+                value: "" + item.id,
+                label: item.name ?? "Unnamed Medicine",
               }))}
             />
-            
+
             <TextInput
               {...form.getInputProps("batchNo")}
               label="Batch Number"
               placeholder="Enter Batch Number"
               withAsterisk
             />
-              <NumberInput
+            <NumberInput
               {...form.getInputProps("quantity")}
               label="Quantity"
               placeholder="Enter Quantity in stock"
@@ -318,7 +338,7 @@ const [view,setView]=useState<string>('table');
               clampBehavior="strict"
             />
 
-           <DateInput
+            <DateInput
               {...form.getInputProps("expiryDate")}
               label="Expiry Date"
               placeholder="Select Expiry Date"
