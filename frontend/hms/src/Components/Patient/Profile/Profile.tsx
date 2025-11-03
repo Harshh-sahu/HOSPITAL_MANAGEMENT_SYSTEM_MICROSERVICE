@@ -132,7 +132,7 @@ updatePatient({
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <div className="md:text-3xl text-xl font-medium text-neutral-900">
+            <div className="md:text-xl text-lg font-medium text-neutral-900">
               {user.name}
             </div>
             <div className="text-xl mb-5 text-neutral-700">{user.email}</div>
@@ -141,7 +141,7 @@ updatePatient({
         {!editmode ? (
           <Button
             type="button"
-            size="lg"
+            size={matches ? "lg" : "sm"}
             onClick={handleEdit}
             variant="filled"
             leftSection={<IconEdit />}
@@ -149,7 +149,8 @@ updatePatient({
             Edit
           </Button>
         ) : (
-          <Button onClick={handleSubmit} size="lg" type="submit" variant="filled">
+          <Button onClick={handleSubmit}             size={matches ? "lg" : "sm"}
+ type="submit" variant="filled">
             Submit  
           </Button>
         )}
@@ -179,6 +180,7 @@ updatePatient({
                   <DateInput
                     {...form.getInputProps("dob")}
                     label="Date input"
+                    
                     placeholder="Date input"
                   />
                 </Table.Td>

@@ -121,7 +121,7 @@ function Profile() {
         {!editmode ? (
           <Button
             type="button"
-            size="lg"
+             size={matches?"sm":"lg"}
             onClick={handleEdit}
             variant="filled"
             leftSection={<IconEdit />}
@@ -131,7 +131,7 @@ function Profile() {
         ) : (
           <Button
             onClick={handleSubmit}
-            size="lg"
+             size={matches?"sm":"lg"}
             type="submit"
             variant="filled"
           >
@@ -155,7 +155,7 @@ function Profile() {
           <Table.Tbody className="[&>tr]:!mb-2 [&_td]:!w-1/2">
             {/* DOB Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">
+              <Table.Th className=" font-semibold text-xl">
                 Date of Birth
               </Table.Th>
               {editmode ? (
@@ -175,7 +175,7 @@ function Profile() {
 
             {/* Phone Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">Phone</Table.Th>
+              <Table.Th className="md:font-semibold md:text-xl text-lg font-medium">Phone</Table.Th>
               {editmode ? (
                 <Table.Td>
                   <NumberInput
@@ -195,7 +195,7 @@ function Profile() {
 
             {/* Address Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">Address</Table.Th>
+              <Table.Th className="md:font-semibold md:text-xl text-lg font-medium">Address</Table.Th>
               {editmode ? (
                 <Table.Td>
                   <TextInput
@@ -214,7 +214,7 @@ function Profile() {
 
             {/* License Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">License No</Table.Th>
+              <Table.Th className="md:font-semibold md:text-xl text-lg font-medium">License No</Table.Th>
               {editmode ? (
                 <Table.Td>
                   <TextInput
@@ -233,7 +233,7 @@ function Profile() {
 
             {/* Specializations Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">
+              <Table.Th className="md:font-semibold md:text-xl text-lg font-medium">
                 Specializations
               </Table.Th>
               {editmode ? (
@@ -254,7 +254,7 @@ function Profile() {
 
             {/* dep Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">Department</Table.Th>
+              <Table.Th className="md:font-semibold md:text-xl text-lg font-medium">Department</Table.Th>
               {editmode ? (
                 <Table.Td>
                   <Select
@@ -273,7 +273,7 @@ function Profile() {
 
             {/* experience Row */}
             <Table.Tr>
-              <Table.Th className="font-semibold text-xl">Experience</Table.Th>
+              <Table.Th className="md:font-semibold md:text-xl text-lg font-medium">Experience</Table.Th>
               {editmode ? (
                 <Table.Td>
                   <NumberInput

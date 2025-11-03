@@ -7,7 +7,7 @@ import 'primereact/resources/themes/lara-light-blue/theme.css'
 import { Tag } from "primereact/tag";
 import { TextInput } from "@mantine/core";
 import { IconEdit, IconEye, IconLayoutGrid, IconPlus, IconSearch, IconTable, IconTrash } from "@tabler/icons-react";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { getDoctorDropdown } from "../../../Service/DoctorProfileService";
 import { DateTimePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
@@ -54,6 +54,7 @@ interface Customer {
 
 
 const Appointment = () => {
+  const matches = useMediaQuery('(max-width: 768px)');
   const [loading, setLoading] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -271,23 +272,24 @@ const Appointment = () => {
         </ActionIcon>
     </div>
   };
-  //  const leftToolbarTemplate = () => {
-  //       return (
-  //          <div className="flex flex-wrap gap-2 justify-between tems-center">
-  //       <Button onClick={open} leftSection={<IconPlus />} variant="filled">
-  //         Schedule Appointment
-  //       </Button>
+   const leftToolbarTemplate = () => {
+        return (
+           <div className="flex flex-wrap gap-2 justify-between tems-center">
+        <Button size={matches?"sm":"md"} onClick={open} leftSection={<IconPlus />} variant="filled">
+          Schedule
+        </Button>
         
-  //     </div>
-  //       );
-  //   };
+      </div>
+        );
+    };
 
           const rightToolbarTemplate = () => {
  
 
-        return <div className="flex gap-5 items-center">
+        return <div className="md:flex hidden gap-5 items-center">
 
            <SegmentedControl
+           size={matches ? "sm":"md"}
       value={view}
       color="primary"
       onChange={setView}
@@ -299,6 +301,7 @@ const Appointment = () => {
     />
 
          <TextInput
+         className="lg:block hidden"
           leftSection={<IconSearch />}
           fw={400}
           value={globalFilterValue}
@@ -310,6 +313,7 @@ const Appointment = () => {
      return   <SegmentedControl
       value={tab}
       color="primary"
+      size={matches ? "sm":"md"}
       onChange={setTab}
       data={[
        "Today",
@@ -343,7 +347,7 @@ const Appointment = () => {
           //  start={leftToolbarTemplate} 
           start={centerToolbarTemplate}
          end={rightToolbarTemplate}></Toolbar>
-    {view == "table"?  <DataTable stripedRows size="small"
+    {view === "table" && !matches?  <DataTable stripedRows size="small"
         value={filteredAppointment}
         paginator
         
@@ -421,13 +425,13 @@ const Appointment = () => {
           bodyStyle={{ textAlign: "center", overflow: "visible" }}
           body={actionBodyTemplate}
         />
-      </DataTable>:<div className="grid grid-cols-4 gap-5">
+      </DataTable>:<div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
         {
 
           filteredAppointment.map((app)=> <ApCard key={app.id} {...app} />)
         }
         {
-          filteredAppointment.length==0 && <div className="col-span-4 text-center text-gray-500">No Appointment found.</div>
+          filteredAppointment.length===0 && <div className="col-span-4 text-center text-gray-500">No Appointment found.</div>
         }
       </div>}
       <Modal
@@ -436,7 +440,7 @@ const Appointment = () => {
         onClose={close}
         title={
           <div className="text-xl font-semibold text-primary-500">
-            Schedule Appointment
+            Schedule 
           </div>
         }
         centered

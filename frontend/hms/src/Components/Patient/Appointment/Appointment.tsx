@@ -58,7 +58,7 @@ const Appointment = () => {
   const [view,setView]=useState<string>("table");
   const [loading, setLoading] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
-
+const matches = window.matchMedia("(min-width: 768px)").matches;
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -214,8 +214,14 @@ const payload = {
   const renderHeader = () => {
     return (
       <div className="flex flex-wrap gap-2 justify-between tems-center">
-        <Button onClick={open} leftSection={<IconPlus />} variant="filled">
-          Schedule Appointment
+        <Button
+        
+          size={matches ? "sm" : "md"}
+          onClick={open}
+          leftSection={<IconPlus />}
+          variant="filled"
+        >
+          Schedule
         </Button>
         <TextInput
           leftSection={<IconSearch />}
@@ -268,9 +274,9 @@ const payload = {
 
   const actionBodyTemplate = (rowData:any) => {
     return <div className="flex gap-2">
-        <ActionIcon>
+        {/* <ActionIcon>
             <IconEdit size={20} stroke={1.5} />
-        </ActionIcon>
+        </ActionIcon> */}
         <ActionIcon  onClick={() => handleDelete(rowData)} color="red">
             <IconTrash size={20} stroke={1.5} />
         </ActionIcon>
@@ -279,8 +285,8 @@ const payload = {
    const leftToolbarTemplate = () => {
         return (
            <div className="flex flex-wrap gap-2 justify-between tems-center">
-        <Button onClick={open} leftSection={<IconPlus />} variant="filled">
-          Schedule Appointment
+        <Button size={matches ? "xs" : "md"} onClick={open} leftSection={<IconPlus />} variant="filled">
+          Schedule 
         </Button>
         
       </div>
@@ -290,11 +296,12 @@ const payload = {
     const rightToolbarTemplate = () => {
  
 
-        return <div className="flex gap-5 items-center">
+        return <div className="md:flex hidden gap-5 items-center">
 
            <SegmentedControl
       value={view}
       color="primary"
+      size={matches? "xs":"md"}
       onChange={setView}
       data={[
         { label: <IconTable />, value: 'table' },
@@ -304,8 +311,11 @@ const payload = {
     />
 
          <TextInput
+         className="lg:block hidden
+         "
           leftSection={<IconSearch />}
           fw={400}
+
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
           placeholder="Keyword Search"
@@ -314,6 +324,8 @@ const payload = {
     const centerToolbarTemplate=()=>{
      return   <SegmentedControl
       value={tab}
+                     size={matches? "xs":"md"}
+
       color="primary"
       onChange={setTab}
       data={[
@@ -345,10 +357,11 @@ const payload = {
     <div className="card">
 
         <Toolbar
-         className="mb-4"  start={leftToolbarTemplate} 
+         className="mb-4 md:p-3 p-1 "  start={leftToolbarTemplate} 
+
           center={centerToolbarTemplate}
          end={rightToolbarTemplate}></Toolbar>
-      {view=="table"?<DataTable stripedRows size="small"
+      {view=="table" && !matches?<DataTable stripedRows size="small"
         value={filteredAppointment}
         paginator
         
@@ -423,7 +436,7 @@ const payload = {
           bodyStyle={{ textAlign: "center", overflow: "visible" }}
           body={actionBodyTemplate}
         />
-      </DataTable> : <div className="grid grid-cols-4 gap-5">
+      </DataTable> : <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
         {
 
           filteredAppointment.map((app)=> <ApCard key={app.id} {...app} />)
