@@ -10,17 +10,17 @@
         <module name="EUREKA-SERVER" />
         <module name="GatewayMS" />
       </profile>
-      <profile name="Annotation profile for MediaMS" enabled="true">
+      <profile name="Annotation profile for Appointment" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
-        <module name="pharmacy" />
         <module name="Appointment" />
-        <module name="MediaMS" />
+        <module name="pharmacy" />
         <module name="UserMS" />
+        <module name="MediaMS" />
         <module name="profileMS" />
       </profile>
     </annotationProcessing>
