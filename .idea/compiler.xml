@@ -10,7 +10,7 @@
         <module name="EUREKA-SERVER" />
         <module name="GatewayMS" />
       </profile>
-      <profile name="Annotation profile for profileMS" enabled="true">
+      <profile name="Annotation profile for UserMS" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -19,8 +19,8 @@
         </processorPath>
         <module name="pharmacy" />
         <module name="Appointment" />
-        <module name="MediaMS" />
         <module name="UserMS" />
+        <module name="MediaMS" />
         <module name="profileMS" />
       </profile>
     </annotationProcessing>
