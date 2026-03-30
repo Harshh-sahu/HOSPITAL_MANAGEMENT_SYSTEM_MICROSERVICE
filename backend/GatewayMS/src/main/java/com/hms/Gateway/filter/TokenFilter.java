@@ -21,6 +21,9 @@ public class TokenFilter extends AbstractGatewayFilterFactory<TokenFilter.Config
     public GatewayFilter apply(Config config) {
         return (exchange, chain) ->{
             String path = exchange.getRequest().getPath().toString();
+            if(path.contains("/swagger-ui") || path.endsWith("/swagger-ui.html") || path.contains("/v3/api-docs")) {
+                return chain.filter(exchange.mutate().request(r -> r.header("X-Secret-Key", "SECRET")).build());
+            }
             if(path.equals("/user/login")|| path.equals("/user/register" ) || path.startsWith("/media/") ){
 
                 return chain.filter(exchange.mutate().request(r->r.header("X-Secret-Key", "SECRET")).build());

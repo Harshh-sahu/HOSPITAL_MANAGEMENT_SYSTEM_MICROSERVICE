@@ -7,3 +7,10 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
