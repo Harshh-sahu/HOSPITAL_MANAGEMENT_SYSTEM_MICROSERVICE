@@ -30,8 +30,7 @@ public class AppointmentDTO {
     @NotNull(message = "appointmentTime is required")
     private LocalDateTime appointmentTime;
 
-    @Schema(description = "Appointment status", implementation = Status.class, requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "status is required")
+    @Schema(description = "Appointment status", implementation = Status.class, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Status status;
 
     @Schema(description = "Reason for consultation", example = "Fever and headache")
