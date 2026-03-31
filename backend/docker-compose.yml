@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+      - JAVA_OPTS=-Xmx512m
+    networks:
+      - hospital-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9411/api/v2/services"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+networks:
+  hospital-network:
+    driver: bridge
+
