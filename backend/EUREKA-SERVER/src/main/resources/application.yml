@@ -1,8 +1,33 @@
+# ─────────────────────────────────────────
+# Application
+# ─────────────────────────────────────────
 spring:
   application:
-    name: eureka-server
+    name: EurekaServer
+
+# ─────────────────────────────────────────
+# Server
+# ─────────────────────────────────────────
 server:
   port: 8761
+
+# ─────────────────────────────────────────
+# Eureka Server Config
+# ─────────────────────────────────────────
+eureka:
+  client:
+    register-with-eureka: false       # Server should NOT register itself
+    fetch-registry: false             # Server does NOT fetch from another registry
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false   # Disable in dev (enable in prod)
+  instance:
+    hostname: localhost
+
+# ─────────────────────────────────────────
+# Actuator + Distributed Tracing
+# (Replaces deprecated spring.sleuth & spring.zipkin)
+# ─────────────────────────────────────────
 management:
   endpoints:
     web:
@@ -11,14 +36,33 @@ management:
   endpoint:
     health:
       show-details: always
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans  # replaces spring.zipkin.base-url
+  tracing:
+    sampling:
+      probability: 1.0                              # replaces spring.sleuth.sampler.probability
+    brave:
+      trace-id128: true                             # replaces spring.sleuth.trace-id128
+
+# ─────────────────────────────────────────
+# OpenAPI / Swagger
+# ─────────────────────────────────────────
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-    operationsSorter: method
-    tagsSorter: alpha
+    operations-sorter: method
+    tags-sorter: alpha
+
+# ─────────────────────────────────────────
+# Logging
+# ─────────────────────────────────────────
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"
+  level:
+    root: INFO
+    com.netflix.eureka: WARN        # Suppress noisy Eureka internal logs
+    com.netflix.discovery: WARN
