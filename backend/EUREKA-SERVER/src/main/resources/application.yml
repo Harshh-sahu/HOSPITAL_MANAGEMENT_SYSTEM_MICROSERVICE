@@ -3,6 +3,14 @@ spring:
     name: eureka-server
 server:
   port: 8761
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
 eureka:
   client:
     register-with-eureka: false
