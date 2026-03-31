@@ -36,6 +36,8 @@ management:
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: true
   zipkin:
     tracing:
       endpoint: http://localhost:9411/api/v2/spans  # replaces spring.zipkin.base-url
@@ -45,6 +47,10 @@ management:
     brave:
       trace-id128: true                             # replaces spring.sleuth.trace-id128
     enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 # ─────────────────────────────────────────
 # OpenAPI / Swagger

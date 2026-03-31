@@ -6,6 +6,8 @@ import com.hms.appointment.entity.Appointment;
 import com.hms.appointment.exception.HmsException;
 import com.hms.appointment.repository.AppointmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,6 +25,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Autowired
     private AppointmentRepository appointmentRepository;
     @Override
+    @CacheEvict(cacheNames = {
+            "appointmentCountByPatient",
+            "appointmentCountByDoctor",
+            "appointmentCountOverall",
+            "appointmentReasonsByPatient",
+            "appointmentReasonsByDoctor",
+            "appointmentReasonsOverall"
+    }, allEntries = true)
     public Long scheduleAppointment(AppointmentDTO appointmentDTO) throws HmsException {
 
         Boolean doctorExists = profileClient.doctorExists(appointmentDTO.getDoctorId());
@@ -39,6 +49,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {
+            "appointmentCountByPatient",
+            "appointmentCountByDoctor",
+            "appointmentCountOverall",
+            "appointmentReasonsByPatient",
+            "appointmentReasonsByDoctor",
+            "appointmentReasonsOverall"
+    }, allEntries = true)
     public void cancelAppointment(Long appointmentId) throws HmsException {
         Appointment appointment =appointmentRepository.findById(appointmentId).orElseThrow(()-> new HmsException("APPOINTMENT_NOT_FOUND"));
         if (appointment.getStatus().equals(Status.CANCELLED)) {
@@ -102,31 +120,37 @@ return appointment;
     }
 
     @Override
+    @Cacheable(cacheNames = "appointmentCountByPatient", key = "#patientId")
     public List<MonthlyVisitDTO> getAppointmentCountByPatient(Long patientId) throws HmsException {
 
         return appointmentRepository.countCurrentYearVisitsByPatient(patientId);
     }
 
     @Override
+    @Cacheable(cacheNames = "appointmentCountByDoctor", key = "#doctorId")
     public List<MonthlyVisitDTO> getAppointmentCountByDoctor(Long doctorId) throws HmsException {
         return appointmentRepository.countCurrentYearVisitsByDoctor(doctorId);
     }
 
     @Override
+    @Cacheable(cacheNames = "appointmentCountOverall")
     public List<MonthlyVisitDTO> getAppointmentCount() throws HmsException {
         return appointmentRepository.countCurrentYearVisits();
     }
 
     @Override
+    @Cacheable(cacheNames = "appointmentReasonsByPatient", key = "#patientId")
     public List<ReasonCountDTO> getReasonCountByPatient(Long patientId) throws HmsException {
 return appointmentRepository.countReasonsByPatientId(patientId);    }
 
     @Override
+    @Cacheable(cacheNames = "appointmentReasonsByDoctor", key = "#doctorId")
     public List<ReasonCountDTO> getReasonCountByDoctor(Long doctorId) {
         return appointmentRepository.countReasonsByDoctorId(doctorId);
     }
 
     @Override
+    @Cacheable(cacheNames = "appointmentReasonsOverall")
     public List<ReasonCountDTO> getReasonCount() {
         return appointmentRepository.countReasons();
     }
