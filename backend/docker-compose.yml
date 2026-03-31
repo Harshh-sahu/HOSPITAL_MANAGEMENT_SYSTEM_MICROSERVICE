@@ -36,6 +36,30 @@ services:
       - hospital-network
     restart: unless-stopped
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-server
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - hospital-network
+    restart: unless-stopped
+
 networks:
   hospital-network:
     driver: bridge
+
+volumes:
+  grafana-data:
+
