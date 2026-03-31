@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    networks:
+      - hms-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9411/zipkin/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  hms-network:
+    driver: bridge
+
