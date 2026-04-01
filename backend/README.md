@@ -225,7 +225,7 @@ For production, consider:
 - Zipkin UI: `http://localhost:9411/zipkin/`
 - Prometheus UI: `http://localhost:9090`
 - Prometheus targets: `http://localhost:9090/targets`
-- Grafana UI: `http://localhost:3000`
+- Grafana UI: `http://localhost:3001`
 
 ### Quick endpoint smoke test (PowerShell)
 
@@ -238,6 +238,6 @@ Invoke-WebRequest -Uri "http://localhost:9300/actuator/prometheus" -UseBasicPars
 Invoke-WebRequest -Uri "http://localhost:9400/actuator/prometheus" -UseBasicParsing
 Invoke-WebRequest -Uri "http://localhost:8761/actuator/prometheus" -UseBasicParsing
 Invoke-WebRequest -Uri "http://localhost:9090/targets" -UseBasicParsing
-Invoke-WebRequest -Uri "http://localhost:3000/api/health" -UseBasicParsing
+Invoke-WebRequest -Uri "http://localhost:3001/api/health" -UseBasicParsing
 Invoke-WebRequest -Uri "http://localhost:9411/api/v2/services" -UseBasicParsing
 ```
