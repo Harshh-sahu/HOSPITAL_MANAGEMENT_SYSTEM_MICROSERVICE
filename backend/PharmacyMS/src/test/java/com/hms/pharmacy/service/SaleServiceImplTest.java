@@ -83,5 +83,25 @@ class SaleServiceImplTest {
         assertEquals(5L, dto.getId());
         assertEquals(100L, dto.getPrescriptionId());
     }
-}
 
+    @Test
+    void updateSale_notFound_throws() {
+        when(saleRepository.findById(1L)).thenReturn(Optional.empty());
+
+        HmsException ex = assertThrows(HmsException.class, () -> saleService.updateSale(new SaleDTO(1L, 100L, "Buyer", "999", LocalDateTime.now(), 20.0)));
+
+        assertEquals("SALE_NOT_FOUND", ex.getMessage());
+    }
+
+    @Test
+    void getAllSales_mapsList() {
+        when(saleRepository.findAll()).thenReturn(List.of(
+                new Sale(7L, 100L, "Buyer", "999", LocalDateTime.now(), 20.0)
+        ));
+
+        List<SaleDTO> list = saleService.getAllSales();
+
+        assertEquals(1, list.size());
+        assertEquals(7L, list.get(0).getId());
+    }
+}

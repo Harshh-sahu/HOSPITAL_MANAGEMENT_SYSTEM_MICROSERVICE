@@ -104,5 +104,39 @@ class MedicineServiceImplTest {
         assertEquals(1, list.size());
         assertEquals("P", list.get(0).getName());
     }
-}
 
+    @Test
+    void updateMedicine_success_updatesExisting() {
+        Medicine existing = new Medicine(1L, "Old", "500mg", MedicineCategory.ANALGESIC, MedicineType.TABLET, "ABC", 10, 5, LocalDateTime.now());
+        when(medicineRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        MedicineDTO update = new MedicineDTO(1L, "New", "500mg", MedicineCategory.ANALGESIC, MedicineType.CAPSULE, "XYZ", 12, 5, LocalDateTime.now());
+        medicineService.updateMedicine(update);
+
+        assertEquals("New", existing.getName());
+        assertEquals("XYZ", existing.getManufacturer());
+        verify(medicineRepository).save(existing);
+    }
+
+    @Test
+    void updateMedicine_nameChangeWithDuplicate_throws() {
+        Medicine existing = new Medicine(1L, "Old", "500mg", MedicineCategory.ANALGESIC, MedicineType.TABLET, "ABC", 10, 5, LocalDateTime.now());
+        when(medicineRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(medicineRepository.findByNameIgnoreCaseAndDosageIgnoreCase("New", "500mg"))
+                .thenReturn(Optional.of(new Medicine(2L, "New", "500mg", MedicineCategory.ANALGESIC, MedicineType.TABLET, "ABC", 10, 5, LocalDateTime.now())));
+
+        MedicineDTO update = new MedicineDTO(1L, "New", "500mg", MedicineCategory.ANALGESIC, MedicineType.TABLET, "ABC", 10, 5, LocalDateTime.now());
+
+        HmsException ex = assertThrows(HmsException.class, () -> medicineService.updateMedicine(update));
+        assertEquals("MEDICINE_ALREADY_EXISTS", ex.getMessage());
+    }
+
+    @Test
+    void getStockById_returnsStock() {
+        when(medicineRepository.findStockById(1L)).thenReturn(Optional.of(42));
+
+        Integer stock = medicineService.getStockById(1L);
+
+        assertEquals(42, stock);
+    }
+}

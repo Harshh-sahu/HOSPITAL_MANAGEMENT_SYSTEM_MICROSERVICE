@@ -60,5 +60,47 @@ class SaleServiceItemImplTest {
         assertEquals(1, list.size());
         assertEquals("B1", list.get(0).getBatchNo());
     }
-}
 
+    @Test
+    void createSaleItems_savesAllWithSaleId() {
+        List<SaleItemDTO> list = List.of(
+                new SaleItemDTO(null, null, 2L, "B1", 1, 10.0),
+                new SaleItemDTO(null, null, 3L, "B2", 2, 20.0)
+        );
+
+        saleItemService.createSaleItems(50L, list);
+
+        verify(saleItemRepository, times(2)).save(any(SaleItem.class));
+    }
+
+    @Test
+    void createMultipleSaleItem_savesAllWithSaleAndMedicine() {
+        List<SaleItemDTO> list = List.of(
+                new SaleItemDTO(null, null, null, "B1", 1, 10.0)
+        );
+
+        saleItemService.createMuiltipleSaleItem(50L, 2L, list);
+
+        verify(saleItemRepository).save(any(SaleItem.class));
+    }
+
+    @Test
+    void updateSaleItem_success_updatesValues() {
+        SaleItem item = new SaleItem(11L, new Sale(1L), new Medicine(2L), "B1", 1, 10.0);
+        when(saleItemRepository.findById(11L)).thenReturn(Optional.of(item));
+
+        saleItemService.updateSaleItem(new SaleItemDTO(11L, 1L, 2L, "B1", 3, 12.5));
+
+        assertEquals(3, item.getQuantity());
+        assertEquals(12.5, item.getUnitPrice());
+        verify(saleItemRepository).save(item);
+    }
+
+    @Test
+    void getSaleItem_notFound_throws() {
+        when(saleItemRepository.findById(99L)).thenReturn(Optional.empty());
+
+        HmsException ex = assertThrows(HmsException.class, () -> saleItemService.getSaleItem(99L));
+        assertEquals("SALE_ITEM_NOT_FOUND", ex.getMessage());
+    }
+}

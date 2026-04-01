@@ -104,5 +104,83 @@ class PharmacyApisTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
-}
 
+    @Test
+    void getMedicineById_returns200() throws Exception {
+        when(medicineService.getMedicineById(1L)).thenReturn(new MedicineDTO(1L, "Paracetamol", "500mg", MedicineCategory.ANALGESIC, MedicineType.TABLET, "ABC", 10, 20, LocalDateTime.now()));
+
+        mockMvc.perform(get("/pharmacy/medicines/get/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void updateMedicine_returns200() throws Exception {
+        MedicineDTO dto = new MedicineDTO(1L, "Paracetamol", "500mg", MedicineCategory.ANALGESIC, MedicineType.TABLET, "ABC", 10, 20, LocalDateTime.now());
+
+        mockMvc.perform(put("/pharmacy/medicines/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Medicine Updated !"));
+    }
+
+    @Test
+    void updateInventory_returns200() throws Exception {
+        MedicineInventoryDTO dto = new MedicineInventoryDTO(1L, 1L, "B1", 20, LocalDate.now().plusDays(10), LocalDate.now(), 20, StockStatus.ACTIVE);
+        when(medicineInventoryService.updateMedicine(any(Long.class), any(MedicineInventoryDTO.class))).thenReturn(dto);
+
+        mockMvc.perform(put("/pharmacy/inventory/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void getInventoryById_returns200() throws Exception {
+        when(medicineInventoryService.getMedicineById(1L)).thenReturn(new MedicineInventoryDTO(1L, 1L, "B1", 20, LocalDate.now().plusDays(10), LocalDate.now(), 20, StockStatus.ACTIVE));
+
+        mockMvc.perform(get("/pharmacy/inventory/get/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void getAllInventory_returns200() throws Exception {
+        when(medicineInventoryService.getAllMedicines()).thenReturn(List.of(new MedicineInventoryDTO(1L, 1L, "B1", 20, LocalDate.now().plusDays(10), LocalDate.now(), 20, StockStatus.ACTIVE)));
+
+        mockMvc.perform(get("/pharmacy/inventory/getAll"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void updateSale_returns200() throws Exception {
+        SaleDTO dto = new SaleDTO(1L, 100L, "Buyer", "999", LocalDateTime.now(), 20.0);
+
+        mockMvc.perform(put("/pharmacy/sales/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Sale Update SuccessFully"));
+    }
+
+    @Test
+    void getSaleItems_returns200() throws Exception {
+        when(saleItemService.getSaleItemsBySaleId(1L)).thenReturn(List.of(new SaleItemDTO(1L, 1L, 1L, "B1", 2, 10.0)));
+
+        mockMvc.perform(get("/pharmacy/sales/getSaleItem/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void getSaleById_returns200() throws Exception {
+        when(saleService.getSale(1L)).thenReturn(new SaleDTO(1L, 100L, "Buyer", "999", LocalDateTime.now(), 20.0));
+
+        mockMvc.perform(get("/pharmacy/sales/get/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+}
