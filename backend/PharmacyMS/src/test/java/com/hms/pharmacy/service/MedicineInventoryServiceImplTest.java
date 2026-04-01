@@ -111,5 +111,42 @@ class MedicineInventoryServiceImplTest {
         verify(medicineService).removeStock(1L, 4);
         verify(medicineInventoryRepository).saveAll(anyList());
     }
-}
 
+    @Test
+    void getMedicineById_notFound_throws() {
+        when(medicineInventoryRepository.findById(77L)).thenReturn(Optional.empty());
+
+        HmsException ex = assertThrows(HmsException.class, () -> inventoryService.getMedicineById(77L));
+        assertEquals("INVENTORY_NOT_FOUND", ex.getMessage());
+    }
+
+    @Test
+    void getAllMedicines_mapsList() {
+        when(medicineInventoryRepository.findAll()).thenReturn(List.of(
+                new MedicineInventory(1L, new Medicine(1L), "B1", 2, LocalDate.now().plusDays(1), LocalDate.now(), 2, StockStatus.ACTIVE)
+        ));
+
+        List<MedicineInventoryDTO> list = inventoryService.getAllMedicines();
+
+        assertEquals(1, list.size());
+        assertEquals("B1", list.get(0).getBatchNo());
+    }
+
+    @Test
+    void deleteMedicine_callsRepository() {
+        inventoryService.deleteMedicine(10L);
+        verify(medicineInventoryRepository).deleteById(10L);
+    }
+
+    @Test
+    void deleteExpiredMedicines_marksAndRemovesStock() {
+        MedicineInventory expired = new MedicineInventory(1L, new Medicine(1L), "B1", 3, LocalDate.now().minusDays(1), LocalDate.now(), 3, StockStatus.ACTIVE);
+        when(medicineInventoryRepository.findByExpiryDateBefore(any(LocalDate.class))).thenReturn(List.of(expired));
+
+        inventoryService.deleteExpiredMedicines();
+
+        verify(medicineService).removeStock(1L, 3);
+        verify(medicineInventoryRepository).saveAll(anyList());
+        assertEquals(StockStatus.EXPIRED, expired.getStatus());
+    }
+}
