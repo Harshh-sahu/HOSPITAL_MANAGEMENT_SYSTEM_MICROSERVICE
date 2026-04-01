@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+      - JAVA_OPTS=-Xmx512m
+    networks:
+      - hospital-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9411/api/v2/services"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-server
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - hospital-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-server
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - hospital-network
+    restart: unless-stopped
+
+networks:
+  hospital-network:
+    driver: bridge
+
+volumes:
+  grafana-data:

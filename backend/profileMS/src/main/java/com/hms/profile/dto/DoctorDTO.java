@@ -29,7 +29,6 @@ public class DoctorDTO {
     @Email(message = "email must be valid")
     private String email;
     @Schema(description = "Date of birth", example = "1988-04-12")
-    @NotNull(message = "dob is required")
     private LocalDate dob;
     @Schema(description = "Profile picture media id", example = "501")
     private Long profilePictureId;

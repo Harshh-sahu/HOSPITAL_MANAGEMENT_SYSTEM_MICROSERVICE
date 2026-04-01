@@ -1,16 +1,86 @@
+# ─────────────────────────────────────────
+# Application
+# ─────────────────────────────────────────
 spring:
   application:
-    name: eureka-server
+    name: EurekaServer
+
+# ─────────────────────────────────────────
+# Server
+# ─────────────────────────────────────────
 server:
   port: 8761
+
+# ─────────────────────────────────────────
+# Eureka Server Config
+# ─────────────────────────────────────────
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: false       # Server should NOT register itself
+    fetch-registry: false             # Server does NOT fetch from another registry
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false   # Disable in dev (enable in prod)
+  instance:
+    hostname: localhost
+
+# ─────────────────────────────────────────
+# Actuator + Distributed Tracing
+# (Replaces deprecated spring.sleuth & spring.zipkin)
+# ─────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans  # replaces spring.zipkin.base-url
+  tracing:
+    sampling:
+      probability: 1.0                              # replaces spring.sleuth.sampler.probability
+    brave:
+      trace-id128: true                             # replaces spring.sleuth.trace-id128
+    enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+
+# ─────────────────────────────────────────
+# OpenAPI / Swagger
+# ─────────────────────────────────────────
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-    operationsSorter: method
-    tagsSorter: alpha
+    operations-sorter: method
+    tags-sorter: alpha
+
+# ─────────────────────────────────────────
+# Logging
+# ─────────────────────────────────────────
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%replace(%X{traceId}){'^$','-'},%replace(%X{spanId}){'^$','-'}]"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] [%-36.36logger{36}] [TraceId:%replace(%X{traceId}){'^$','-'}, SpanId:%replace(%X{spanId}){'^$','-'}] - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] [%-36.36logger{36}] [TraceId:%replace(%X{traceId}){'^$','-'}, SpanId:%replace(%X{spanId}){'^$','-'}] - %msg%n"
+  level:
+    root: INFO
+    com.netflix.eureka: WARN        # Suppress noisy Eureka internal logs
+    com.netflix.discovery: WARN
+    org.springframework.boot: INFO
+    org.springframework.web: INFO
+  file:
+    name: logs/eureka-server.log
+    max-size: 10MB
+    max-history: 10
+    total-size-cap: 1GB
