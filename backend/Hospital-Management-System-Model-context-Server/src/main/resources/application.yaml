@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: HMS-MCP-Server
+  datasource:
+    url: jdbc:mysql://localhost:3306/hms_mcp?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  ai:
+    mcp:
+      server:
+        name: HMS-MCP-Server
+        version: 1.0.0
+        type: SYNC
+    azure:
+      openai:
+        api-key: ${AZURE_OPENAI_API_KEY:dial-anw5ixfjnqaqcf7r21fooud9u4c}
+        endpoint: ${AZURE_OPENAI_ENDPOINT:https://ai-proxy.lab.epam.com}
+        chat:
+          options:
+            deployment-name: ${AZURE_OPENAI_DEPLOYMENT:gpt-4o}
+
+server:
+  port: 8090
+
+# Hospital Microservice URLs
+hms:
+  user-service-url: ${USER_SERVICE_URL:http://localhost:8080}
+  profile-service-url: ${PROFILE_SERVICE_URL:http://localhost:9100}
+  appointment-service-url: ${APPOINTMENT_SERVICE_URL:http://localhost:9200}
+  pharmacy-service-url: ${PHARMACY_SERVICE_URL:http://localhost:9300}
+  auth-token: ${HMS_AUTH_TOKEN:}
+  secret-key: ${HMS_SECRET_KEY:SECRET}
