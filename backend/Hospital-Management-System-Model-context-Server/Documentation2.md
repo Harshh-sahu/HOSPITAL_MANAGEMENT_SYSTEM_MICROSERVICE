@@ -17,6 +17,7 @@ A **Model Context Protocol (MCP) Server** built with Spring AI that exposes the 
   - [MCP Inspector (Testing UI)](#3-mcp-inspector-testing-ui)
   - [Manual curl Test](#4-manual-curl-test)
 - [All Tools Reference](#all-tools-reference)
+  - [Quick Summary — All 35 Tools](#quick-summary--all-35-tools)
   - [User Tools](#-user-tools)
   - [Doctor Tools](#-doctor-tools)
   - [Patient Tools](#-patient-tools)
@@ -36,7 +37,7 @@ A **Model Context Protocol (MCP) Server** built with Spring AI that exposes the 
 | **Port** | `8090` |
 | **SSE Endpoint** | `http://localhost:8090/sse` |
 | **Message Endpoint** | `http://localhost:8090/mcp/message` |
-| **Total Tools** | 34 |
+| **Total Tools** | 35 |
 | **Framework** | Spring Boot 3.x + Spring AI 1.1.7 |
 
 ---
@@ -77,12 +78,27 @@ A **Model Context Protocol (MCP) Server** built with Spring AI that exposes the 
 
 ## Prerequisites
 
-Before starting the MCP server, ensure the following are running:
+Before starting the MCP server, ensure the following are installed and running:
 
-- Java 21+
-- MySQL (database: `hms_mcp` will be auto-created)
-- Eureka Server (`http://localhost:8761`)
-- UserMS, ProfileMS, AppointmentMS, PharmacyMS (all microservices up)
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| **Java (JDK)** | 17+ | Check: `java -version` |
+| **Maven** | 3.8+ | Or use included `mvnw` wrapper |
+| **MySQL** | 8.0+ | Database `hms_mcp` is auto-created |
+| **HMS Microservices** | — | UserMS, ProfileMS, AppointmentMS, PharmacyMS |
+| **Eureka Server** | — | Running at `http://localhost:8761` |
+
+### Start order
+
+Start services in this order to avoid connection failures:
+
+1. MySQL database server
+2. Eureka Server (`backend/EUREKA-SERVER`)
+3. UserMS (`backend/UserMS`)
+4. ProfileMS (`backend/profileMS`)
+5. AppointmentMS (`backend/Appointment`)
+6. PharmacyMS (`backend/PharmacyMS`)
+7. **HMS MCP Server** (`backend/Hospital-Management-System-Model-context-Server`) ← this service
 
 ---
 
@@ -127,20 +143,80 @@ hms:
 
 ## Running the Server
 
+### Step 1 — Set required environment variables
+
+The server requires Azure OpenAI credentials at startup:
+
+**Linux / macOS:**
+```bash
+export DB_USER=root
+export DB_PASSWORD=yourpassword
+export AZURE_OPENAI_API_KEY=your-azure-api-key
+export AZURE_OPENAI_ENDPOINT=https://your-azure-endpoint
+export AZURE_OPENAI_DEPLOYMENT=gpt-4o
+export HMS_SECRET_KEY=SECRET
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:DB_USER = "root"
+$env:DB_PASSWORD = "yourpassword"
+$env:AZURE_OPENAI_API_KEY = "your-azure-api-key"
+$env:AZURE_OPENAI_ENDPOINT = "https://your-azure-endpoint"
+$env:AZURE_OPENAI_DEPLOYMENT = "gpt-4o"
+$env:HMS_SECRET_KEY = "SECRET"
+```
+
+**Windows (Command Prompt):**
+```cmd
+set DB_USER=root
+set DB_PASSWORD=yourpassword
+set AZURE_OPENAI_API_KEY=your-azure-api-key
+set AZURE_OPENAI_ENDPOINT=https://your-azure-endpoint
+```
+
+### Step 2 — Build and run
+
 ```bash
 # Navigate to MCP server directory
 cd backend/Hospital-Management-System-Model-context-Server
 
-# Run with Maven wrapper
+# Linux / macOS
 ./mvnw spring-boot:run
 
-# Or with environment variables
-DB_PASSWORD=yourpassword AZURE_OPENAI_API_KEY=your-key ./mvnw spring-boot:run
+# Windows (PowerShell / CMD)
+.\mvnw.cmd spring-boot:run
 ```
 
-Successful startup log:
+**Or build a JAR and run it:**
+```bash
+# Build
+./mvnw clean package -DskipTests
+
+# Run
+java -jar target/Hospital-Management-System-Model-context-Server-0.0.1-SNAPSHOT.jar
+```
+
+### Step 3 — Verify startup
+
+Successful startup log output:
 ```
 Started HospitalManagementSystemModelContextServerApplication in X.XXX seconds
+```
+
+Verify the SSE endpoint is live:
+```bash
+# Linux / macOS
+curl -N http://localhost:8090/sse
+
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "http://localhost:8090/sse" -UseBasicParsing
+```
+
+Expected response:
+```
+event: endpoint
+data: /mcp/message?sessionId=<YOUR_SESSION_ID>
 ```
 
 ---
@@ -264,6 +340,48 @@ curl -X POST "http://localhost:8090/mcp/message?sessionId=<YOUR_SESSION_ID>" \
 ## All Tools Reference
 
 > All tools return JSON strings. On error, they return `"Error <action>: <message>"`.
+
+### Quick Summary — All 34 Tools
+
+| # | Tool Name | Category | Description |
+|---|-----------|----------|-------------|
+| 1 | `registerUser` | 👤 User | Register a new user (ADMIN/DOCTOR/PATIENT) |
+| 2 | `loginUser` | 👤 User | Login and get JWT token |
+| 3 | `logoutUser` | 👤 User | Invalidate a JWT token |
+| 4 | `getUserProfileId` | 👤 User | Get linked profile ID for a user |
+| 5 | `getMonthlyRegistrationCounts` | 👤 User | Monthly doctor/patient registration stats |
+| 6 | `addDoctor` | 🩺 Doctor | Add a new doctor profile |
+| 7 | `getDoctorById` | 🩺 Doctor | Get doctor profile by ID |
+| 8 | `getAllDoctors` | 🩺 Doctor | List all doctors |
+| 9 | `getDoctorDropdowns` | 🩺 Doctor | Lightweight ID+name list for dropdowns |
+| 10 | `updateDoctor` | 🩺 Doctor | Update a doctor's profile |
+| 11 | `addPatient` | 🏥 Patient | Add a new patient profile |
+| 12 | `getPatientById` | 🏥 Patient | Get patient profile by ID |
+| 13 | `getAllPatients` | 🏥 Patient | List all patients |
+| 14 | `updatePatient` | 🏥 Patient | Update a patient's profile |
+| 15 | `scheduleAppointment` | 📅 Appointment | Schedule a new appointment |
+| 16 | `cancelAppointment` | 📅 Appointment | Cancel an appointment |
+| 17 | `getAppointmentDetails` | 📅 Appointment | Get enriched appointment details |
+| 18 | `getAppointmentsByPatient` | 📅 Appointment | All appointments for a patient |
+| 19 | `getAppointmentsByDoctor` | 📅 Appointment | All appointments for a doctor |
+| 20 | `getTodaysAppointments` | 📅 Appointment | Today's full schedule |
+| 21 | `getMonthlyVisitCounts` | 📅 Appointment | Month-wise visit statistics |
+| 22 | `createAppointmentReport` | 📅 Appointment | Create post-consultation medical record |
+| 23 | `getReportByAppointmentId` | 📅 Appointment | Get report for an appointment |
+| 24 | `getPatientMedicalHistory` | 📅 Appointment | Full medical history for a patient |
+| 25 | `getPatientPrescriptions` | 📅 Appointment | All prescriptions for a patient |
+| 26 | `getAppointmentReasonCounts` | 📅 Appointment | Most common visit reasons |
+| 27 | `getMedicinesByPatient` | 📅 Appointment | All medicines ever prescribed to a patient |
+| 28 | `addMedicine` | 💊 Pharmacy | Add a medicine to catalog |
+| 29 | `getMedicineById` | 💊 Pharmacy | Get medicine details by ID |
+| 30 | `getAllMedicines` | 💊 Pharmacy | List all medicines in catalog |
+| 31 | `updateMedicine` | 💊 Pharmacy | Update a medicine in the catalog |
+| 32 | `createSale` | 💊 Pharmacy | Process a pharmacy sale |
+| 33 | `getSaleById` | 💊 Pharmacy | Get a sale record by ID |
+| 34 | `getAllSales` | 💊 Pharmacy | List all pharmacy sales |
+| 35 | `getSaleItems` | 💊 Pharmacy | Get line items for a specific sale |
+
+> **Note:** The tool count is 35. The `getSaleItems` tool was previously undercounted in the overview table.
 
 ---
 
@@ -746,3 +864,15 @@ Common causes:
 **Azure OpenAI errors on startup**
 - Set `AZURE_OPENAI_API_KEY` and `AZURE_OPENAI_ENDPOINT` environment variables
 - These are required even if you only use MCP tools (not the AI chat features)
+
+**Windows: `./mvnw` command not recognized**
+- Use `.\mvnw.cmd spring-boot:run` instead of `./mvnw spring-boot:run`
+
+**MySQL connection refused**
+- Ensure MySQL is running on port 3306
+- Verify `DB_USER` and `DB_PASSWORD` environment variables match your MySQL credentials
+- The database `hms_mcp` is auto-created on first startup if it doesn't exist
+
+**`Failed to configure a DataSource` error on startup**
+- MySQL is not reachable — start MySQL before running the MCP server
+- Double-check the datasource URL in `application.yaml`
