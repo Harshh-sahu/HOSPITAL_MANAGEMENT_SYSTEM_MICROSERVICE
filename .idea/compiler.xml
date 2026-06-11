@@ -10,18 +10,37 @@
         <module name="EUREKA-SERVER" />
         <module name="GatewayMS" />
       </profile>
-      <profile name="Annotation profile for UserMS" enabled="true">
+      <profile name="Annotation profile for Appointment" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
-        <module name="pharmacy" />
         <module name="Appointment" />
         <module name="UserMS" />
+      </profile>
+      <profile name="Annotation profile for profileMS" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="pharmacy" />
         <module name="MediaMS" />
         <module name="profileMS" />
+        <module name="jacoco-maven-plugin" />
+      </profile>
+      <profile name="Annotation profile for Hospital-Management-System-Model-context-Server" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="Hospital-Management-System-Model-context-Server" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -33,9 +52,11 @@
       <module name="Appointment" options="-parameters" />
       <module name="EUREKA-SERVER" options="-parameters" />
       <module name="GatewayMS" options="-parameters" />
+      <module name="Hospital-Management-System-Model-context-Server" options="-parameters" />
       <module name="MediaMS" options="-parameters" />
       <module name="UserMS" options="-parameters" />
       <module name="aiservice" options="-parameters" />
+      <module name="jacoco-maven-plugin" options="-parameters" />
       <module name="pharmacy" options="-parameters" />
       <module name="profileMS" options="-parameters" />
     </option>
