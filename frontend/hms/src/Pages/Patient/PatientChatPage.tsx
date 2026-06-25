@@ -22,6 +22,7 @@ interface Message {
 }
 
 const CONV_KEY = "hms_chat_id";
+const MSGS_KEY = "hms_chat_messages";
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -36,9 +37,22 @@ function getOrCreateConversationId(): string {
   return id;
 }
 
+function loadMessages(): Message[] {
+  try {
+    const stored = localStorage.getItem(MSGS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(msgs: Message[]) {
+  localStorage.setItem(MSGS_KEY, JSON.stringify(msgs));
+}
+
 const PatientChatPage = () => {
   const user = useSelector((state: any) => state.user);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => loadMessages());
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string>(() =>
@@ -56,7 +70,12 @@ const PatientChatPage = () => {
     const text = input.trim();
     if (!text || isLoading) return;
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", text }]);
+    const withUser = (prev: Message[]) => {
+      const updated = [...prev, { role: "user" as const, text }];
+      saveMessages(updated);
+      return updated;
+    };
+    setMessages(withUser);
     setIsLoading(true);
     try {
       const data = await sendChatMessage({
@@ -66,12 +85,17 @@ const PatientChatPage = () => {
         userName: user.name,
         profileId: user.profileId,
       });
-      setMessages((prev) => [...prev, { role: "bot", text: data.response }]);
+      setMessages((prev) => {
+        const updated = [...prev, { role: "bot" as const, text: data.response }];
+        saveMessages(updated);
+        return updated;
+      });
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "Sorry, I couldn't reach the server. Please try again." },
-      ]);
+      setMessages((prev) => {
+        const updated = [...prev, { role: "bot" as const, text: "Sorry, I couldn't reach the server. Please try again." }];
+        saveMessages(updated);
+        return updated;
+      });
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +105,7 @@ const PatientChatPage = () => {
     await clearChatHistory(conversationId).catch(() => {});
     const newId = generateId();
     localStorage.setItem(CONV_KEY, newId);
+    localStorage.removeItem(MSGS_KEY);
     setConversationId(newId);
     setMessages([]);
   };
