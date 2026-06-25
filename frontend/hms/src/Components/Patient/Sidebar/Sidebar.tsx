@@ -1,8 +1,11 @@
 import { Avatar, Text } from "@mantine/core";
 import {
   IconCalendarCheck,
+  IconFileReport,
   IconHeartbeat,
   IconLayoutGrid,
+  IconPill,
+  IconRobot,
   IconUser,
 } from "@tabler/icons-react";
 import { useSelector } from "react-redux";
@@ -23,6 +26,21 @@ const links = [
     name: "Appointments",
     url: "/patient/appointment",
     icon: <IconCalendarCheck stroke={1.5} />,
+  },
+  {
+    name: "Medical Records",
+    url: "/patient/medical-records",
+    icon: <IconFileReport stroke={1.5} />,
+  },
+  {
+    name: "Prescriptions",
+    url: "/patient/prescriptions",
+    icon: <IconPill stroke={1.5} />,
+  },
+  {
+    name: "AI Assistant",
+    url: "/patient/chat",
+    icon: <IconRobot stroke={1.5} />,
   },
 ];
 

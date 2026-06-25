@@ -3,6 +3,7 @@ import Header from '../Components/Header/Header'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../Components/Admin/Sidebar/Sidebar'
 import { useMediaQuery } from '@mantine/hooks'
+import ChatWidget from '../Components/ChatBot/ChatWidget'
 
 const AdminDashboard = () => {
   
@@ -15,6 +16,7 @@ const AdminDashboard = () => {
         <Header />
        <Outlet />
       </div>
+      <ChatWidget />
     </div>
   )
 }

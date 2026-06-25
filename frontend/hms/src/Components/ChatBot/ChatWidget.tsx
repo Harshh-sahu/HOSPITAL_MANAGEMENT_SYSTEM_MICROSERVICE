@@ -42,6 +42,7 @@ function getOrCreateConversationId(): string {
 
 export default function ChatWidget() {
   const token = useSelector((state: any) => state.jwt);
+  const user = useSelector((state: any) => state.user);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -66,7 +67,13 @@ export default function ChatWidget() {
     setMessages((prev) => [...prev, { role: "user", text }]);
     setIsLoading(true);
     try {
-      const data = await sendChatMessage(text, conversationId);
+      const data = await sendChatMessage({
+        message: text,
+        conversationId,
+        role: user?.role,
+        userName: user?.name,
+        profileId: user?.profileId,
+      });
       setMessages((prev) => [...prev, { role: "bot", text: data.response }]);
     } catch {
       setMessages((prev) => [

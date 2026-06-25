@@ -18,12 +18,17 @@ export interface ChatResponse {
   timestamp: string;
 }
 
-export const sendChatMessage = async (
-  message: string,
-  conversationId: string
-): Promise<ChatResponse> => {
+export interface ChatPayload {
+  message: string;
+  conversationId: string;
+  role?: string;
+  userName?: string;
+  profileId?: number;
+}
+
+export const sendChatMessage = async (payload: ChatPayload): Promise<ChatResponse> => {
   return chatAxios
-    .post("/chatbot/message", { message, conversationId })
+    .post("/chatbot/message", payload)
     .then((res) => res.data)
     .catch((error) => {
       console.error("Error sending chat message:", error);

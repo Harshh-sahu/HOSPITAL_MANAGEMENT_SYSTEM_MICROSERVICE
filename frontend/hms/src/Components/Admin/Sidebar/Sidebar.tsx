@@ -4,13 +4,10 @@ import {
   IconHeartbeat,
   IconLayoutGrid,
   IconMoodCry,
- 
   IconMoodHeart,
- 
   IconPackage,
- 
   IconReceiptRupee,
- 
+  IconRobot,
   IconUser,
   IconVaccine,
 } from "@tabler/icons-react";
@@ -18,37 +15,13 @@ import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 const links = [
-  {
-    name: "Dashboard",
-    url: "/admin/dashboard",
-    icon: <IconLayoutGrid stroke={1.5} />,
-  },
-
-  {
-    name: "patients",
-    url: "/admin/patients",
-    icon: <IconMoodHeart stroke={1.5} />,
-  },
-  {
-    name: "Doctors",
-    url: "/admin/doctors",
-    icon: <IconMoodHeart stroke={1.5} />,
-  },
-  {
-    name: "Medicine",
-    url: "/admin/medicine",
-    icon: <IconVaccine stroke={1.5} />,
-  },
-  {
-    name: "Inventory",
-    url: "/admin/inventory",
-    icon: <IconPackage stroke={1.5} />,
-  },
-  {
-    name: "Sales",
-    url: "/admin/sales",
-    icon: <IconReceiptRupee stroke={1.5} />,
-  },
+  { name: "Dashboard", url: "/admin/dashboard", icon: <IconLayoutGrid stroke={1.5} /> },
+  { name: "patients", url: "/admin/patients", icon: <IconMoodHeart stroke={1.5} /> },
+  { name: "Doctors", url: "/admin/doctors", icon: <IconMoodHeart stroke={1.5} /> },
+  { name: "Medicine", url: "/admin/medicine", icon: <IconVaccine stroke={1.5} /> },
+  { name: "Inventory", url: "/admin/inventory", icon: <IconPackage stroke={1.5} /> },
+  { name: "Sales", url: "/admin/sales", icon: <IconReceiptRupee stroke={1.5} /> },
+  { name: "AI Assistant", url: "/admin/chat", icon: <IconRobot stroke={1.5} /> },
 ];
 
 const Sidebar = () => {

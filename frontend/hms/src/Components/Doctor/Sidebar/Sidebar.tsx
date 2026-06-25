@@ -4,7 +4,7 @@ import {
   IconHeartbeat,
   IconLayoutGrid,
   IconMoodCry,
- 
+  IconRobot,
   IconUser,
   IconVaccine,
 } from "@tabler/icons-react";
@@ -12,31 +12,12 @@ import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 const links = [
-  {
-    name: "Dashboard",
-    url: "/doctor/dashboard",
-    icon: <IconLayoutGrid stroke={1.5} />,
-  },
-  {
-    name: "Profile",
-    url: "/doctor/profile",
-    icon: <IconUser stroke={1.5} />,
-  },
-  {
-    name: "patients",
-    url: "/doctor/patients",
-    icon: <IconMoodCry stroke={1.5} />,
-  },
-  {
-    name: "Appointments",
-    url: "/doctor/appointment",
-    icon: <IconCalendarCheck stroke={1.5} />,
-  },
-  {
-    name: "Pharmacy",
-    url: "/doctor/pharmacy",
-    icon: <IconVaccine stroke={1.5} />,
-  },
+  { name: "Dashboard", url: "/doctor/dashboard", icon: <IconLayoutGrid stroke={1.5} /> },
+  { name: "Profile", url: "/doctor/profile", icon: <IconUser stroke={1.5} /> },
+  { name: "patients", url: "/doctor/patients", icon: <IconMoodCry stroke={1.5} /> },
+  { name: "Appointments", url: "/doctor/appointment", icon: <IconCalendarCheck stroke={1.5} /> },
+  { name: "Pharmacy", url: "/doctor/pharmacy", icon: <IconVaccine stroke={1.5} /> },
+  { name: "AI Assistant", url: "/doctor/chat", icon: <IconRobot stroke={1.5} /> },
 ];
 
 const Sidebar = () => {
