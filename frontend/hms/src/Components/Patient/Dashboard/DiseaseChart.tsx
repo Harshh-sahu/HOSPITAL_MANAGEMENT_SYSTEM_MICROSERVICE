@@ -1,13 +1,11 @@
 import { DonutChart } from '@mantine/charts'
 import  { useEffect, useState } from 'react'
-import { diseaseData } from '../../../Data/DashboardData'
 import {  countReasonByPatient } from '../../../Service/AppointmentService'
 import { convertReasonChartData } from '../../../Utility/OtherUtility'
 import { useSelector } from 'react-redux'
 
 const DiseaseChart = () => {
-const [data,setData] = useState<any[]>
-(diseaseData);
+const [data,setData] = useState<any[]>([]);
 
 const user = useSelector((state:any)=>state.user);
   useEffect(()=>{

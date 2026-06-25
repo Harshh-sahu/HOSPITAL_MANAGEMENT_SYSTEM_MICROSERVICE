@@ -1,5 +1,6 @@
 import { Avatar, Text } from "@mantine/core";
 import {
+  IconBrain,
   IconCalendarCheck,
   IconFileReport,
   IconHeartbeat,
@@ -12,36 +13,13 @@ import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 const links = [
-  {
-    name: "Dashboard",
-    url: "/patient/dashboard",
-    icon: <IconUser stroke={1.5} />,
-  },
-  {
-    name: "Profile",
-    url: "/patient/profile",
-    icon: <IconLayoutGrid stroke={1.5} />,
-  },
-  {
-    name: "Appointments",
-    url: "/patient/appointment",
-    icon: <IconCalendarCheck stroke={1.5} />,
-  },
-  {
-    name: "Medical Records",
-    url: "/patient/medical-records",
-    icon: <IconFileReport stroke={1.5} />,
-  },
-  {
-    name: "Prescriptions",
-    url: "/patient/prescriptions",
-    icon: <IconPill stroke={1.5} />,
-  },
-  {
-    name: "AI Assistant",
-    url: "/patient/chat",
-    icon: <IconRobot stroke={1.5} />,
-  },
+  { name: "Dashboard", url: "/patient/dashboard", icon: <IconUser stroke={1.5} /> },
+  { name: "Profile", url: "/patient/profile", icon: <IconLayoutGrid stroke={1.5} /> },
+  { name: "Appointments", url: "/patient/appointment", icon: <IconCalendarCheck stroke={1.5} /> },
+  { name: "Medical Records", url: "/patient/medical-records", icon: <IconFileReport stroke={1.5} /> },
+  { name: "Prescriptions", url: "/patient/prescriptions", icon: <IconPill stroke={1.5} /> },
+  { name: "Health Insights", url: "/patient/insights", icon: <IconBrain stroke={1.5} /> },
+  { name: "AI Assistant", url: "/patient/chat", icon: <IconRobot stroke={1.5} /> },
 ];
 
 const Sidebar = () => {

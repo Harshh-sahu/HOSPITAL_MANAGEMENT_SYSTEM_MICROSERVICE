@@ -35,6 +35,8 @@ import DoctorPrescriptionsPage from "../Pages/Doctor/DoctorPrescriptionsPage";
 import DoctorStockPage from "../Pages/Doctor/DoctorStockPage";
 import DoctorPatientRecordsPage from "../Pages/Doctor/DoctorPatientRecordsPage";
 
+import PatientInsightsPage from "../Pages/Patient/PatientInsightsPage";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -82,6 +84,7 @@ const AppRoutes = () => {
           <Route path="medical-records" element={<PatientMedicalRecordsPage />} />
           <Route path="prescriptions" element={<PatientPrescriptionsPage />} />
           <Route path="chat" element={<PatientChatPage />} />
+          <Route path="insights" element={<PatientInsightsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
