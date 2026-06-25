@@ -1,19 +1,14 @@
 
 import { useEffect, useState } from "react";
-import {
-  patients,
-
-} from "../../../Data/DashboardData";
-import { ScrollArea } from "@mantine/core";
+import { Center, ScrollArea, Text } from "@mantine/core";
+import { IconUsers } from "@tabler/icons-react";
 import { getAllPatient } from "../../../Service/PatientProfileService";
 import { bloodGroupMap } from "../../../Data/DropDownData";
 
 const PatientChart = () => {
     useEffect(()=>{
     getAllPatient().then((res)=>{
-    
         setPatient(res);
-        console.log("Patients data:",res);
     }).catch((error)=>{
         console.error(error);
     });
@@ -37,10 +32,22 @@ const PatientChart = () => {
 
   return (
     <div className="p-3 border rounded-xl bg-red-50 shadow-xl flex flex-col gap-3">
-      <div className="font-xl font-semibold"> Patients</div>
+      <div className="flex items-center gap-2">
+        <IconUsers size={18} className="text-red-500" />
+        <div className="font-semibold">Patients</div>
+        <span className="ml-auto text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+          {patient.length}
+        </span>
+      </div>
       <div>
         <ScrollArea.Autosize mah={300} mx="auto">
-          {patient.map((app) => card(app))}
+          {patient.length === 0 ? (
+            <Center py="xl">
+              <Text size="sm" c="dimmed">No patients registered yet.</Text>
+            </Center>
+          ) : (
+            patient.map((app) => card(app))
+          )}
         </ScrollArea.Autosize>
       </div>
     </div>

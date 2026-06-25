@@ -1,9 +1,15 @@
 import { Avatar, Text } from "@mantine/core";
 import {
   IconCalendarCheck,
+  IconCalendarStar,
+  IconChartDonut,
+  IconClipboardList,
+  IconFolderOpen,
   IconHeartbeat,
   IconLayoutGrid,
   IconMoodCry,
+  IconPackage,
+  IconPill,
   IconRobot,
   IconUser,
   IconVaccine,
@@ -14,8 +20,14 @@ import { NavLink } from "react-router-dom";
 const links = [
   { name: "Dashboard", url: "/doctor/dashboard", icon: <IconLayoutGrid stroke={1.5} /> },
   { name: "Profile", url: "/doctor/profile", icon: <IconUser stroke={1.5} /> },
-  { name: "patients", url: "/doctor/patients", icon: <IconMoodCry stroke={1.5} /> },
+  { name: "Patients", url: "/doctor/patients", icon: <IconMoodCry stroke={1.5} /> },
   { name: "Appointments", url: "/doctor/appointment", icon: <IconCalendarCheck stroke={1.5} /> },
+  { name: "Today's Schedule", url: "/doctor/today", icon: <IconCalendarStar stroke={1.5} /> },
+  { name: "My Statistics", url: "/doctor/stats", icon: <IconChartDonut stroke={1.5} /> },
+  { name: "Prescriptions", url: "/doctor/prescriptions", icon: <IconClipboardList stroke={1.5} /> },
+  { name: "Patient Records", url: "/doctor/patient-records", icon: <IconFolderOpen stroke={1.5} /> },
+  { name: "Stock Overview", url: "/doctor/stock", icon: <IconPackage stroke={1.5} /> },
+  { name: "Medicine Ref", url: "/doctor/medicines", icon: <IconPill stroke={1.5} /> },
   { name: "Pharmacy", url: "/doctor/pharmacy", icon: <IconVaccine stroke={1.5} /> },
   { name: "AI Assistant", url: "/doctor/chat", icon: <IconRobot stroke={1.5} /> },
 ];

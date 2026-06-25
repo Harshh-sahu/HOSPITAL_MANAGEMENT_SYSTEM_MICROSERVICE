@@ -28,6 +28,13 @@ import PatientMedicalRecordsPage from "../Pages/Patient/PatientMedicalRecordsPag
 import PatientPrescriptionsPage from "../Pages/Patient/PatientPrescriptionsPage";
 import PatientChatPage from "../Pages/Patient/PatientChatPage";
 
+import DoctorTodayPage from "../Pages/Doctor/DoctorTodayPage";
+import DoctorStatsPage from "../Pages/Doctor/DoctorStatsPage";
+import DoctorMedicineReferencePage from "../Pages/Doctor/DoctorMedicineReferencePage";
+import DoctorPrescriptionsPage from "../Pages/Doctor/DoctorPrescriptionsPage";
+import DoctorStockPage from "../Pages/Doctor/DoctorStockPage";
+import DoctorPatientRecordsPage from "../Pages/Doctor/DoctorPatientRecordsPage";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -58,6 +65,12 @@ const AppRoutes = () => {
                 <Route path="appointment" element={<DoctorAppointmentPage />} />
                 <Route path="appointment/:id" element={<DoctorAppointmentDetails />} />
                 <Route path="chat" element={<PatientChatPage />} />
+                <Route path="today" element={<DoctorTodayPage />} />
+                <Route path="stats" element={<DoctorStatsPage />} />
+                <Route path="medicines" element={<DoctorMedicineReferencePage />} />
+                <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
+                <Route path="stock" element={<DoctorStockPage />} />
+                <Route path="patient-records" element={<DoctorPatientRecordsPage />} />
          
 
         </Route>
