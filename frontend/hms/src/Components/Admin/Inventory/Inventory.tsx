@@ -14,7 +14,9 @@ import React, { useEffect, useState } from "react";
 
 import {
   IconCheck,
+  IconDownload,
   IconEdit,
+  IconFileReport,
   IconLayoutGrid,
   IconSearch,
   IconTable,
@@ -39,6 +41,7 @@ import { Toolbar } from "primereact/toolbar";
 import MedCard from "../Medicine/MedCard";
 import InvCard from "./InvCard";
 import { useMediaQuery } from "@mantine/hooks";
+import { exportToCSV, generateStockReportPDF } from "../../../Utility/ExportUtil";
 
 const Inventory = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
@@ -188,7 +191,7 @@ const Inventory = ({ appointment }: any) => {
 
   const rightToolbarTemplate = () => {
     return (
-      <div className="md:flex hidden gap-5 items-center">
+      <div className="md:flex hidden gap-3 items-center">
         <SegmentedControl
           value={view}
           color="primary"
@@ -199,17 +202,54 @@ const Inventory = ({ appointment }: any) => {
             { label: <IconLayoutGrid />, value: "card" },
           ]}
         />
-
         <TextInput
-        className="hidden lg:block"
+          className="hidden lg:block"
           leftSection={<IconSearch />}
           fw={400}
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
           placeholder="Keyword Search"
         />
+        <Button
+          size="sm"
+          variant="light"
+          color="blue"
+          leftSection={<IconDownload size={16} />}
+          onClick={handleExportCSV}
+        >
+          Export CSV
+        </Button>
+        <Button
+          size="sm"
+          variant="gradient"
+          gradient={{ from: "blue", to: "violet" }}
+          leftSection={<IconFileReport size={16} />}
+          onClick={handleStockReport}
+        >
+          Stock Report
+        </Button>
       </div>
     );
+  };
+
+  const handleExportCSV = () => {
+    exportToCSV(
+      "Stock_Export",
+      ["Medicine", "Manufacturer", "Batch No", "Current Qty", "Initial Qty", "Expiry Date", "Status"],
+      data.map((s: any) => [
+        medicineMap["" + s.medicineId]?.name ?? `Medicine #${s.medicineId}`,
+        medicineMap["" + s.medicineId]?.manufacturer ?? "",
+        s.batchNo ?? "",
+        s.quantity ?? 0,
+        s.initialQuantity ?? 0,
+        s.expiryDate ? new Date(s.expiryDate).toLocaleDateString("en-IN") : "",
+        s.status ?? "",
+      ])
+    );
+  };
+
+  const handleStockReport = () => {
+    generateStockReportPDF(data, medicineMap);
   };
   const actionBodyTemplate = (rowData: any) => {
     return (

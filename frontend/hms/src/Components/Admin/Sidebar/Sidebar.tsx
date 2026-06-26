@@ -1,14 +1,15 @@
 import { Avatar, Text } from "@mantine/core";
 import {
+  IconBrain,
   IconCalendarCheck,
+  IconChartBar,
   IconHeartbeat,
   IconLayoutGrid,
-  IconMoodCry,
   IconMoodHeart,
   IconPackage,
   IconReceiptRupee,
   IconRobot,
-  IconUser,
+  IconStethoscope,
   IconVaccine,
 } from "@tabler/icons-react";
 import { useSelector } from "react-redux";
@@ -16,11 +17,13 @@ import { NavLink } from "react-router-dom";
 
 const links = [
   { name: "Dashboard", url: "/admin/dashboard", icon: <IconLayoutGrid stroke={1.5} /> },
-  { name: "patients", url: "/admin/patients", icon: <IconMoodHeart stroke={1.5} /> },
-  { name: "Doctors", url: "/admin/doctors", icon: <IconMoodHeart stroke={1.5} /> },
+  { name: "Patients", url: "/admin/patients", icon: <IconMoodHeart stroke={1.5} /> },
+  { name: "Doctors", url: "/admin/doctors", icon: <IconStethoscope stroke={1.5} /> },
   { name: "Medicine", url: "/admin/medicine", icon: <IconVaccine stroke={1.5} /> },
   { name: "Inventory", url: "/admin/inventory", icon: <IconPackage stroke={1.5} /> },
   { name: "Sales", url: "/admin/sales", icon: <IconReceiptRupee stroke={1.5} /> },
+  { name: "Hospital Stats", url: "/admin/stats", icon: <IconChartBar stroke={1.5} /> },
+  { name: "AI Insights", url: "/admin/insights", icon: <IconBrain stroke={1.5} /> },
   { name: "AI Assistant", url: "/admin/chat", icon: <IconRobot stroke={1.5} /> },
 ];
 

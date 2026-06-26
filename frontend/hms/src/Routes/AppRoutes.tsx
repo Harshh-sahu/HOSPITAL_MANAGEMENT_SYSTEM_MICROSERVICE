@@ -27,6 +27,7 @@ import DoctorPharmacyPage from "../Pages/Doctor/DoctorPharmacyPage";
 import PatientMedicalRecordsPage from "../Pages/Patient/PatientMedicalRecordsPage";
 import PatientPrescriptionsPage from "../Pages/Patient/PatientPrescriptionsPage";
 import PatientChatPage from "../Pages/Patient/PatientChatPage";
+import PatientInsightsPage from "../Pages/Patient/PatientInsightsPage";
 
 import DoctorTodayPage from "../Pages/Doctor/DoctorTodayPage";
 import DoctorStatsPage from "../Pages/Doctor/DoctorStatsPage";
@@ -35,7 +36,8 @@ import DoctorPrescriptionsPage from "../Pages/Doctor/DoctorPrescriptionsPage";
 import DoctorStockPage from "../Pages/Doctor/DoctorStockPage";
 import DoctorPatientRecordsPage from "../Pages/Doctor/DoctorPatientRecordsPage";
 
-import PatientInsightsPage from "../Pages/Patient/PatientInsightsPage";
+import AdminStatsPage from "../Pages/Admin/AdminStatsPage";
+import AdminInsightsPage from "../Pages/Admin/AdminInsightsPage";
 
 const AppRoutes = () => {
   return (
@@ -56,7 +58,8 @@ const AppRoutes = () => {
           <Route path="patients" element={<AdminPatientPage />} />
           <Route path="doctors" element={<Doctor />} />
           <Route path="chat" element={<PatientChatPage />} />
-       
+          <Route path="stats" element={<AdminStatsPage />} />
+          <Route path="insights" element={<AdminInsightsPage />} />
         </Route>
         <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<DoctorDashboardPage />} />

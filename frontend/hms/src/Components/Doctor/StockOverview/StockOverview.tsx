@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { IconPackage, IconSearch, IconAlertTriangle } from "@tabler/icons-react";
 import { getAllStock } from "../../../Service/MedicineInventoryService";
+import { getAllMedicines } from "../../../Service/MedicineService";
 
 const LOW_STOCK_THRESHOLD = 10;
 
@@ -21,8 +22,17 @@ const StockOverview = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAllStock()
-      .then((data) => setStock(data))
+    Promise.allSettled([getAllStock(), getAllMedicines()])
+      .then(([stockRes, medRes]) => {
+        const rawStock = stockRes.status === "fulfilled" ? stockRes.value : [];
+        const medicines: any[] = medRes.status === "fulfilled" ? medRes.value : [];
+        const medMap = new Map(medicines.map((m: any) => [m.id, m.name]));
+        const enriched = rawStock.map((s: any) => ({
+          ...s,
+          medicineName: medMap.get(s.medicineId) ?? `Medicine #${s.medicineId}`,
+        }));
+        setStock(enriched);
+      })
       .catch((err) => console.error("Error fetching stock:", err))
       .finally(() => setLoading(false));
   }, []);
