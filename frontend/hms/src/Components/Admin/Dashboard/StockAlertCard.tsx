@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Group, Text, Badge, SimpleGrid, Loader, Center } from "@mantine/core";
+import { Card, Group, Text, Badge, SimpleGrid, Loader, Center, useMantineColorScheme } from "@mantine/core";
 import { IconAlertTriangle, IconPackage, IconCircleCheck } from "@tabler/icons-react";
 import { getAllStock } from "../../../Service/MedicineInventoryService";
 import { getAllMedicines } from "../../../Service/MedicineService";
@@ -8,6 +8,8 @@ const LOW = 10;
 
 const StockAlertCard = () => {
   const [stock, setStock] = useState<any[]>([]);
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const StockAlertCard = () => {
 
   if (lowStock.length === 0) {
     return (
-      <Card withBorder radius="md" p="md" shadow="xs" className="bg-green-50" style={{ borderColor: "#86efac" }}>
+      <Card withBorder radius="md" p="md" shadow="xs" className="bg-green-50" style={{ borderColor: isDark ? "#14532d" : "#86efac" }}>
         <Group gap={10}>
           <IconCircleCheck size={22} className="text-green-500" />
           <Text fw={600} c="green.7">All {stock.length} medicines are well-stocked</Text>
@@ -43,7 +45,7 @@ const StockAlertCard = () => {
   }
 
   return (
-    <Card withBorder radius="md" p="md" shadow="xs" className="bg-red-50" style={{ borderColor: "#fca5a5" }}>
+    <Card withBorder radius="md" p="md" shadow="xs" className="bg-red-50" style={{ borderColor: isDark ? "#7f1d1d" : "#fca5a5" }}>
       <Group justify="space-between" mb="sm">
         <Group gap={8}>
           <IconAlertTriangle size={20} className="text-red-500" />

@@ -1,6 +1,6 @@
 import "./App.css";
 import "@mantine/core/styles.css";
-import { createTheme, MantineProvider } from "@mantine/core";
+import { createTheme, localStorageColorSchemeManager, MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 
 import "@mantine/notifications/styles.css";
@@ -57,10 +57,12 @@ const theme = createTheme({
   },
 });
 
+const colorSchemeManager = localStorageColorSchemeManager({ key: "hms-color-scheme" });
+
 function App() {
   return (
     <Provider store={Store}>
-      <MantineProvider theme={theme}>
+      <MantineProvider theme={theme} colorSchemeManager={colorSchemeManager} defaultColorScheme="light">
         <ModalsProvider>
           <PrimeReactProvider>
             <Notifications position="top-center" />
