@@ -400,3 +400,199 @@ export function generateMedicineReportPDF(medicines: any[]) {
   addFooter(doc, "Pulse HMS — Medicine Catalogue (Confidential)");
   doc.save(`Medicine_Catalogue_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
+
+// ─── Appointment Report PDF (Doctor) ─────────────────────────────────────────
+
+export function generateAppointmentReportPDF(appointments: any[], title = "APPOINTMENT REPORT") {
+  const doc = new jsPDF({ orientation: "landscape" });
+  addHospitalHeader(doc);
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(15);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 41, 59);
+  doc.text(title, pageWidth / 2, 38, { align: "center" });
+
+  const total = appointments.length;
+  const completed = appointments.filter((a) => a.status === "COMPLETED").length;
+  const cancelled = appointments.filter((a) => a.status === "CANCELLED").length;
+  const scheduled = appointments.filter((a) => a.status === "SCHEDULED").length;
+
+  const summaries: [string, number, [number, number, number]][] = [
+    ["Total", total, [59, 130, 246]],
+    ["Scheduled", scheduled, [245, 158, 11]],
+    ["Completed", completed, [34, 197, 94]],
+    ["Cancelled", cancelled, [239, 68, 68]],
+  ];
+  const cardW = (pageWidth - 28) / summaries.length;
+  let x = 14;
+  summaries.forEach(([label, value, color]) => {
+    doc.setFillColor(...color);
+    doc.roundedRect(x, 43, cardW - 3, 16, 3, 3, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(String(value), x + (cardW - 3) / 2, 52, { align: "center" });
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.text(label, x + (cardW - 3) / 2, 57, { align: "center" });
+    x += cardW;
+  });
+
+  autoTable(doc, {
+    startY: 64,
+    head: [["Patient", "Phone", "Appointment Time", "Reason", "Notes", "Status"]],
+    body: appointments.map((a) => [
+      a.patientName ?? "—",
+      a.patientPhone ? `+91 ${a.patientPhone}` : "—",
+      a.appointmentTime ? new Date(a.appointmentTime).toLocaleString("en-IN") : "—",
+      a.reason ?? "—",
+      a.notes ?? "—",
+      a.status ?? "—",
+    ]),
+    headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: "bold" },
+    alternateRowStyles: { fillColor: [239, 246, 255] },
+    margin: { left: 14, right: 14 },
+    didParseCell: (data: any) => {
+      if (data.section === "body" && data.column.index === 5) {
+        const status = data.cell.raw;
+        if (status === "COMPLETED") { data.cell.styles.textColor = [21, 128, 61]; data.cell.styles.fontStyle = "bold"; }
+        else if (status === "CANCELLED") { data.cell.styles.textColor = [185, 28, 28]; data.cell.styles.fontStyle = "bold"; }
+        else if (status === "SCHEDULED") { data.cell.styles.textColor = [146, 64, 14]; }
+      }
+    },
+  });
+
+  addFooter(doc, "Pulse HMS — Appointment Report (Confidential)");
+  doc.save(`Appointment_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+// ─── Medical Records PDF (Patient) ───────────────────────────────────────────
+
+export function generateMedicalRecordsPDF(records: any[], patientName = "Patient") {
+  const doc = new jsPDF();
+  addHospitalHeader(doc);
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 41, 59);
+  doc.text("MEDICAL RECORDS", pageWidth / 2, 36, { align: "center" });
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100);
+  doc.text(`Patient: ${patientName}`, pageWidth / 2, 43, { align: "center" });
+
+  let yPos = 52;
+
+  records.forEach((record: any, idx: number) => {
+    // Section header
+    doc.setFillColor(14, 165, 233);
+    doc.roundedRect(14, yPos, pageWidth - 28, 8, 2, 2, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Visit #${idx + 1}  —  Dr. ${record.doctorName ?? "N/A"}`, 18, yPos + 5.5);
+    yPos += 12;
+
+    // Details table
+    autoTable(doc, {
+      startY: yPos,
+      body: [
+        ["Diagnosis", record.diagnosis ?? "—"],
+        ["Symptoms", Array.isArray(record.symptoms) ? record.symptoms.join(", ") : record.symptoms ?? "—"],
+        ["Notes", record.notes ?? "—"],
+        ["Referral", record.referral && record.referral !== "None" ? record.referral : "None"],
+        ["Created", record.createdAt ? new Date(record.createdAt).toLocaleDateString("en-IN") : "—"],
+        ["Follow-up", record.followUpDate ?? "—"],
+      ],
+      columnStyles: { 0: { fontStyle: "bold", cellWidth: 38, fillColor: [241, 245, 249] }, 1: { cellWidth: "auto" } },
+      bodyStyles: { fontSize: 8, cellPadding: 3 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      margin: { left: 14, right: 14 },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 8;
+
+    if (yPos > 255 && idx < records.length - 1) {
+      doc.addPage();
+      yPos = 20;
+    }
+  });
+
+  addFooter(doc, `Pulse HMS — Medical Records: ${patientName}`);
+  doc.save(`Medical_Records_${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+// ─── Prescriptions PDF (Patient) ─────────────────────────────────────────────
+
+export function generatePrescriptionsPDF(prescriptions: any[], patientName = "Patient") {
+  const doc = new jsPDF({ orientation: "landscape" });
+  addHospitalHeader(doc);
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 41, 59);
+  doc.text("PRESCRIPTIONS REPORT", pageWidth / 2, 36, { align: "center" });
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100);
+  doc.text(`Patient: ${patientName}  |  Total: ${prescriptions.length} prescription(s)`, pageWidth / 2, 43, { align: "center" });
+
+  let yPos = 50;
+
+  prescriptions.forEach((p: any, idx: number) => {
+    const date = p.prescriptionDate
+      ? new Date(p.prescriptionDate).toLocaleDateString("en-IN")
+      : p.appointmentTime
+      ? new Date(p.appointmentTime).toLocaleDateString("en-IN")
+      : "—";
+
+    // Prescription header bar
+    doc.setFillColor(139, 92, 246);
+    doc.roundedRect(14, yPos, pageWidth - 28, 8, 2, 2, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text(
+      `Prescription #${idx + 1}  (ID: ${p.id})   |   Dr. ${p.doctorName ?? "N/A"}   |   Date: ${date}`,
+      18, yPos + 5.5
+    );
+    yPos += 11;
+
+    const medicines: any[] = Array.isArray(p.medicines) ? p.medicines : [];
+
+    if (medicines.length === 0) {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(150);
+      doc.text("No medicines found for this prescription.", 18, yPos + 5);
+      yPos += 12;
+    } else {
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Medicine Name", "Dosage", "Duration", "Instructions"]],
+        body: medicines.map((med: any) => [
+          med.medicineName || med.name || med.medicine || "—",
+          med.dosage || "—",
+          med.duration || "—",
+          med.instructions || "—",
+        ]),
+        headStyles: { fillColor: [167, 139, 250], textColor: 255, fontStyle: "bold", fontSize: 8 },
+        bodyStyles: { fontSize: 8, cellPadding: 2.5 },
+        alternateRowStyles: { fillColor: [245, 243, 255] },
+        margin: { left: 14, right: 14 },
+      });
+      yPos = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    if (yPos > 175 && idx < prescriptions.length - 1) {
+      doc.addPage();
+      yPos = 20;
+    }
+  });
+
+  addFooter(doc, `Pulse HMS — Prescriptions: ${patientName}`);
+  doc.save(`Prescriptions_${new Date().toISOString().slice(0, 10)}.pdf`);
+}

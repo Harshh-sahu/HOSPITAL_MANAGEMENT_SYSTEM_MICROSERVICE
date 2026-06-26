@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import {
   Accordion,
   Badge,
+  Button,
   Card,
   Center,
   Group,
@@ -11,12 +12,13 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import { IconPill, IconCalendar, IconUserHeart } from "@tabler/icons-react";
+import { IconPill, IconCalendar, IconUserHeart, IconDownload, IconFileTypePdf } from "@tabler/icons-react";
 import {
   getPrescriptionByPatientId,
   getMedicinesByPrescriptionId,
 } from "../../../Service/AppointmentService";
 import { formatDateWithTime } from "../../../Utility/DateUtility";
+import { exportToCSV, generatePrescriptionsPDF } from "../../../Utility/ExportUtil";
 
 const PrescriptionItem = ({ prescription }: { prescription: any }) => {
   const [medicines, setMedicines] = useState<any[]>([]);
@@ -115,6 +117,39 @@ const Prescriptions = () => {
       .finally(() => setLoading(false));
   }, [user.profileId]);
 
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleExportCSV = () => {
+    const headers = ["#", "Prescription ID", "Doctor", "Date", "Notes"];
+    const rows = prescriptions.map((p: any, i: number) => [
+      i + 1,
+      `#${p.id}`,
+      p.doctorName ?? "",
+      p.prescriptionDate
+        ? new Date(p.prescriptionDate).toLocaleDateString("en-IN")
+        : p.appointmentTime
+        ? new Date(p.appointmentTime).toLocaleDateString("en-IN")
+        : "",
+      p.notes ?? "",
+    ]);
+    exportToCSV("Prescriptions", headers, rows);
+  };
+
+  const handleExportPDF = async () => {
+    setPdfLoading(true);
+    try {
+      const enriched = await Promise.all(
+        prescriptions.map(async (p: any) => {
+          const medicines = await getMedicinesByPrescriptionId(p.id).catch(() => []);
+          return { ...p, medicines };
+        })
+      );
+      generatePrescriptionsPDF(enriched, user.name ?? "Patient");
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Center h={300}>
@@ -136,9 +171,26 @@ const Prescriptions = () => {
 
   return (
     <Card shadow="sm" radius="lg" withBorder padding="lg">
-      <Text fw={600} size="lg" mb="md" className="text-primary-600">
-        My Prescriptions
-      </Text>
+      <Group justify="space-between" align="center" mb="md">
+        <Text fw={600} size="lg" className="text-primary-600">
+          My Prescriptions
+        </Text>
+        <Group gap={8}>
+          <Button size="sm" variant="light" color="violet" leftSection={<IconDownload size={16} />} onClick={handleExportCSV}>
+            Export CSV
+          </Button>
+          <Button
+            size="sm"
+            variant="gradient"
+            gradient={{ from: "violet", to: "indigo" }}
+            leftSection={<IconFileTypePdf size={16} />}
+            onClick={handleExportPDF}
+            loading={pdfLoading}
+          >
+            Export PDF
+          </Button>
+        </Group>
+      </Group>
       <Accordion chevronPosition="right" variant="separated">
         {prescriptions.map((prescription: any) => (
           <PrescriptionItem key={prescription.id} prescription={prescription} />
