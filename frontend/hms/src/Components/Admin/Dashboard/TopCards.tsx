@@ -1,4 +1,4 @@
-import { AreaChart } from "@mantine/charts";
+﻿import { AreaChart } from "@mantine/charts";
 
 import { appointmentData, doctorData, patientData } from "../../../Data/DashboardData";
 import { IconFile,IconStethoscope, IconUser } from "@tabler/icons-react";
@@ -10,9 +10,9 @@ import { getRegistrationCounts } from "../../../Service/UserService";
 
 const TopCards = () => {
 
-  const [apData,setApData]=useState<any[]>(appointmentData);
-  const [drData,setDrData]=useState<any[]>(doctorData);
-  const [ptData,setPtData]=useState<any[]>(patientData);
+  const [apData,setApData]=useState<any[]>([]);
+  const [drData,setDrData]=useState<any[]>([]);
+  const [ptData,setPtData]=useState<any[]>([]);
 
 
   useEffect(()=>{

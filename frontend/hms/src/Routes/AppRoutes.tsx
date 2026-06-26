@@ -24,6 +24,21 @@ import DoctorDashboardPage from "../Pages/Doctor/DoctorDashboardPage";
 import PatientDashboardPage from "../Pages/Patient/PatientDashboardPage";
 import DoctorPatientPage from "../Pages/Doctor/DoctorPatientPage";
 import DoctorPharmacyPage from "../Pages/Doctor/DoctorPharmacyPage";
+import PatientMedicalRecordsPage from "../Pages/Patient/PatientMedicalRecordsPage";
+import PatientPrescriptionsPage from "../Pages/Patient/PatientPrescriptionsPage";
+import PatientChatPage from "../Pages/Patient/PatientChatPage";
+import PatientInsightsPage from "../Pages/Patient/PatientInsightsPage";
+
+import DoctorTodayPage from "../Pages/Doctor/DoctorTodayPage";
+import DoctorStatsPage from "../Pages/Doctor/DoctorStatsPage";
+import DoctorMedicineReferencePage from "../Pages/Doctor/DoctorMedicineReferencePage";
+import DoctorPrescriptionsPage from "../Pages/Doctor/DoctorPrescriptionsPage";
+import DoctorStockPage from "../Pages/Doctor/DoctorStockPage";
+import DoctorPatientRecordsPage from "../Pages/Doctor/DoctorPatientRecordsPage";
+
+import AdminStatsPage from "../Pages/Admin/AdminStatsPage";
+import AdminInsightsPage from "../Pages/Admin/AdminInsightsPage";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -42,7 +57,9 @@ const AppRoutes = () => {
           <Route path="sales" element={<AdminSalesPage />} />
           <Route path="patients" element={<AdminPatientPage />} />
           <Route path="doctors" element={<Doctor />} />
-       
+          <Route path="chat" element={<PatientChatPage />} />
+          <Route path="stats" element={<AdminStatsPage />} />
+          <Route path="insights" element={<AdminInsightsPage />} />
         </Route>
         <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<DoctorDashboardPage />} />
@@ -52,6 +69,13 @@ const AppRoutes = () => {
           <Route path="patients" element={<DoctorPatientPage />} />
                 <Route path="appointment" element={<DoctorAppointmentPage />} />
                 <Route path="appointment/:id" element={<DoctorAppointmentDetails />} />
+                <Route path="chat" element={<PatientChatPage />} />
+                <Route path="today" element={<DoctorTodayPage />} />
+                <Route path="stats" element={<DoctorStatsPage />} />
+                <Route path="medicines" element={<DoctorMedicineReferencePage />} />
+                <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
+                <Route path="stock" element={<DoctorStockPage />} />
+                <Route path="patient-records" element={<DoctorPatientRecordsPage />} />
          
 
         </Route>
@@ -59,7 +83,11 @@ const AppRoutes = () => {
 
           <Route path="dashboard" element={<PatientDashboardPage />} />
           <Route path="profile" element={<PatientProfilePage/>} />
-          <Route path="appointment" element={<PatientAppointmentPage />} />          
+          <Route path="appointment" element={<PatientAppointmentPage />} />
+          <Route path="medical-records" element={<PatientMedicalRecordsPage />} />
+          <Route path="prescriptions" element={<PatientPrescriptionsPage />} />
+          <Route path="chat" element={<PatientChatPage />} />
+          <Route path="insights" element={<PatientInsightsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

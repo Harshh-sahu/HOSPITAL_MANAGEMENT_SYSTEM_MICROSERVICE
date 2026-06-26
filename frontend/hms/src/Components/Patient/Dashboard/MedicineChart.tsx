@@ -1,20 +1,13 @@
-
+import { Center, ScrollArea, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
-import {
-  medicines,
-
-} from "../../../Data/DashboardData";
-
-import { ScrollArea } from "@mantine/core";
 import { getMedicineConsumeByPatient } from "../../../Service/AppointmentService";
 import { useSelector } from "react-redux";
 
 const MedicineChart = () => {
 const user = useSelector((state:any)=>state.user);
-  const [data,setData]  = useState<any[]>(medicines);
+  const [data,setData]  = useState<any[]>([]);
 
   useEffect(()=>{
-
 getMedicineConsumeByPatient(user.profileId).then((res)=>{
   setData(res);
 }).catch((err)=>{
@@ -43,10 +36,12 @@ getMedicineConsumeByPatient(user.profileId).then((res)=>{
  
   return (
     <div className="p-3 border rounded-xl bg-orange-50 shadow-xl flex flex-col gap-3">
-      <div className="font-xl font-semibold"> Medicines</div>
+      <div className="font-semibold">Medicines</div>
       <div>
         <ScrollArea.Autosize mah={300} mx="auto">
-          {data.map((app) => card(app))}
+          {data.length === 0 ? (
+            <Center py="xl"><Text size="sm" c="dimmed">No medicine data found.</Text></Center>
+          ) : data.map((app) => card(app))}
         </ScrollArea.Autosize>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import {
   ActionIcon,
+  Avatar,
+  Badge,
   Button,
   Card,
   Divider,
@@ -12,24 +14,35 @@ import {
   SegmentedControl,
   Select,
   SelectProps,
+  SimpleGrid,
   Text,
   TextInput,
+  ThemeIcon,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import React, { use, useEffect, useState } from "react";
 
 import {
+  IconCalendar,
   IconCheck,
   IconDashboard,
+  IconDownload,
   IconEye,
   IconFileText,
+  IconFileTypePdf,
   IconHome,
   IconLayoutGrid,
+  IconPhone,
   IconPlus,
+  IconReceiptRupee,
   IconSearch,
   IconSearchOff,
+  IconShoppingBag,
+  IconShoppingCart,
   IconTable,
   IconTrash,
+  IconTrendingUp,
 } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import {
@@ -54,6 +67,7 @@ import { freqMap } from "../../../Data/DropDownData";
 import { Toolbar } from "primereact/toolbar";
 import MedCard from "../Medicine/MedCard";
 import SaleCard from "./SaleCard";
+import { exportToCSV, generateReceiptPDF } from "../../../Utility/ExportUtil";
 
 interface SaleItem {
   medicineId: string;
@@ -203,14 +217,37 @@ const Sales = () => {
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let _filters: any = { ...filters };
-
     _filters["global"].value = value;
     setFilters(_filters);
     setGlobalFilterValue(value);
   };
 
+  const handleExportCSV = () => {
+    exportToCSV(
+      "Sales_Export",
+      ["Buyer Name", "Contact", "Total Amount (₹)", "Sale Date"],
+      data.map((s: any) => [
+        s.buyerName ?? "",
+        s.buyerContact ?? "",
+        s.totalAmount ?? 0,
+        s.saleDate ? new Date(s.saleDate).toLocaleDateString("en-IN") : "",
+      ])
+    );
+  };
 
+  const [activeSale, setActiveSale] = useState<any>(null);
 
+  const handleDetails = (rowData: any) => {
+    open();
+    setActiveSale(rowData);
+    setLoading(true);
+    getAllSaleItem(rowData.id)
+      .then((res) => {
+        setSaleItems(res);
+      })
+      .catch((error) => console.error("Error fetching sale items:", error))
+      .finally(() => setLoading(false));
+  };
 
   const onEdit = (rowData: any) => {
     setEdit(true);
@@ -225,19 +262,6 @@ const Sales = () => {
       unitPrice: rowData.unitPrice,
     });
   };
-
-  const handleDetails = (rowData: any) =>{
-open();
-setLoading(true);
-getAllSaleItem(rowData.id).then((res)=>{
-  setSaleItems(res);
-  console.log("Fetched sale items:", res);
-}).catch((error)=>{
-  console.error("Error fetching sale items:", error);
-  }
-  ).finally(()=>setLoading(false));
-  }
-
 
 
    const startToolbarTemplate = () => {
@@ -255,7 +279,7 @@ getAllSaleItem(rowData.id).then((res)=>{
     }
   
       const rightToolbarTemplate = () => {
-         return <div className="md:flex hidden gap-5 items-center">
+         return <div className="md:flex hidden gap-3 items-center">
     
                <SegmentedControl
           value={view}
@@ -268,7 +292,6 @@ getAllSaleItem(rowData.id).then((res)=>{
           
           ]}
         />
-    
              <TextInput
              className="lg:block hidden"
               leftSection={<IconSearch
@@ -277,7 +300,17 @@ getAllSaleItem(rowData.id).then((res)=>{
               value={globalFilterValue}
               onChange={onGlobalFilterChange}
               placeholder="Keyword Search"
-            /></div>
+            />
+            <Button
+              size="sm"
+              variant="light"
+              color="teal"
+              leftSection={<IconDownload size={16} />}
+              onClick={handleExportCSV}
+            >
+              Export CSV
+            </Button>
+           </div>
         };
   const renderSelectOption: SelectProps["renderOption"] = ({
     option,
@@ -297,26 +330,113 @@ getAllSaleItem(rowData.id).then((res)=>{
     </Group>
   );
 
-  const actionBodyTemplate = (rowData: any) => {
-    return (
-      <div className="flex gap-2">
-        <ActionIcon onClick={() => handleDetails(rowData)} color="blue">
-          <IconEye size={20} stroke={1.5} />
-        </ActionIcon>
+  const getRelativeDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+    if (diff === 0) return "Today";
+    if (diff === 1) return "Yesterday";
+    if (diff < 7) return `${diff}d ago`;
+    if (diff < 30) return `${Math.floor(diff / 7)}w ago`;
+    return `${Math.floor(diff / 30)}mo ago`;
+  };
+
+  const getTier = (amount: number) => {
+    if (amount >= 1000) return { label: "Premium", color: "green" };
+    if (amount >= 500) return { label: "Standard", color: "blue" };
+    return { label: "Basic", color: "gray" };
+  };
+
+  const buyerBodyTemplate = (rowData: any) => (
+    <Group gap={10} wrap="nowrap">
+      <Avatar size="sm" radius="xl" name={rowData.buyerName} color="initials" variant="filled" />
+      <div>
+        <Text size="sm" fw={600} lineClamp={1}>{rowData.buyerName}</Text>
+        <Group gap={4} mt={1}>
+          <IconPhone size={10} className="text-gray-400" />
+          <Text size="xs" c="dimmed">+91 {rowData.buyerContact}</Text>
+        </Group>
       </div>
+    </Group>
+  );
+
+  const amountBodyTemplate = (rowData: any) => {
+    const amt = rowData.totalAmount ?? 0;
+    const tier = getTier(amt);
+    return (
+      <Badge variant="light" color={tier.color} size="md" radius="md" leftSection={<span className="text-xs">₹</span>}>
+        {amt.toLocaleString("en-IN")}
+      </Badge>
     );
   };
 
-  const handleSpotlight = ()=>{
-   spotlight.open();
+  const tierBodyTemplate = (rowData: any) => {
+    const tier = getTier(rowData.totalAmount ?? 0);
+    return <Badge variant="dot" color={tier.color} size="sm">{tier.label}</Badge>;
+  };
 
-  }
+  const dateBodyTemplate = (rowData: any) => (
+    <div>
+      <Group gap={4}>
+        <IconCalendar size={13} className="text-gray-400" />
+        <Text size="sm" fw={500}>{formatDate(rowData.saleDate) ?? "—"}</Text>
+      </Group>
+      <Text size="xs" c="dimmed" mt={1}>{getRelativeDate(rowData.saleDate)}</Text>
+    </div>
+  );
+
+  const actionBodyTemplate = (rowData: any) => (
+    <Tooltip label="View Receipt" withArrow position="left">
+      <Button
+        size="xs"
+        variant="light"
+        color="teal"
+        leftSection={<IconReceiptRupee size={14} />}
+        onClick={() => handleDetails(rowData)}
+        radius="xl"
+      >
+        Receipt
+      </Button>
+    </Tooltip>
+  );
+
+  const handleSpotlight = () => {
+    spotlight.open();
+  };
   return (
     <div>
       {!edit ? (
           <div>
-                
-                       <Toolbar
+            {/* Stats banner */}
+            {data.length > 0 && (() => {
+              const totalRevenue = data.reduce((s: number, sale: any) => s + (sale.totalAmount ?? 0), 0);
+              const today = new Date().toDateString();
+              const todaySales = data.filter((s: any) => new Date(s.saleDate).toDateString() === today);
+              const avgSale = data.length > 0 ? Math.round(totalRevenue / data.length) : 0;
+              return (
+                <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm" mb="lg">
+                  {[
+                    { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString("en-IN")}`, icon: <IconReceiptRupee size={18} />, c: "teal", bg: "bg-teal-50" },
+                    { label: "Today's Sales", value: todaySales.length, icon: <IconTrendingUp size={18} />, c: "blue", bg: "bg-blue-50" },
+                    { label: "Transactions", value: data.length, icon: <IconShoppingCart size={18} />, c: "violet", bg: "bg-violet-50" },
+                    { label: "Avg Sale", value: `₹${avgSale.toLocaleString("en-IN")}`, icon: <IconShoppingBag size={18} />, c: "orange", bg: "bg-orange-50" },
+                  ].map((stat) => (
+                    <Card key={stat.label} withBorder radius="md" p="md" shadow="xs" className={stat.bg}>
+                      <Group justify="space-between">
+                        <div>
+                          <Text size="xs" c="dimmed" fw={500} tt="uppercase">{stat.label}</Text>
+                          <Text size="xl" fw={700} c={`${stat.c}.7`}>{stat.value}</Text>
+                        </div>
+                        <ThemeIcon size="lg" radius="xl" variant="light" color={stat.c}>
+                          {stat.icon}
+                        </ThemeIcon>
+                      </Group>
+                    </Card>
+                  ))}
+                </SimpleGrid>
+              );
+            })()}
+
+                        <Toolbar
                                className="mb-4 !p-1"
                                  start={startToolbarTemplate} 
                           
@@ -329,56 +449,75 @@ getAllSaleItem(rowData.id).then((res)=>{
           value={data}
           paginator
           rows={10}
+          filters={filters}
+          globalFilterFields={["buyerName", "buyerContact", "totalAmount"]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           rowsPerPageOptions={[10, 25, 50]}
-          dataKey="medicineId"
+          dataKey="id"
           filterDisplay="menu"
-          globalFilterFields={["name", "manufacturer", "category", "type"]}
-          emptyMessage="No Medicine found."
+          emptyMessage={
+            <div className="flex flex-col items-center py-10 gap-3">
+              <IconShoppingCart size={48} stroke={1.2} className="text-gray-300" />
+              <Text c="dimmed" fw={500}>No sales transactions yet.</Text>
+            </div>
+          }
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
           <Column
-            field="buyerName"
             header="Buyer"
+            body={buyerBodyTemplate}
             sortable
-
-          />
-          <Column field="buyerContact" header="Contact" />
-          {/* <Column
-            field="Prescription"
-            header="Prescription"
-            body={(rowData) => capitalizeFirstLetter(rowData.buyerPrescription) ?? ""}
-          /> */}
-          <Column
-            field="totalAmount"
-            header="Total Amount"
-            sortable
+            sortField="buyerName"
+            style={{ minWidth: "200px" }}
           />
           <Column
-            field="saleDate"
+            header="Amount"
+            body={amountBodyTemplate}
+            sortable
+            sortField="totalAmount"
+            style={{ minWidth: "130px" }}
+          />
+          <Column
+            header="Tier"
+            body={tierBodyTemplate}
+            style={{ minWidth: "110px" }}
+          />
+          <Column
             header="Sale Date"
+            body={dateBodyTemplate}
             sortable
-            body={(rowData) => formatDate(rowData.saleDate) ?? ""}
+            sortField="saleDate"
+            style={{ minWidth: "150px" }}
           />
-          <Column header="Actions" body={actionBodyTemplate} />
+          <Column header="Actions" body={actionBodyTemplate} style={{ minWidth: "120px" }} />
   
         </DataTable>
       
-          :         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1  gap-5">
-                      {
-              
-                        data?.map((app)=> <SaleCard key={app.id} onView={() => handleDetails(app)}
-                            buyerName={app.buyerName}
-    buyerContact={app.buyerContact}
-    saleDate={app.saleDate}
-    totalAmount={app.totalAmount}
-
- />)
-                      }
-                      {
-                        data?.length===0 && <div className="col-span-4 text-center text-gray-500">No Medicine found.</div>
-                      }
-                    </div>}
+          : <div>
+              {data?.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+                    <IconShoppingCart size={40} stroke={1.2} className="text-gray-300" />
+                  </div>
+                  <Text fw={600} c="dimmed" size="lg">No sales yet</Text>
+                  <Text size="sm" c="dimmed">Create your first sale using the "Sell Medicine" button above.</Text>
+                </div>
+              ) : (
+                <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
+                  {data.map((app) => (
+                    <SaleCard
+                      key={app.id}
+                      id={app.id}
+                      onView={() => handleDetails(app)}
+                      buyerName={app.buyerName}
+                      buyerContact={app.buyerContact}
+                      saleDate={app.saleDate}
+                      totalAmount={app.totalAmount}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>}
                       </div>) : (<div>
 
         <div className="mb-5 flex items-center justify-between">
@@ -507,56 +646,73 @@ getAllSaleItem(rowData.id).then((res)=>{
         </form>
         </div>
       )}
-           <Modal opened={opened} size="xl" onClose={close} title="Sold Medicines" centered>
-    <div className="grid sm:grid-cols-2 gap-5">
-    
-            {
-              saleItems?.map((data:any,index:number)=>(
-    
-              
-            <Card key={index} shadow="md" radius="md" withBorder padding="lg">
-    
-              <Title order={4} mb="sm" >
-    
-                {medicineMap[data.medicineId]?.name} - {medicineMap[data.medicineId]?.dosage}(<span className="text-gray-500">{medicineMap[data.medicineId]?.manufacturer}</span>)
-    
-              </Title>
+           <Modal opened={opened} size="lg" onClose={close} title={
+        <Group gap={8}>
+          <ThemeIcon size="md" radius="xl" variant="gradient" gradient={{ from: "teal", to: "blue" }}>
+            <IconReceiptRupee size={16} />
+          </ThemeIcon>
+          <Text fw={700} size="lg">Sale Receipt</Text>
+        </Group>
+      } centered>
+        <LoadingOverlay visible={loading} />
 
-<Text size="sm" color="dimmed" >
- {data.batchNo}
-</Text>
-              <Divider my="xs" />
-              <Grid>
-               <Grid.Col span={4}>
-                <Text size="sm" fw={500} >Quantity:</Text>
-                <Text>{data.quantity}</Text>
-               </Grid.Col>
-               <Grid.Col span={4}>
-                <Text size="sm" fw={500} >Unit Price:</Text>
-                <Text>₹{data.unitPrice}</Text>
-               </Grid.Col>
-               <Grid.Col span={4}>
-                <Text size="sm" fw={500} >Total:</Text>
-                <Text>₹{data.quantity * data.unitPrice}</Text>
-               </Grid.Col>
-              </Grid>
-    
-    
-    
-    
-    
-            </Card>
-              ))}
-      
-    </div>
-              {
-                saleItems.length ===0&&(
-                  <Text color="dimmed" size="sm" mt="md" >
-                    No medicines Prescribed for this appointment.
-                  </Text>
-                )
-              }
-          </Modal>
+        {/* Receipt items */}
+        {saleItems.length === 0 ? (
+          <Text c="dimmed" size="sm" ta="center" py="xl">No medicines in this sale.</Text>
+        ) : (
+          <div className="border rounded-xl overflow-hidden">
+            {/* Header row */}
+            <div className="grid grid-cols-12 bg-gray-50 border-b px-4 py-2">
+              <Text size="xs" fw={700} c="dimmed" className="col-span-5">MEDICINE</Text>
+              <Text size="xs" fw={700} c="dimmed" className="col-span-2 text-center">QTY</Text>
+              <Text size="xs" fw={700} c="dimmed" className="col-span-2 text-right">UNIT</Text>
+              <Text size="xs" fw={700} c="dimmed" className="col-span-3 text-right">TOTAL</Text>
+            </div>
+
+            {/* Item rows */}
+            {saleItems.map((item: any, index: number) => {
+              const med = medicineMap[item.medicineId];
+              const lineTotal = (item.quantity ?? 0) * (item.unitPrice ?? 0);
+              return (
+                <div key={index} className={`grid grid-cols-12 px-4 py-3 items-center ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                  <div className="col-span-5">
+                    <Text size="sm" fw={600} lineClamp={1}>{med?.name ?? `Medicine #${item.medicineId}`}</Text>
+                    <Text size="xs" c="dimmed">{med?.dosage ?? ""} {med?.manufacturer ? `· ${med.manufacturer}` : ""}</Text>
+                  </div>
+                  <Text size="sm" className="col-span-2 text-center" c="dimmed">{item.quantity}</Text>
+                  <Text size="sm" className="col-span-2 text-right" c="dimmed">₹{item.unitPrice ?? 0}</Text>
+                  <Text size="sm" fw={700} className="col-span-3 text-right" c="teal.7">₹{lineTotal.toLocaleString("en-IN")}</Text>
+                </div>
+              );
+            })}
+
+            {/* Total footer */}
+            <div className="border-t-2 border-dashed px-4 py-3 bg-teal-50 flex justify-between items-center">
+              <Group gap={6}>
+                <IconReceiptRupee size={16} className="text-teal-600" />
+                <Text fw={700} c="teal.7">Grand Total</Text>
+              </Group>
+              <Text size="lg" fw={900} c="teal.7">
+                ₹{saleItems.reduce((s: number, i: any) => s + (i.quantity ?? 0) * (i.unitPrice ?? 0), 0).toLocaleString("en-IN")}
+              </Text>
+            </div>
+          </div>
+        )}
+
+        {/* Download PDF button */}
+        {saleItems.length > 0 && activeSale && (
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="gradient"
+              gradient={{ from: "teal", to: "blue" }}
+              leftSection={<IconFileTypePdf size={16} />}
+              onClick={() => generateReceiptPDF(activeSale, saleItems, medicineMap)}
+            >
+              Download PDF
+            </Button>
+          </div>
+        )}
+      </Modal>
       <Spotlight
         actions={actions}
         nothingFound="Nothing found..."

@@ -6,7 +6,7 @@ import { Column } from "primereact/column";
 import 'primereact/resources/themes/lara-light-blue/theme.css'
 import { Tag } from "primereact/tag";
 import { TextInput } from "@mantine/core";
-import { IconEdit, IconEye, IconLayoutGrid, IconPlus, IconSearch, IconTable, IconTrash } from "@tabler/icons-react";
+import { IconDownload, IconEdit, IconEye, IconFileTypePdf, IconLayoutGrid, IconPlus, IconSearch, IconTable, IconTrash } from "@tabler/icons-react";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { getDoctorDropdown } from "../../../Service/DoctorProfileService";
 import { DateTimePicker } from "@mantine/dates";
@@ -27,6 +27,7 @@ import { modals } from "@mantine/modals";
 import { Toolbar } from "primereact/toolbar";
 import { useNavigate } from "react-router-dom";
 import ApCard from "./ApCard";
+import { exportToCSV, generateAppointmentReportPDF } from "../../../Utility/ExportUtil";
 
 interface Country {
   name: string;
@@ -283,10 +284,25 @@ const Appointment = () => {
         );
     };
 
-          const rightToolbarTemplate = () => {
- 
+  const handleExportCSV = () => {
+    const headers = ["Patient Name", "Phone", "Appointment Time", "Reason", "Notes", "Status"];
+    const rows = filteredAppointment.map((a: any) => [
+      a.patientName ?? "",
+      a.patientPhone ? `+91 ${a.patientPhone}` : "",
+      a.appointmentTime ? new Date(a.appointmentTime).toLocaleString("en-IN") : "",
+      a.reason ?? "",
+      a.notes ?? "",
+      a.status ?? "",
+    ]);
+    exportToCSV(`Appointments_${tab}`, headers, rows);
+  };
 
-        return <div className="md:flex hidden gap-5 items-center">
+  const handleExportPDF = () => {
+    generateAppointmentReportPDF(filteredAppointment, `APPOINTMENT REPORT — ${tab.toUpperCase()}`);
+  };
+
+          const rightToolbarTemplate = () => {
+        return <div className="md:flex hidden gap-3 items-center">
 
            <SegmentedControl
            size={matches ? "sm":"md"}
@@ -307,7 +323,26 @@ const Appointment = () => {
           value={globalFilterValue}
           onChange={onGlobalFilterChange}
           placeholder="Keyword Search"
-        /></div>
+        />
+        <Button
+          size="sm"
+          variant="light"
+          color="blue"
+          leftSection={<IconDownload size={16} />}
+          onClick={handleExportCSV}
+        >
+          Export CSV
+        </Button>
+        <Button
+          size="sm"
+          variant="gradient"
+          gradient={{ from: "blue", to: "indigo" }}
+          leftSection={<IconFileTypePdf size={16} />}
+          onClick={handleExportPDF}
+        >
+          Export PDF
+        </Button>
+        </div>
     };
     const centerToolbarTemplate=()=>{
      return   <SegmentedControl

@@ -19,7 +19,13 @@ public class ChatController {
     @PostMapping("/chatbot/message")
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
         return ResponseEntity.ok(
-                chatService.chat(request.getMessage(), request.getConversationId()));
+                chatService.chat(
+                        request.getMessage(),
+                        request.getConversationId(),
+                        request.getRole(),
+                        request.getUserName(),
+                        request.getProfileId()
+                ));
     }
 
     @DeleteMapping("/chatbot/history/{conversationId}")

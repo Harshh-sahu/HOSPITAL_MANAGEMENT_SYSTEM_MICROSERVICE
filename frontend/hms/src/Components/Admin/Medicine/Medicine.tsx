@@ -12,7 +12,7 @@ import {
   medicineCategories,
   medicineType,
 } from "../../../Data/DropDownData";
-import { IconEdit, IconLayoutGrid, IconSearch, IconSearchOff, IconTable } from "@tabler/icons-react";
+import { IconDownload, IconEdit, IconFileTypePdf, IconLayoutGrid, IconSearch, IconSearchOff, IconTable } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import {
   errorNotification,
@@ -31,6 +31,7 @@ import { Toolbar } from "primereact/toolbar";
 import MedCard from "./MedCard";
 import ReportCard from "../../Doctor/Appointment/ReportCard";
 import { useMediaQuery } from "@mantine/hooks";
+import { exportToCSV, generateMedicineReportPDF } from "../../../Utility/ExportUtil";
 
 const Medicine = ({ appointment }: any) => {
   const [loading, setLoading] = React.useState(false);
@@ -157,7 +158,7 @@ const handleSubmit = (values: any) => {
   }
 
     const rightToolbarTemplate = () => {
-       return <div className="md:flex  hidden gap-5 items-center">
+       return <div className="md:flex  hidden gap-3 items-center">
   
              <SegmentedControl
         value={view}
@@ -179,8 +180,43 @@ const handleSubmit = (values: any) => {
             value={globalFilterValue}
             onChange={onGlobalFilterChange}
             placeholder="Keyword Search"
-          /></div>
+          />
+          <Button
+            size="sm"
+            variant="light"
+            color="violet"
+            leftSection={<IconDownload size={16} />}
+            onClick={handleExportCSV}
+          >
+            Export CSV
+          </Button>
+          <Button
+            size="sm"
+            variant="gradient"
+            gradient={{ from: "violet", to: "blue" }}
+            leftSection={<IconFileTypePdf size={16} />}
+            onClick={() => generateMedicineReportPDF(data)}
+          >
+            Export PDF
+          </Button>
+         </div>
       };
+
+  const handleExportCSV = () => {
+    exportToCSV(
+      "Medicine_Export",
+      ["Name", "Dosage", "Category", "Type", "Manufacturer", "Unit Price (Rs)", "Stock"],
+      data.map((m) => [
+        m.name ?? "",
+        m.dosage ?? "",
+        m.category ?? "",
+        m.type ?? "",
+        m.manufacturer ?? "",
+        m.unitPrice ?? 0,
+        m.stock ?? 0,
+      ])
+    );
+  };
   const onEdit = (rowData: any) => {
     setEdit(true);
     console.log("rowData:", rowData);

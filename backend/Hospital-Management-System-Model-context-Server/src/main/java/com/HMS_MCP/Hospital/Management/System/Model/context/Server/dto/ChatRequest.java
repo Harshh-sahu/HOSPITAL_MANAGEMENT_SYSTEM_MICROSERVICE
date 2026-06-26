@@ -6,4 +6,7 @@ import lombok.Data;
 public class ChatRequest {
     private String message;
     private String conversationId;
+    private String role;
+    private String userName;
+    private Long profileId;
 }

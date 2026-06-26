@@ -4,6 +4,7 @@ import Sidebar from '../Components/Doctor/Sidebar/Sidebar'
 import Header from '../Components/Header/Header'
 import { Outlet } from 'react-router-dom'
 import { useMediaQuery } from '@mantine/hooks'
+import ChatWidget from '../Components/ChatBot/ChatWidget'
 
 const DoctorDashboard = () => {
   
@@ -16,6 +17,7 @@ const DoctorDashboard = () => {
         <Header />
        <Outlet />
       </div>
+      <ChatWidget />
     </div>
   )
 }
