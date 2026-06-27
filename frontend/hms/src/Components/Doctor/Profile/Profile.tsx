@@ -46,8 +46,6 @@ function Profile() {
       });
   }, []);
 
-  const url = useProtectedImage(profile.profilePictureId);
-
   const form = useForm({
     initialValues: {
       dob: "",
@@ -67,6 +65,11 @@ function Profile() {
         !value ? "License number is required" : undefined,
     },
   });
+  const previewId = editmode
+    ? (form.values.profilePictureId ?? profile.profilePictureId)
+    : profile.profilePictureId;
+  const url = useProtectedImage(previewId);
+
   const handleEdit = () => {
     form.setValues({
       ...profile,

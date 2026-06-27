@@ -46,11 +46,11 @@ public class UserServiceImpl implements UserService {
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         Long profileId = null;
         if(userDTO.getRole().equals(Roles.DOCTOR)){
-   profileId=profileClient.addDoctor(userDTO);
-
-
+           profileId=profileClient.addDoctor(userDTO);
         } else if(userDTO.getRole().equals(Roles.PATIENT)){
-profileId=profileClient.addPatient(userDTO);
+            profileId=profileClient.addPatient(userDTO);
+        } else if(userDTO.getRole().equals(Roles.ADMIN)){
+            profileId=profileClient.addAdmin(userDTO);
         }
         System.out.println(profileId);
         userDTO.setProfileId(profileId);
@@ -96,7 +96,8 @@ profileId=profileClient.addPatient(userDTO);
         } else if (user.getRole().equals(Roles.PATIENT)) {
             return profileClient.getPatient(user.getProfileId());
         }
-        throw new HmsException("INVALID_ROLE");
+        // ADMIN and other roles — no profile picture via this endpoint
+        return null;
     }
 
     @Override

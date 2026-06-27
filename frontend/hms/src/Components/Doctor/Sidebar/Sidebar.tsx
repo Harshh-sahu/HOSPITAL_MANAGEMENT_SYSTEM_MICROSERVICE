@@ -16,6 +16,9 @@ import {
 } from "@tabler/icons-react";
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useProtectedImage from "../../../Utility/useProtectedImage";
+import { getDoctor } from "../../../Service/DoctorProfileService";
 
 const links = [
   { name: "Dashboard", url: "/doctor/dashboard", icon: <IconLayoutGrid stroke={1.5} /> },
@@ -34,6 +37,17 @@ const links = [
 
 const Sidebar = () => {
   const user = useSelector((state: any) => state.user);
+  const [profilePictureId, setProfilePictureId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user?.profileId) {
+      getDoctor(user.profileId)
+        .then((data: any) => setProfilePictureId(data.profilePictureId))
+        .catch(() => {});
+    }
+  }, [user?.profileId]);
+
+  const avatarUrl = useProtectedImage(profilePictureId);
 
   return (
     <div className="flex">
@@ -49,8 +63,8 @@ const Sidebar = () => {
               <Avatar
                 variant="filled"
                 size="xl"
-                src="avatar.png"
-                alt="it's me"
+                src={avatarUrl}
+                alt="doctor avatar"
               />
             </div>
             <span className="font-medium text-light">{user.name}</span>

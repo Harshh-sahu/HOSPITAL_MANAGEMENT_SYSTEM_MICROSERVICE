@@ -5,14 +5,19 @@ import DiseaseChart from './DiseaseChart'
 import PatientMetrics from './PatientMetrics'
 import PatientChart from './PatientChart'
 import Appointment from './Appointment'
+import ProfileCard from './ProfileCard'
 
 const Dashboard = () => {
   return (
     <div className='flex flex-col gap-5'>
+          <div className='grid lg:grid-cols-3 gap-5'>
+            <div className='lg:col-span-2'>
+              <Welcome/>
+            </div>
+            <ProfileCard/>
+          </div>
           <div className='grid lg:grid-cols-2 gap-5'>
-            <Welcome/>
             <Metrices/>
-
           </div>
           <div className='grid lg:grid-cols-3 gap-5'>
             <DiseaseChart/>

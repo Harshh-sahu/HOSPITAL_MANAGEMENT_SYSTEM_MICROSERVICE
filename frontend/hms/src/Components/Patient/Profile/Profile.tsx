@@ -80,7 +80,10 @@ const handleEdit = () => {
   setEdit(true);
 };
 console.log(profile.profilePictureId);
-const url =  useProtectedImage(profile.profilePictureId);
+const previewId = editmode
+  ? (form.values.profilePictureId ?? profile.profilePictureId)
+  : profile.profilePictureId;
+const url = useProtectedImage(previewId);
 
 const handleSubmit = (e: any) => {
   form.validate();  
