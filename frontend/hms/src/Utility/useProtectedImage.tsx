@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../Interceptor/AxiosInterceptor";
 
-const useProtectedImage = (imageId?: string | null) => {
+const useProtectedImage = (imageId?: string | number | null) => {
   const [imageUrl, setImageUrl] = useState<string>('/avatar.png');
 
   useEffect(() => {

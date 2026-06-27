@@ -10,12 +10,14 @@ const PatientDashboard = () => {
   
     const matches = useMediaQuery('(max-width: 768px)');
   return (
-<div className="flex">
+<div className="flex min-h-screen bg-light dark:bg-[#141517] transition-colors duration-200">
       { !matches && <Sidebar />}
 
       <div className="w-full overflow-hidden flex flex-col">
         <Header />
-       <Outlet />
+        <div className="flex-1 bg-light dark:bg-[#141517] transition-colors duration-200">
+          <Outlet />
+        </div>
       </div>
       <ChatWidget />
     </div>

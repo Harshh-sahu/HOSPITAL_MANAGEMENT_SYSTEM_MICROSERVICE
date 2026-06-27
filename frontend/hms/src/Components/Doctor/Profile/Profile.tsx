@@ -26,6 +26,8 @@ import {
 
 import { useForm } from "@mantine/form";
 import { formatDate } from "../../../Utility/DateUtility";
+import { DropzoneButton } from "../../Utility/Dropzone/DropzoneButton";
+import useProtectedImage from "../../../Utility/useProtectedImage";
 
 function Profile() {
   const matches = useMediaQuery('(max-width: 768px)');
@@ -53,6 +55,7 @@ function Profile() {
       bloodGroup: "",
       department: "",
       totalExp: "",
+      profilePictureId: null as number | null,
     },
     validate: {
       dob: (value: any) => (!value ? "Date of birth is required" : undefined),
@@ -62,6 +65,11 @@ function Profile() {
         !value ? "License number is required" : undefined,
     },
   });
+  const previewId = editmode
+    ? (form.values.profilePictureId ?? profile.profilePictureId)
+    : profile.profilePictureId;
+  const url = useProtectedImage(previewId);
+
   const handleEdit = () => {
     form.setValues({
       ...profile,
@@ -102,7 +110,7 @@ function Profile() {
             <Avatar
               variant="filled"
               size={matches ? 120 : 150}
-              src="/avatar.png"
+              src={url}
               alt="it's me"
             />
             {editmode && (
@@ -304,7 +312,7 @@ function Profile() {
           <span className="text-xl font-medium">Upload Profile Picture</span>
         }
       >
-        {/* Modal content */}
+        <DropzoneButton close={close} form={form} id="profilePictureId" />
       </Modal>
     </div>
   );

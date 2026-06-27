@@ -1,39 +1,44 @@
 import { useRef, useState } from 'react';
 import { IconCloudUpload, IconDownload, IconX } from '@tabler/icons-react';
-import { Button, Group, Text, useMantineTheme } from '@mantine/core';
+import { Button, Group, Loader, Text, useMantineTheme } from '@mantine/core';
 import { Dropzone, FileWithPath, MIME_TYPES } from '@mantine/dropzone';
 import classes from './DropzoneButton.module.css';
 
 import { uploadMedia } from '../../../Service/MediaService';
-import { successNotification } from '../../../Utility/NotificationUtil';
+import { errorNotification, successNotification } from '../../../Utility/NotificationUtil';
 
 export function DropzoneButton({close,form,id} :any) {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
- const [file,setFile] = useState<FileWithPath | null>(null);
-  const [fileId,setFileId] = useState<string | null>(null);
+  const [file, setFile] = useState<FileWithPath | null>(null);
+  const [fileId, setFileId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
- const handleDrop = async(files:FileWithPath[])=>{
-  setFile(files[0]);
-  
-  uploadMedia(files[0]).then((res)=>{
-    console.log("File uploaded successfully:", res);
+  const handleDrop = async (files: FileWithPath[]) => {
+    setFile(files[0]);
+    setFileId(null);
+    setUploading(true);
 
-   setFileId(res.id);
+    uploadMedia(files[0])
+      .then((res) => {
+        setFileId(res.id);
+      })
+      .catch((err) => {
+        console.error("Error uploading file:", err);
+        errorNotification("Failed to upload photo. Please try again.");
+        setFile(null);
+      })
+      .finally(() => {
+        setUploading(false);
+      });
+  };
 
-  
-    
-  }).catch((err)=>{
-    console.error("Error uploading file:", err);
-  });
-
- }
-
- const handleSave=()=>{
-form.setFieldValue("profilePictureId",fileId);
-close();
- successNotification("File uploaded successfully");
- }
+  const handleSave = () => {
+    if (!fileId) return;
+    form.setFieldValue(id ?? "profilePictureId", fileId);
+    close();
+    successNotification("Profile picture updated successfully");
+  };
   return (
     <div className={classes.wrapper}>
      {
@@ -77,20 +82,24 @@ close();
       className={classes.imagePreview} />
       }
 
-     {!file? <Button className={classes.control} size="md" radius="xl" onClick={() => openRef.current?.()}>
+     {!file ? <Button className={classes.control} size="md" radius="xl" onClick={() => openRef.current?.()}>
       
       Select Photo
       </Button>
       :
       <div className='flex gap-3 mt-3 items-center justify-center'>
         <Button 
-         color='red' size="md" radius="xl" onClick={() => setFile(null)}>
+         color='red' size="md" radius="xl" onClick={() => { setFile(null); setFileId(null); }} disabled={uploading}>
           Change Photo
-        </Button><Button 
-       color='green'
-        size="md" radius="xl" onClick={handleSave}>
-      Save 
-      </Button>
+        </Button>
+        <Button 
+          color='green'
+          size="md" radius="xl" onClick={handleSave}
+          disabled={uploading || !fileId}
+          leftSection={uploading ? <Loader size="xs" color="white" /> : undefined}
+        >
+          {uploading ? 'Uploading…' : 'Save'}
+        </Button>
       </div>
       }
     </div>

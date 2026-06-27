@@ -38,6 +38,7 @@ import DoctorPatientRecordsPage from "../Pages/Doctor/DoctorPatientRecordsPage";
 
 import AdminStatsPage from "../Pages/Admin/AdminStatsPage";
 import AdminInsightsPage from "../Pages/Admin/AdminInsightsPage";
+import AdminProfilePage from "../Pages/Admin/AdminProfilePage";
 
 const AppRoutes = () => {
   return (
@@ -60,6 +61,7 @@ const AppRoutes = () => {
           <Route path="chat" element={<PatientChatPage />} />
           <Route path="stats" element={<AdminStatsPage />} />
           <Route path="insights" element={<AdminInsightsPage />} />
+          <Route path="profile" element={<AdminProfilePage />} />
         </Route>
         <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<DoctorDashboardPage />} />

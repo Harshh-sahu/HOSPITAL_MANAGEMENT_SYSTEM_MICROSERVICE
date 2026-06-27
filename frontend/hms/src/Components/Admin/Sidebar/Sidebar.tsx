@@ -1,7 +1,6 @@
 import { Avatar, Text } from "@mantine/core";
 import {
   IconBrain,
-  IconCalendarCheck,
   IconChartBar,
   IconHeartbeat,
   IconLayoutGrid,
@@ -10,10 +9,14 @@ import {
   IconReceiptRupee,
   IconRobot,
   IconStethoscope,
+  IconUser,
   IconVaccine,
 } from "@tabler/icons-react";
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
+import useProtectedImage from "../../../Utility/useProtectedImage";
+import { useEffect, useState } from "react";
+import { getAdmin } from "../../../Service/AdminProfileService";
 
 const links = [
   { name: "Dashboard", url: "/admin/dashboard", icon: <IconLayoutGrid stroke={1.5} /> },
@@ -25,10 +28,22 @@ const links = [
   { name: "Hospital Stats", url: "/admin/stats", icon: <IconChartBar stroke={1.5} /> },
   { name: "AI Insights", url: "/admin/insights", icon: <IconBrain stroke={1.5} /> },
   { name: "AI Assistant", url: "/admin/chat", icon: <IconRobot stroke={1.5} /> },
+  { name: "Profile", url: "/admin/profile", icon: <IconUser stroke={1.5} /> },
 ];
 
 const Sidebar = () => {
   const user = useSelector((state: any) => state.user);
+  const [profilePictureId, setProfilePictureId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      getAdmin(user.id)
+        .then((data: any) => setProfilePictureId(data.profilePictureId))
+        .catch(() => {});
+    }
+  }, [user]);
+
+  const avatarUrl = useProtectedImage(profilePictureId);
 
   return (
     <div className="flex">
@@ -44,8 +59,8 @@ const Sidebar = () => {
               <Avatar
                 variant="filled"
                 size="xl"
-                src="avatar.png"
-                alt="it's me"
+                src={avatarUrl}
+                alt="admin avatar"
               />
             </div>
             <span className="font-medium text-light">{user.name}</span>

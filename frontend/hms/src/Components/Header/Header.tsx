@@ -7,6 +7,7 @@ import { removeJwt } from '../../Slices/JwtSlice';
 import { removeUser } from '../../Slices/UserSlice';
 import SideDrawer from '../SideDrawer/SideDrawer';
 import { useMediaQuery } from '@mantine/hooks';
+import ThemeToggle from './ThemeToggle';
 
 
 const Header = () => {
@@ -21,13 +22,14 @@ const Header = () => {
 
   const matches = useMediaQuery('(max-width: 768px)');
   return (
-    <div className="w-full bg-light h-16 shadow-lg flex justify-between px-5 items-center">
+    <div className="w-full h-16 shadow-lg flex justify-between px-5 items-center bg-light dark:bg-[#1a1b1e] transition-colors duration-200">
      {matches && <SideDrawer />}
 
      <div>
 
      </div>
-      <div className="flex gap-5 items-center">
+      <div className="flex gap-3 items-center">
+        <ThemeToggle />
         {jwt ? (
           <Button color="red"  onClick={handleLogout}>
             Logout

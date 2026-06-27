@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,ts,jsx,tsx}"], // <== VERY IMPORTANT
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: ['class', '[data-mantine-color-scheme="dark"]'], // <== VERY IMPORTANT
   theme: {
     extend: {
         animation: {
