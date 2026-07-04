@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface PrescriptionRepository extends CrudRepository<Prescription,Long> {
 
-    Optional<Prescription> findByAppointment_Id(Long appointmentId);
+    Optional<Prescription> findFirstByAppointment_IdOrderByIdDesc(Long appointmentId);
 
     List<Prescription> findAllByPatientId(Long patientId);
 

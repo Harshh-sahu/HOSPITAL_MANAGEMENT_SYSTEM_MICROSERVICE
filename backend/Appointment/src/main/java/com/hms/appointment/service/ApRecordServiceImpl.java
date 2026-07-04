@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +26,9 @@ private final PrescriptionService prescriptionService;
     private final ProfileClient profileClient;
     @Override
     public Long createApRecord(ApRecordDTO request) throws HmsException {
-        Optional<ApRecord> existingRecord = apRecordRepository.findByAppointment_Id(request.getAppointmentId());
-        if(existingRecord.isPresent()){
-            throw new HmsException("Appointment record already exists for appointment ID: " + request.getAppointmentId());
-        }
         request.setCreatedAt(LocalDateTime.now());
-        System.out.println(request+"  in service");
-        Long id= apRecordRepository.save(request.toEntity()).getId();
-        if(request.getPrescription()!=null){
+        Long id = apRecordRepository.save(request.toEntity()).getId();
+        if (request.getPrescription() != null) {
             request.getPrescription().setAppointmentId(request.getAppointmentId());
             prescriptionService.savePrescription(request.getPrescription());
         }
@@ -56,15 +50,15 @@ apRecordRepository.save(existingRecord);
 
     @Override
     public ApRecordDTO getApRecordByAppointmentId(Long appointmentId) throws HmsException {
-   return apRecordRepository.findByAppointment_Id(appointmentId)
-           .orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
-           .toDTO();
+        return apRecordRepository.findFirstByAppointment_IdOrderByIdDesc(appointmentId)
+                .orElseThrow(() -> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
+                .toDTO();
     }
 
     @Override
     public ApRecordDTO getApRecordDetailsByAppointmentId(Long appointmentId) throws HmsException {
-        ApRecordDTO record= apRecordRepository.findByAppointment_Id(appointmentId)
-                .orElseThrow(()-> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
+        ApRecordDTO record = apRecordRepository.findFirstByAppointment_IdOrderByIdDesc(appointmentId)
+                .orElseThrow(() -> new HmsException("APPOINTMENT_RECORD_NOT_FOUND"))
                 .toDTO();
       record.setPrescription(prescriptionService.getPrescriptionByAppointmentId(appointmentId));
 

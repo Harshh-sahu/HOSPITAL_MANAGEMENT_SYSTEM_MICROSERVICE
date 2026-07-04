@@ -11,9 +11,9 @@ import java.util.Optional;
 @Repository
 public interface ApRecordRepository extends CrudRepository<ApRecord,Long> {
 
-    Optional<ApRecord> findByAppointment_Id(Long appointmentId);
+    Optional<ApRecord> findFirstByAppointment_IdOrderByIdDesc(Long appointmentId);
 
-
+    List<ApRecord> findAllByAppointment_Id(Long appointmentId);
 
     List<ApRecord> findByPatientId(Long patientId);
     Boolean existsByAppointment_Id(Long appointmentId);

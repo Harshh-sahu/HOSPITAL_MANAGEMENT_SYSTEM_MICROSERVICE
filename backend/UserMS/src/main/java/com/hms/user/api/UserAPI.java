@@ -4,8 +4,10 @@ import com.hms.user.dto.LoginDTO;
 import com.hms.user.dto.RegistrationCountDTO;
 import com.hms.user.dto.ResponseDTO;
 import com.hms.user.dto.UserDTO;
+import com.hms.user.dto.event.UserLoginEvent;
 import com.hms.user.exception.HmsException;
 import com.hms.user.jwt.JwtUtil;
+import com.hms.user.kafka.UserEventPublisher;
 import com.hms.user.service.UserService;
 import com.hms.user.utility.ErrorInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,6 +45,7 @@ public class UserAPI {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final UserEventPublisher userEventPublisher;
 
     @Operation(operationId = "registerUser", summary = "Register user", description = "Registers a new user account")
     @ApiResponses(value = {
@@ -89,6 +92,17 @@ try{
 
 final UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getEmail());
 final String jwt = jwtUtil.generateToken(userDetails);
+
+try {
+    UserDTO user = userService.getUser(loginDTO.getEmail());
+    userEventPublisher.publishUserLogin(new UserLoginEvent(
+            user.getName(),
+            user.getEmail(),
+            java.time.LocalDateTime.now()
+    ));
+} catch (Exception ignored) {
+    // login must succeed even if the login-alert event cannot be published
+}
 
 return new ResponseEntity<>(jwt,HttpStatus.OK);
     }

@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,11 +25,9 @@ return medicineRepository.save(request.toEntity()).getId();    }
 
     @Override
     public List<MedicineDTO> saveAllMedicines(List<MedicineDTO> reqList) {
-
-        return ((List<Medicine>) medicineRepository.saveAll(
-                reqList.stream().map(MedicineDTO::toEntity).toList())).stream()
-                .map(Medicine::toDTO).toList();
-
+        List<Medicine> saved = new ArrayList<>();
+        medicineRepository.saveAll(reqList.stream().map(MedicineDTO::toEntity).toList()).forEach(saved::add);
+        return saved.stream().map(Medicine::toDTO).toList();
     }
 
     @Override

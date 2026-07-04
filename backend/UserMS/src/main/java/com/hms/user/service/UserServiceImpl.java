@@ -14,8 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.hms.user.dto.UserDTO;
+import com.hms.user.dto.event.UserRegisteredEvent;
 import com.hms.user.entity.User;
 import com.hms.user.exception.HmsException;
+import com.hms.user.kafka.UserEventPublisher;
 import com.hms.user.repository.UserRepository;
 import reactor.core.publisher.Mono;
 
@@ -31,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserEventPublisher userEventPublisher;
 
 
     @Override
@@ -54,7 +59,14 @@ public class UserServiceImpl implements UserService {
         }
         System.out.println(profileId);
         userDTO.setProfileId(profileId);
-        userRepository.save(userDTO.toEntity());
+        User savedUser = userRepository.save(userDTO.toEntity());
+
+        userEventPublisher.publishUserRegistered(new UserRegisteredEvent(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getEmail(),
+                savedUser.getRole() != null ? savedUser.getRole().name() : null
+        ));
 
 
     }
