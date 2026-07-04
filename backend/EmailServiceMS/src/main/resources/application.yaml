@@ -82,4 +82,6 @@ hms:
       appointment-created: appointment-created
       prescription-created: prescription-created
       report-created: report-created
+      sale-created: sale-created
+      doctor-onboarded: doctor-onboarded
 

@@ -22,6 +22,8 @@ public class SaleRequest {
     private String buyerName;
     @Schema(description = "Buyer contact number", example = "9876543210")
     private String buyerContact;
+    @Schema(description = "Buyer email address for invoice", example = "aman.sharma@example.com")
+    private String buyerEmail;
     @Schema(description = "Total billed amount", example = "349.5")
     private Double totalAmount;
     @ArraySchema(schema = @Schema(implementation = SaleItemDTO.class), arraySchema = @Schema(description = "Sale line items"))

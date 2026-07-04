@@ -1,8 +1,10 @@
 package com.EmailService.EmailServiceMS.kafka;
 
 import com.EmailService.EmailServiceMS.event.AppointmentCreatedEvent;
+import com.EmailService.EmailServiceMS.event.DoctorOnboardedEvent;
 import com.EmailService.EmailServiceMS.event.PrescriptionCreatedEvent;
 import com.EmailService.EmailServiceMS.event.ReportCreatedEvent;
+import com.EmailService.EmailServiceMS.event.SaleCreatedEvent;
 import com.EmailService.EmailServiceMS.event.UserLoginEvent;
 import com.EmailService.EmailServiceMS.event.UserRegisteredEvent;
 import com.EmailService.EmailServiceMS.service.EmailService;
@@ -72,6 +74,26 @@ public class EmailKafkaConsumer {
             emailService.sendMedicalReportEmail(event);
         } catch (Exception e) {
             log.error("Failed to process report-created event: {}", e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "${hms.kafka.topic.sale-created}", groupId = "${spring.kafka.consumer.group-id}")
+    public void onSaleCreated(String payload) {
+        try {
+            SaleCreatedEvent event = objectMapper.readValue(payload, SaleCreatedEvent.class);
+            emailService.sendInvoiceEmail(event);
+        } catch (Exception e) {
+            log.error("Failed to process sale-created event: {}", e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "${hms.kafka.topic.doctor-onboarded}", groupId = "${spring.kafka.consumer.group-id}")
+    public void onDoctorOnboarded(String payload) {
+        try {
+            DoctorOnboardedEvent event = objectMapper.readValue(payload, DoctorOnboardedEvent.class);
+            emailService.sendOnboardingEmail(event);
+        } catch (Exception e) {
+            log.error("Failed to process doctor-onboarded event: {}", e.getMessage(), e);
         }
     }
 }

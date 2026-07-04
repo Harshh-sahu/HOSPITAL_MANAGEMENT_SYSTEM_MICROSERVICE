@@ -77,6 +77,24 @@ public class EmailTemplateBuilder {
             .replace("{{YEAR}}",             year());
     }
 
+    public String onboardingLetter(String doctorName, String specialization, String department, String date) {
+        return load("onboarding-letter.html")
+            .replace("{{DOCTOR_NAME}}",    esc(safe(doctorName)))
+            .replace("{{SPECIALIZATION}}", esc(safe(specialization)))
+            .replace("{{DEPARTMENT}}",     esc(safe(department)))
+            .replace("{{ONBOARDED_DATE}}", esc(safe(date)))
+            .replace("{{YEAR}}",           year());
+    }
+
+    public String invoice(String name, Long invoiceId, String saleDate, String totalAmount) {
+        return load("invoice.html")
+            .replace("{{NAME}}",         esc(safe(name)))
+            .replace("{{INVOICE_ID}}",   invoiceId != null ? String.valueOf(invoiceId) : "")
+            .replace("{{SALE_DATE}}",    esc(safe(saleDate)))
+            .replace("{{TOTAL_AMOUNT}}", esc(safe(totalAmount)))
+            .replace("{{YEAR}}",         year());
+    }
+
     public String medicalReport(String name, String doctorName, String date, Long recordId) {
         return load("medical-report.html")
             .replace("{{NAME}}",        esc(safe(name)))
