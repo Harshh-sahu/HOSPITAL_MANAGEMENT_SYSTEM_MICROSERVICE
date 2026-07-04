@@ -24,6 +24,7 @@ public class Sale {
     private Long prescriptionId;
     private String buyerName;
     private String buyerContact;
+    private String buyerEmail;
     private LocalDateTime saleDate;
     private Double totalAmount;
 
@@ -33,6 +34,6 @@ public class Sale {
    }
 
    public SaleDTO toDTO(){
-     return new SaleDTO(id,prescriptionId,buyerName,buyerContact,saleDate,totalAmount);
+     return new SaleDTO(id,prescriptionId,buyerName,buyerContact,buyerEmail,saleDate,totalAmount);
    }
 }

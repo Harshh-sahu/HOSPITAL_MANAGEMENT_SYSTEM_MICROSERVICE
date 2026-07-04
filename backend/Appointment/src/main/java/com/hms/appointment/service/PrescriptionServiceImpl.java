@@ -66,6 +66,13 @@ private void publishPrescriptionCreated(Long prescriptionId, PrescriptionDTO req
                 })
                 .toList();
 
+        List<PrescriptionCreatedEvent.MedicineInfo> medicineDetails = request.getMedicines() == null ? List.of()
+                : request.getMedicines().stream()
+                .map(m -> new PrescriptionCreatedEvent.MedicineInfo(
+                        m.getName(), m.getDosage(), m.getFrequency(),
+                        m.getDuration(), m.getType(), m.getInstructions()))
+                .toList();
+
         appointmentEventPublisher.publishPrescriptionCreated(new PrescriptionCreatedEvent(
                 prescriptionId,
                 request.getAppointmentId(),
@@ -76,7 +83,8 @@ private void publishPrescriptionCreated(Long prescriptionId, PrescriptionDTO req
                 doctorDTO != null ? doctorDTO.getName() : null,
                 request.getPrescriptionDate(),
                 request.getNotes(),
-                medicineSummaries
+                medicineSummaries,
+                medicineDetails
         ));
     } catch (Exception e) {
         log.error("Failed to publish prescription-created event for prescriptionId={}: {}", prescriptionId, e.getMessage(), e);

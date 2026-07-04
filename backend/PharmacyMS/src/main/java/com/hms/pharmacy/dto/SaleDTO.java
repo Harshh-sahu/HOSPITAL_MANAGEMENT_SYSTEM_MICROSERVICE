@@ -21,13 +21,15 @@ public class SaleDTO {
     private String buyerName;
     @Schema(description = "Buyer contact number", example = "9876543210")
     private String buyerContact;
+    @Schema(description = "Buyer email address for invoice", example = "aman.sharma@example.com")
+    private String buyerEmail;
      @Schema(description = "Sale timestamp", example = "2026-03-30T16:30:00")
      private LocalDateTime saleDate;
      @Schema(description = "Total billed amount", example = "349.5")
      private Double totalAmount;
 
      public Sale toEntity(){
-            return new Sale(id,prescriptionId,buyerName,buyerContact,saleDate,totalAmount);
+            return new Sale(id,prescriptionId,buyerName,buyerContact,buyerEmail,saleDate,totalAmount);
      }
 
 

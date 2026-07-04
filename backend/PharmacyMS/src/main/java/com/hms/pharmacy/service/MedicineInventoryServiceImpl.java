@@ -1,12 +1,18 @@
 package com.hms.pharmacy.service;
 
+import com.hms.pharmacy.dto.MedicineDTO;
 import com.hms.pharmacy.dto.MedicineInventoryDTO;
+import com.hms.pharmacy.dto.event.LowStockAlertEvent;
 import com.hms.pharmacy.entity.MedicineInventory;
 import com.hms.pharmacy.entity.StockStatus;
 import com.hms.pharmacy.exception.HmsException;
+import com.hms.pharmacy.kafka.PharmacyEventPublisher;
 import com.hms.pharmacy.repository.MedicineInventoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +23,15 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class MedicineInventoryServiceImpl implements MedicineInventoryService {
+
+    private static final Logger log = LoggerFactory.getLogger(MedicineInventoryServiceImpl.class);
+
     private final MedicineService medicineService;
     private final MedicineInventoryRepository medicineInventoryRepository;
+    private final PharmacyEventPublisher pharmacyEventPublisher;
+
+    @Value("${hms.pharmacy.low-stock-threshold:10}")
+    private int lowStockThreshold;
 
 
     @Override
@@ -128,6 +141,17 @@ public class MedicineInventoryServiceImpl implements MedicineInventoryService {
 
         medicineService.removeStock(medicineId, quantity);
         medicineInventoryRepository.saveAll(inventories);
+
+        try {
+            MedicineDTO medicine = medicineService.getMedicineById(medicineId);
+            if (medicine != null && medicine.getStock() != null && medicine.getStock() < lowStockThreshold) {
+                pharmacyEventPublisher.publishLowStockAlert(new LowStockAlertEvent(
+                        medicineId, medicine.getName(), medicine.getStock(), lowStockThreshold));
+                log.info("Low stock alert published for medicineId={}, stock={}", medicineId, medicine.getStock());
+            }
+        } catch (Exception e) {
+            log.error("Failed to publish low-stock-alert for medicineId={}: {}", medicineId, e.getMessage(), e);
+        }
 
         return batchDetails.toString();
     }

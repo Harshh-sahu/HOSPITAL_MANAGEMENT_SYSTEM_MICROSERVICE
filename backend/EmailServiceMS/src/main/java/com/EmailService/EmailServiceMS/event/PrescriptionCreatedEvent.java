@@ -21,4 +21,17 @@ public class PrescriptionCreatedEvent {
     private LocalDate prescriptionDate;
     private String notes;
     private List<String> medicines;
+    private List<MedicineInfo> medicineDetails;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MedicineInfo {
+        private String name;
+        private String dosage;
+        private String frequency;
+        private Integer duration;
+        private String type;
+        private String instructions;
+    }
 }

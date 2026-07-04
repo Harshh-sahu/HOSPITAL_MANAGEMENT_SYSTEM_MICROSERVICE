@@ -2,14 +2,20 @@ package com.hms.appointment.service;
 
 import com.hms.appointment.client.ProfileClient;
 import com.hms.appointment.dto.ApRecordDTO;
+import com.hms.appointment.dto.DoctorDTO;
 import com.hms.appointment.dto.DoctorName;
+import com.hms.appointment.dto.PatientDTO;
 import com.hms.appointment.dto.RecordDetails;
+import com.hms.appointment.dto.event.ReportCreatedEvent;
 import com.hms.appointment.entity.ApRecord;
 import com.hms.appointment.exception.HmsException;
+import com.hms.appointment.kafka.AppointmentEventPublisher;
 import com.hms.appointment.repository.ApRecordRepository;
 import com.hms.appointment.utility.StringListConverter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,9 +27,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class ApRecordServiceImpl implements ApRecordService{
-private final PrescriptionService prescriptionService;
+
+    private static final Logger log = LoggerFactory.getLogger(ApRecordServiceImpl.class);
+
+    private final PrescriptionService prescriptionService;
     private final ApRecordRepository apRecordRepository;
     private final ProfileClient profileClient;
+    private final AppointmentEventPublisher appointmentEventPublisher;
     @Override
     public Long createApRecord(ApRecordDTO request) throws HmsException {
         request.setCreatedAt(LocalDateTime.now());
@@ -31,6 +41,32 @@ private final PrescriptionService prescriptionService;
         if (request.getPrescription() != null) {
             request.getPrescription().setAppointmentId(request.getAppointmentId());
             prescriptionService.savePrescription(request.getPrescription());
+        }
+        try {
+            PatientDTO patient = profileClient.getPatientById(request.getPatientId());
+            DoctorDTO doctor   = profileClient.getDoctorById(request.getDoctorId());
+            if (patient != null && patient.getEmail() != null) {
+                List<ReportCreatedEvent.MedicineInfo> medicines = null;
+                if (request.getPrescription() != null && request.getPrescription().getMedicines() != null) {
+                    medicines = request.getPrescription().getMedicines().stream()
+                        .map(m -> new ReportCreatedEvent.MedicineInfo(
+                            m.getName(), m.getDosage(), m.getFrequency(),
+                            m.getDuration(), m.getType(), m.getInstructions()))
+                        .toList();
+                }
+                appointmentEventPublisher.publishReportCreated(new ReportCreatedEvent(
+                    id,
+                    request.getAppointmentId(),
+                    request.getPatientId(), patient.getName(), patient.getEmail(),
+                    request.getDoctorId(), doctor != null ? doctor.getName() : null,
+                    request.getSymptoms(), request.getDiagnosis(),
+                    request.getTests(), request.getNotes(), request.getReferral(),
+                    request.getFollowUpDate(), request.getCreatedAt(),
+                    medicines
+                ));
+            }
+        } catch (Exception e) {
+            log.error("Failed to publish report-created event for recordId={}: {}", id, e.getMessage(), e);
         }
         return id;
     }

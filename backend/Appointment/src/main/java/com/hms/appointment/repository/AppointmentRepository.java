@@ -4,6 +4,7 @@ import com.hms.appointment.dto.AppointmentDetails;
 import com.hms.appointment.dto.MonthlyVisitDTO;
 import com.hms.appointment.dto.ReasonCountDTO;
 import com.hms.appointment.entity.Appointment;
+import com.hms.appointment.dto.Status;
 import com.hms.appointment.exception.HmsException;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -44,5 +45,8 @@ public interface AppointmentRepository extends CrudRepository<Appointment,Long> 
     List<ReasonCountDTO> countReasons()throws HmsException  ;
 
 
-    List<Appointment> findByAppointmentTimeBetween(LocalDateTime startOfDate,LocalDateTime endOfDate);
+    List<Appointment> findByAppointmentTimeBetween(LocalDateTime startOfDate, LocalDateTime endOfDate);
+
+    List<Appointment> findByAppointmentTimeBetweenAndReminderSentFalseAndStatus(
+            LocalDateTime start, LocalDateTime end, Status status);
 }

@@ -50,7 +50,8 @@ public class AppointmentDTO {
             this.appointmentTime,
             this.status,
             this.reason,
-            this.notes
+            this.notes,
+            false
         );
 
     }

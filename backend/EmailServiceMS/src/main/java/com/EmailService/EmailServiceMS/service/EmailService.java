@@ -1,13 +1,22 @@
 package com.EmailService.EmailServiceMS.service;
 
 import com.EmailService.EmailServiceMS.entity.EmailLog;
+import com.EmailService.EmailServiceMS.event.AppointmentCancelledEvent;
 import com.EmailService.EmailServiceMS.event.AppointmentCreatedEvent;
+import com.EmailService.EmailServiceMS.event.AppointmentReminderEvent;
+import com.EmailService.EmailServiceMS.event.DoctorOnboardedEvent;
+import com.EmailService.EmailServiceMS.event.FollowUpReminderEvent;
+import com.EmailService.EmailServiceMS.event.LowStockAlertEvent;
+import com.EmailService.EmailServiceMS.event.PatientRegisteredEvent;
 import com.EmailService.EmailServiceMS.event.PrescriptionCreatedEvent;
+import com.EmailService.EmailServiceMS.event.ReportCreatedEvent;
+import com.EmailService.EmailServiceMS.event.SaleCreatedEvent;
 import com.EmailService.EmailServiceMS.event.UserLoginEvent;
 import com.EmailService.EmailServiceMS.event.UserRegisteredEvent;
 import com.EmailService.EmailServiceMS.repository.EmailLogRepository;
 import com.EmailService.EmailServiceMS.template.EmailTemplateBuilder;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,14 +37,32 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final EmailLogRepository emailLogRepository;
     private final EmailTemplateBuilder templates;
+    private final PdfReportGenerator pdfReportGenerator;
+    private final PdfAppointmentGenerator pdfAppointmentGenerator;
+    private final PdfPrescriptionGenerator pdfPrescriptionGenerator;
+    private final PdfInvoiceGenerator pdfInvoiceGenerator;
+    private final PdfOnboardingLetterGenerator pdfOnboardingLetterGenerator;
 
     @Value("${hms.email.from}")
     private String from;
 
-    public EmailService(JavaMailSender mailSender, EmailLogRepository emailLogRepository, EmailTemplateBuilder templates) {
+    @Value("${hms.pharmacy.admin-email:admin@hmshospital.com}")
+    private String pharmacyAdminEmail;
+
+    public EmailService(JavaMailSender mailSender, EmailLogRepository emailLogRepository,
+                        EmailTemplateBuilder templates, PdfReportGenerator pdfReportGenerator,
+                        PdfAppointmentGenerator pdfAppointmentGenerator,
+                        PdfPrescriptionGenerator pdfPrescriptionGenerator,
+                        PdfInvoiceGenerator pdfInvoiceGenerator,
+                        PdfOnboardingLetterGenerator pdfOnboardingLetterGenerator) {
         this.mailSender = mailSender;
         this.emailLogRepository = emailLogRepository;
         this.templates = templates;
+        this.pdfReportGenerator = pdfReportGenerator;
+        this.pdfAppointmentGenerator = pdfAppointmentGenerator;
+        this.pdfPrescriptionGenerator = pdfPrescriptionGenerator;
+        this.pdfInvoiceGenerator = pdfInvoiceGenerator;
+        this.pdfOnboardingLetterGenerator = pdfOnboardingLetterGenerator;
     }
 
     public void sendWelcomeEmail(UserRegisteredEvent event) {
@@ -53,8 +80,15 @@ public class EmailService {
         String when = event.getAppointmentTime() != null ? event.getAppointmentTime().format(DATE_TIME) : "the scheduled time";
         String html = templates.appointmentPatient(event.getPatientName(), event.getAppointmentId(),
                 event.getDoctorName(), when, event.getReason());
-        send(event.getPatientEmail(), "Your Appointment is Confirmed", html, "APPOINTMENT");
-
+        try {
+            byte[] pdf = pdfAppointmentGenerator.generate(event);
+            String filename = "Appointment_Confirmation_" + event.getAppointmentId() + ".pdf";
+            sendWithAttachment(event.getPatientEmail(), "Your Appointment is Confirmed — HMS Hospital",
+                    html, "APPOINTMENT", pdf, filename);
+        } catch (Exception e) {
+            log.error("Failed to generate appointment PDF for appointmentId={}: {}", event.getAppointmentId(), e.getMessage(), e);
+            send(event.getPatientEmail(), "Your Appointment is Confirmed", html, "APPOINTMENT");
+        }
         sendAppointmentDoctorEmail(event);
     }
 
@@ -71,7 +105,162 @@ public class EmailService {
         String date = event.getPrescriptionDate() != null ? event.getPrescriptionDate().format(DATE) : "today";
         String html = templates.prescription(event.getPatientName(), event.getDoctorName(), date,
                 event.getMedicines(), event.getNotes());
-        send(event.getPatientEmail(), "Your Prescription is Ready", html, "PRESCRIPTION");
+        try {
+            byte[] pdf = pdfPrescriptionGenerator.generate(event);
+            String filename = "Prescription_" + event.getPrescriptionId() + ".pdf";
+            sendWithAttachment(event.getPatientEmail(), "Your Prescription is Ready — HMS Hospital",
+                    html, "PRESCRIPTION", pdf, filename);
+        } catch (Exception e) {
+            log.error("Failed to generate prescription PDF for prescriptionId={}: {}", event.getPrescriptionId(), e.getMessage(), e);
+            send(event.getPatientEmail(), "Your Prescription is Ready", html, "PRESCRIPTION");
+        }
+    }
+
+    public void sendOnboardingEmail(DoctorOnboardedEvent event) {
+        if (event.getEmail() == null || event.getEmail().isBlank()) {
+            log.warn("Skipping ONBOARDING email: recipient address is missing for doctorId={}", event.getDoctorId());
+            return;
+        }
+        String date = event.getOnboardedAt() != null ? event.getOnboardedAt().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")) : "today";
+        String html = templates.onboardingLetter(event.getName(), event.getSpecialization(), event.getDepartment(), date);
+        try {
+            byte[] pdf = pdfOnboardingLetterGenerator.generate(event);
+            String safeName = event.getName() != null ? event.getName().replace(" ", "_") : "Doctor";
+            String filename = "Onboarding_Letter_Dr_" + safeName + ".pdf";
+            sendWithAttachment(event.getEmail(), "Welcome to HMS Hospital — Appointment Letter",
+                    html, "ONBOARDING", pdf, filename);
+        } catch (Exception e) {
+            log.error("Failed to generate onboarding PDF for doctorId={}: {}", event.getDoctorId(), e.getMessage(), e);
+            send(event.getEmail(), "Welcome to HMS Hospital", html, "ONBOARDING");
+        }
+    }
+
+    public void sendInvoiceEmail(SaleCreatedEvent event) {
+        if (event.getBuyerEmail() == null || event.getBuyerEmail().isBlank()) {
+            log.warn("Skipping INVOICE email: recipient address is missing for saleId={}", event.getSaleId());
+            return;
+        }
+        String date = event.getSaleDate() != null ? event.getSaleDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")) : "today";
+        String total = event.getTotalAmount() != null ? "₹" + String.format("%.2f", event.getTotalAmount()) : "—";
+        String html = templates.invoice(event.getBuyerName(), event.getSaleId(), date, total);
+        try {
+            byte[] pdf = pdfInvoiceGenerator.generate(event);
+            String filename = "Invoice_" + event.getSaleId() + ".pdf";
+            sendWithAttachment(event.getBuyerEmail(), "Your HMS Pharmacy Invoice — #" + event.getSaleId(),
+                    html, "INVOICE", pdf, filename);
+        } catch (Exception e) {
+            log.error("Failed to generate invoice PDF for saleId={}: {}", event.getSaleId(), e.getMessage(), e);
+            send(event.getBuyerEmail(), "Your HMS Pharmacy Invoice", html, "INVOICE");
+        }
+    }
+
+    public void sendAppointmentReminderEmail(AppointmentReminderEvent event) {
+        if (event.getPatientEmail() == null || event.getPatientEmail().isBlank()) {
+            log.warn("Skipping APPOINTMENT_REMINDER: no patient email for appointmentId={}", event.getAppointmentId());
+            return;
+        }
+        String when = event.getAppointmentTime() != null ? event.getAppointmentTime().format(DATE_TIME) : "the scheduled time";
+        String html = templates.appointmentReminder(event.getPatientName(), event.getAppointmentId(),
+                event.getDoctorName(), when, event.getReason());
+        send(event.getPatientEmail(), "Reminder: Your Appointment Tomorrow — HMS Hospital", html, "APPOINTMENT_REMINDER");
+
+        if (event.getDoctorEmail() != null && !event.getDoctorEmail().isBlank()) {
+            String doctorHtml = templates.appointmentReminder("Dr. " + event.getDoctorName(), event.getAppointmentId(),
+                    event.getPatientName(), when, event.getReason());
+            send(event.getDoctorEmail(), "Tomorrow's Appointment Reminder — HMS Hospital", doctorHtml, "APPOINTMENT_REMINDER_DOCTOR");
+        }
+    }
+
+    public void sendFollowUpReminderEmail(FollowUpReminderEvent event) {
+        if (event.getPatientEmail() == null || event.getPatientEmail().isBlank()) {
+            log.warn("Skipping FOLLOWUP_REMINDER: no patient email for recordId={}", event.getRecordId());
+            return;
+        }
+        String date = event.getFollowUpDate() != null ? event.getFollowUpDate().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")) : "today";
+        String html = templates.followUpReminder(event.getPatientName(), event.getDoctorName(), date, event.getDiagnosis());
+        send(event.getPatientEmail(), "Your Follow-up is Today — HMS Hospital", html, "FOLLOWUP_REMINDER");
+    }
+
+    public void sendAppointmentCancelledEmail(AppointmentCancelledEvent event) {
+        String when = event.getAppointmentTime() != null ? event.getAppointmentTime().format(DATE_TIME) : "the scheduled time";
+
+        if (event.getPatientEmail() != null && !event.getPatientEmail().isBlank()) {
+            String html = templates.appointmentCancelled(event.getPatientName(), event.getAppointmentId(),
+                    "Doctor", "Dr. " + event.getDoctorName(), when, event.getReason());
+            send(event.getPatientEmail(), "Your Appointment Has Been Cancelled — HMS Hospital", html, "APPOINTMENT_CANCELLED");
+        }
+        if (event.getDoctorEmail() != null && !event.getDoctorEmail().isBlank()) {
+            String html = templates.appointmentCancelled("Dr. " + event.getDoctorName(), event.getAppointmentId(),
+                    "Patient", event.getPatientName(), when, event.getReason());
+            send(event.getDoctorEmail(), "Appointment Cancellation Notice — HMS Hospital", html, "APPOINTMENT_CANCELLED_DOCTOR");
+        }
+    }
+
+    public void sendLowStockAlertEmail(LowStockAlertEvent event) {
+        String html = templates.lowStockAlert(event.getMedicineName(), event.getCurrentStock(),
+                event.getThreshold(), event.getMedicineId());
+        send(pharmacyAdminEmail, "⚠ Low Stock Alert: " + event.getMedicineName() + " — HMS Pharmacy", html, "LOW_STOCK_ALERT");
+    }
+
+    public void sendPatientProfileEmail(PatientRegisteredEvent event) {
+        if (event.getEmail() == null || event.getEmail().isBlank()) {
+            log.warn("Skipping PATIENT_REGISTERED: no email for patientId={}", event.getPatientId());
+            return;
+        }
+        String date = event.getRegisteredAt() != null ? event.getRegisteredAt().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")) : "today";
+        String html = templates.patientProfile(event.getName(), event.getBloodGroup(), event.getPhone(), date);
+        send(event.getEmail(), "Welcome to HMS Hospital — Your Profile is Ready", html, "PATIENT_REGISTERED");
+    }
+
+    public void sendMedicalReportEmail(ReportCreatedEvent event) {
+        if (event.getPatientEmail() == null || event.getPatientEmail().isBlank()) {
+            log.warn("Skipping MEDICAL_REPORT email: recipient address is missing for recordId={}", event.getRecordId());
+            return;
+        }
+        try {
+            String date = event.getCreatedAt() != null ? event.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy")) : "today";
+            String html = templates.medicalReport(event.getPatientName(), event.getDoctorName(), date, event.getRecordId());
+            byte[] pdf = pdfReportGenerator.generate(event);
+            String filename = "Medical_Report_" + event.getRecordId() + ".pdf";
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setFrom(from);
+            helper.setTo(event.getPatientEmail());
+            helper.setSubject("Your Medical Report — HMS Hospital");
+            helper.setText(html, true);
+            helper.addAttachment(filename, new ByteArrayDataSource(pdf, "application/pdf"));
+            mailSender.send(message);
+            log.info("Sent MEDICAL_REPORT email with PDF attachment to {}", event.getPatientEmail());
+            record(event.getPatientEmail(), "Your Medical Report — HMS Hospital", "MEDICAL_REPORT", "SENT", null);
+        } catch (Exception e) {
+            log.error("Failed to send MEDICAL_REPORT email to {}: {}", event.getPatientEmail(), e.getMessage(), e);
+            record(event.getPatientEmail(), "Your Medical Report — HMS Hospital", "MEDICAL_REPORT", "FAILED", e.getMessage());
+        }
+    }
+
+    private void sendWithAttachment(String to, String subject, String htmlBody, String type,
+                                    byte[] attachmentBytes, String attachmentFilename) {
+        if (to == null || to.isBlank()) {
+            log.warn("Skipping {} email: recipient address is missing", type);
+            record(to, subject, type, "SKIPPED", "recipient address missing");
+            return;
+        }
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            helper.addAttachment(attachmentFilename, new ByteArrayDataSource(attachmentBytes, "application/pdf"));
+            mailSender.send(message);
+            log.info("Sent {} email with attachment to {}", type, to);
+            record(to, subject, type, "SENT", null);
+        } catch (Exception e) {
+            log.error("Failed to send {} email to {}: {}", type, to, e.getMessage(), e);
+            record(to, subject, type, "FAILED", e.getMessage());
+        }
     }
 
     private void send(String to, String subject, String htmlBody, String type) {
@@ -82,7 +271,7 @@ public class EmailService {
         }
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
             helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject(subject);

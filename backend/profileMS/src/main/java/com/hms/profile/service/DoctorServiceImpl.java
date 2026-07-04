@@ -2,20 +2,29 @@ package com.hms.profile.service;
 
 import com.hms.profile.dto.DoctorDTO;
 import com.hms.profile.dto.DoctorDropdown;
+import com.hms.profile.dto.event.DoctorOnboardedEvent;
 import com.hms.profile.entity.Doctor;
 import com.hms.profile.entity.Patient;
 import com.hms.profile.exception.HmsException;
+import com.hms.profile.kafka.ProfileEventPublisher;
 import com.hms.profile.repository.DoctorRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class DoctorServiceImpl implements DoctorService {
+    private static final Logger log = LoggerFactory.getLogger(DoctorServiceImpl.class);
 
     @Autowired
     private DoctorRepository doctorRepository;
+
+    @Autowired
+    private ProfileEventPublisher profileEventPublisher;
 
     @Override
     public Long addDoctor(DoctorDTO doctorDTO) {
@@ -25,7 +34,20 @@ public class DoctorServiceImpl implements DoctorService {
         if (doctorDTO.getLicenseNo() != null && doctorRepository.findByLicenseNo(doctorDTO.getLicenseNo()).isPresent()) {
             throw new RuntimeException("DOCTOR_ALREADY_EXISTS");
         }
-        return doctorRepository.save(doctorDTO.toEntity()).getId();
+        Doctor saved = doctorRepository.save(doctorDTO.toEntity());
+        try {
+            if (saved.getEmail() != null && !saved.getEmail().isBlank()) {
+                DoctorOnboardedEvent event = new DoctorOnboardedEvent(
+                        saved.getId(), saved.getName(), saved.getEmail(),
+                        saved.getLicenseNo(), saved.getSpecialization(),
+                        saved.getDepartment(), saved.getTotalExp(),
+                        saved.getPhone(), LocalDate.now());
+                profileEventPublisher.publishDoctorOnboarded(event);
+            }
+        } catch (Exception e) {
+            log.error("Failed to publish doctor-onboarded event for doctorId={}: {}", saved.getId(), e.getMessage(), e);
+        }
+        return saved.getId();
     }
 
     @Override
