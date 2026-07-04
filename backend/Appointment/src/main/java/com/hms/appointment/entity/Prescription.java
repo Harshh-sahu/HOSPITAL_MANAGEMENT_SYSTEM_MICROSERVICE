@@ -22,7 +22,7 @@ public class Prescription {
 
     private Long patientId;
     private Long doctorId;
-@OneToOne(fetch = FetchType.LAZY)
+@ManyToOne(fetch = FetchType.LAZY)
 @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 

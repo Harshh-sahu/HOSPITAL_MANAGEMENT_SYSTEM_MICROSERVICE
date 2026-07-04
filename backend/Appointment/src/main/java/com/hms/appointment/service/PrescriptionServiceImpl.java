@@ -85,7 +85,7 @@ private void publishPrescriptionCreated(Long prescriptionId, PrescriptionDTO req
 
     @Override
     public PrescriptionDTO getPrescriptionByAppointmentId(Long appointmentId) throws  HmsException {
-         PrescriptionDTO prescriptionDTO = prescriptionRepository.findByAppointment_Id(appointmentId)
+         PrescriptionDTO prescriptionDTO = prescriptionRepository.findFirstByAppointment_IdOrderByIdDesc(appointmentId)
                  .orElseThrow(()-> new HmsException("PRESCRIPTION_NOT_FOUND"))
                  .toDTO();
 

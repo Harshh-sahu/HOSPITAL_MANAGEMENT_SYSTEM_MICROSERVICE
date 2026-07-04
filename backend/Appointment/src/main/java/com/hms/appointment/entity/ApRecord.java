@@ -3,6 +3,7 @@ package com.hms.appointment.entity;
 import com.hms.appointment.dto.ApRecordDTO;
 import com.hms.appointment.dto.RecordDetails;
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ public class ApRecord {
     private Long patientId;
     private Long doctorId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
