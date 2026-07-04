@@ -77,6 +77,15 @@ public class EmailTemplateBuilder {
             .replace("{{YEAR}}",             year());
     }
 
+    public String medicalReport(String name, String doctorName, String date, Long recordId) {
+        return load("medical-report.html")
+            .replace("{{NAME}}",        esc(safe(name)))
+            .replace("{{DOCTOR_NAME}}", esc(safe(doctorName)))
+            .replace("{{REPORT_DATE}}", esc(safe(date)))
+            .replace("{{RECORD_ID}}",   recordId != null ? String.valueOf(recordId) : "")
+            .replace("{{YEAR}}",        year());
+    }
+
     public String prescription(String name, String doctorName, String date,
                                List<String> medicines, String notes) {
         String medicinesRows  = buildMedicineRows(medicines);

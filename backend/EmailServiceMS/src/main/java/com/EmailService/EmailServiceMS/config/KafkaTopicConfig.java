@@ -21,6 +21,9 @@ public class KafkaTopicConfig {
     @Value("${hms.kafka.topic.prescription-created}")
     private String prescriptionCreatedTopic;
 
+    @Value("${hms.kafka.topic.report-created}")
+    private String reportCreatedTopic;
+
     @Bean
     public NewTopic userRegisteredTopic() {
         return TopicBuilder.name(userRegisteredTopic).partitions(1).replicas(1).build();
@@ -39,5 +42,10 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic prescriptionCreatedTopic() {
         return TopicBuilder.name(prescriptionCreatedTopic).partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic reportCreatedTopic() {
+        return TopicBuilder.name(reportCreatedTopic).partitions(1).replicas(1).build();
     }
 }

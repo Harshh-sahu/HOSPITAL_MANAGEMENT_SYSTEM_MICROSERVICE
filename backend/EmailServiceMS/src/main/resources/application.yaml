@@ -81,4 +81,5 @@ hms:
       user-login: user-login
       appointment-created: appointment-created
       prescription-created: prescription-created
+      report-created: report-created
 

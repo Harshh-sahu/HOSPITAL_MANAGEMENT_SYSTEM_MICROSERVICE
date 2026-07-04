@@ -2,6 +2,7 @@ package com.EmailService.EmailServiceMS.kafka;
 
 import com.EmailService.EmailServiceMS.event.AppointmentCreatedEvent;
 import com.EmailService.EmailServiceMS.event.PrescriptionCreatedEvent;
+import com.EmailService.EmailServiceMS.event.ReportCreatedEvent;
 import com.EmailService.EmailServiceMS.event.UserLoginEvent;
 import com.EmailService.EmailServiceMS.event.UserRegisteredEvent;
 import com.EmailService.EmailServiceMS.service.EmailService;
@@ -61,6 +62,16 @@ public class EmailKafkaConsumer {
             emailService.sendPrescriptionEmail(event);
         } catch (Exception e) {
             log.error("Failed to process prescription-created event: {}", e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "${hms.kafka.topic.report-created}", groupId = "${spring.kafka.consumer.group-id}")
+    public void onReportCreated(String payload) {
+        try {
+            ReportCreatedEvent event = objectMapper.readValue(payload, ReportCreatedEvent.class);
+            emailService.sendMedicalReportEmail(event);
+        } catch (Exception e) {
+            log.error("Failed to process report-created event: {}", e.getMessage(), e);
         }
     }
 }

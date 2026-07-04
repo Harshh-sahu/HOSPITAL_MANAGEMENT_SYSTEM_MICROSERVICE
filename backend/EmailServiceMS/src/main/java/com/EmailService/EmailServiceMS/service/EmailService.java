@@ -3,11 +3,13 @@ package com.EmailService.EmailServiceMS.service;
 import com.EmailService.EmailServiceMS.entity.EmailLog;
 import com.EmailService.EmailServiceMS.event.AppointmentCreatedEvent;
 import com.EmailService.EmailServiceMS.event.PrescriptionCreatedEvent;
+import com.EmailService.EmailServiceMS.event.ReportCreatedEvent;
 import com.EmailService.EmailServiceMS.event.UserLoginEvent;
 import com.EmailService.EmailServiceMS.event.UserRegisteredEvent;
 import com.EmailService.EmailServiceMS.repository.EmailLogRepository;
 import com.EmailService.EmailServiceMS.template.EmailTemplateBuilder;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,14 +30,17 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final EmailLogRepository emailLogRepository;
     private final EmailTemplateBuilder templates;
+    private final PdfReportGenerator pdfReportGenerator;
 
     @Value("${hms.email.from}")
     private String from;
 
-    public EmailService(JavaMailSender mailSender, EmailLogRepository emailLogRepository, EmailTemplateBuilder templates) {
+    public EmailService(JavaMailSender mailSender, EmailLogRepository emailLogRepository,
+                        EmailTemplateBuilder templates, PdfReportGenerator pdfReportGenerator) {
         this.mailSender = mailSender;
         this.emailLogRepository = emailLogRepository;
         this.templates = templates;
+        this.pdfReportGenerator = pdfReportGenerator;
     }
 
     public void sendWelcomeEmail(UserRegisteredEvent event) {
@@ -74,6 +79,33 @@ public class EmailService {
         send(event.getPatientEmail(), "Your Prescription is Ready", html, "PRESCRIPTION");
     }
 
+    public void sendMedicalReportEmail(ReportCreatedEvent event) {
+        if (event.getPatientEmail() == null || event.getPatientEmail().isBlank()) {
+            log.warn("Skipping MEDICAL_REPORT email: recipient address is missing for recordId={}", event.getRecordId());
+            return;
+        }
+        try {
+            String date = event.getCreatedAt() != null ? event.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy")) : "today";
+            String html = templates.medicalReport(event.getPatientName(), event.getDoctorName(), date, event.getRecordId());
+            byte[] pdf = pdfReportGenerator.generate(event);
+            String filename = "Medical_Report_" + event.getRecordId() + ".pdf";
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setFrom(from);
+            helper.setTo(event.getPatientEmail());
+            helper.setSubject("Your Medical Report — HMS Hospital");
+            helper.setText(html, true);
+            helper.addAttachment(filename, new ByteArrayDataSource(pdf, "application/pdf"));
+            mailSender.send(message);
+            log.info("Sent MEDICAL_REPORT email with PDF attachment to {}", event.getPatientEmail());
+            record(event.getPatientEmail(), "Your Medical Report — HMS Hospital", "MEDICAL_REPORT", "SENT", null);
+        } catch (Exception e) {
+            log.error("Failed to send MEDICAL_REPORT email to {}: {}", event.getPatientEmail(), e.getMessage(), e);
+            record(event.getPatientEmail(), "Your Medical Report — HMS Hospital", "MEDICAL_REPORT", "FAILED", e.getMessage());
+        }
+    }
+
     private void send(String to, String subject, String htmlBody, String type) {
         if (to == null || to.isBlank()) {
             log.warn("Skipping {} email: recipient address is missing", type);
@@ -82,7 +114,7 @@ public class EmailService {
         }
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
             helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject(subject);
