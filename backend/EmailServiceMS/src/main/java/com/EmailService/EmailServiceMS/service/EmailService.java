@@ -1,8 +1,13 @@
 package com.EmailService.EmailServiceMS.service;
 
 import com.EmailService.EmailServiceMS.entity.EmailLog;
+import com.EmailService.EmailServiceMS.event.AppointmentCancelledEvent;
 import com.EmailService.EmailServiceMS.event.AppointmentCreatedEvent;
+import com.EmailService.EmailServiceMS.event.AppointmentReminderEvent;
 import com.EmailService.EmailServiceMS.event.DoctorOnboardedEvent;
+import com.EmailService.EmailServiceMS.event.FollowUpReminderEvent;
+import com.EmailService.EmailServiceMS.event.LowStockAlertEvent;
+import com.EmailService.EmailServiceMS.event.PatientRegisteredEvent;
 import com.EmailService.EmailServiceMS.event.PrescriptionCreatedEvent;
 import com.EmailService.EmailServiceMS.event.ReportCreatedEvent;
 import com.EmailService.EmailServiceMS.event.SaleCreatedEvent;
@@ -40,6 +45,9 @@ public class EmailService {
 
     @Value("${hms.email.from}")
     private String from;
+
+    @Value("${hms.pharmacy.admin-email:admin@hmshospital.com}")
+    private String pharmacyAdminEmail;
 
     public EmailService(JavaMailSender mailSender, EmailLogRepository emailLogRepository,
                         EmailTemplateBuilder templates, PdfReportGenerator pdfReportGenerator,
@@ -144,6 +152,64 @@ public class EmailService {
             log.error("Failed to generate invoice PDF for saleId={}: {}", event.getSaleId(), e.getMessage(), e);
             send(event.getBuyerEmail(), "Your HMS Pharmacy Invoice", html, "INVOICE");
         }
+    }
+
+    public void sendAppointmentReminderEmail(AppointmentReminderEvent event) {
+        if (event.getPatientEmail() == null || event.getPatientEmail().isBlank()) {
+            log.warn("Skipping APPOINTMENT_REMINDER: no patient email for appointmentId={}", event.getAppointmentId());
+            return;
+        }
+        String when = event.getAppointmentTime() != null ? event.getAppointmentTime().format(DATE_TIME) : "the scheduled time";
+        String html = templates.appointmentReminder(event.getPatientName(), event.getAppointmentId(),
+                event.getDoctorName(), when, event.getReason());
+        send(event.getPatientEmail(), "Reminder: Your Appointment Tomorrow — HMS Hospital", html, "APPOINTMENT_REMINDER");
+
+        if (event.getDoctorEmail() != null && !event.getDoctorEmail().isBlank()) {
+            String doctorHtml = templates.appointmentReminder("Dr. " + event.getDoctorName(), event.getAppointmentId(),
+                    event.getPatientName(), when, event.getReason());
+            send(event.getDoctorEmail(), "Tomorrow's Appointment Reminder — HMS Hospital", doctorHtml, "APPOINTMENT_REMINDER_DOCTOR");
+        }
+    }
+
+    public void sendFollowUpReminderEmail(FollowUpReminderEvent event) {
+        if (event.getPatientEmail() == null || event.getPatientEmail().isBlank()) {
+            log.warn("Skipping FOLLOWUP_REMINDER: no patient email for recordId={}", event.getRecordId());
+            return;
+        }
+        String date = event.getFollowUpDate() != null ? event.getFollowUpDate().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")) : "today";
+        String html = templates.followUpReminder(event.getPatientName(), event.getDoctorName(), date, event.getDiagnosis());
+        send(event.getPatientEmail(), "Your Follow-up is Today — HMS Hospital", html, "FOLLOWUP_REMINDER");
+    }
+
+    public void sendAppointmentCancelledEmail(AppointmentCancelledEvent event) {
+        String when = event.getAppointmentTime() != null ? event.getAppointmentTime().format(DATE_TIME) : "the scheduled time";
+
+        if (event.getPatientEmail() != null && !event.getPatientEmail().isBlank()) {
+            String html = templates.appointmentCancelled(event.getPatientName(), event.getAppointmentId(),
+                    "Doctor", "Dr. " + event.getDoctorName(), when, event.getReason());
+            send(event.getPatientEmail(), "Your Appointment Has Been Cancelled — HMS Hospital", html, "APPOINTMENT_CANCELLED");
+        }
+        if (event.getDoctorEmail() != null && !event.getDoctorEmail().isBlank()) {
+            String html = templates.appointmentCancelled("Dr. " + event.getDoctorName(), event.getAppointmentId(),
+                    "Patient", event.getPatientName(), when, event.getReason());
+            send(event.getDoctorEmail(), "Appointment Cancellation Notice — HMS Hospital", html, "APPOINTMENT_CANCELLED_DOCTOR");
+        }
+    }
+
+    public void sendLowStockAlertEmail(LowStockAlertEvent event) {
+        String html = templates.lowStockAlert(event.getMedicineName(), event.getCurrentStock(),
+                event.getThreshold(), event.getMedicineId());
+        send(pharmacyAdminEmail, "⚠ Low Stock Alert: " + event.getMedicineName() + " — HMS Pharmacy", html, "LOW_STOCK_ALERT");
+    }
+
+    public void sendPatientProfileEmail(PatientRegisteredEvent event) {
+        if (event.getEmail() == null || event.getEmail().isBlank()) {
+            log.warn("Skipping PATIENT_REGISTERED: no email for patientId={}", event.getPatientId());
+            return;
+        }
+        String date = event.getRegisteredAt() != null ? event.getRegisteredAt().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")) : "today";
+        String html = templates.patientProfile(event.getName(), event.getBloodGroup(), event.getPhone(), date);
+        send(event.getEmail(), "Welcome to HMS Hospital — Your Profile is Ready", html, "PATIENT_REGISTERED");
     }
 
     public void sendMedicalReportEmail(ReportCreatedEvent event) {

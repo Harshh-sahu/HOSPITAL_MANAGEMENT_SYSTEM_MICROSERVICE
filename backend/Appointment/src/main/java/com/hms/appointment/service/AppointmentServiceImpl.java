@@ -2,6 +2,7 @@ package com.hms.appointment.service;
 
 import com.hms.appointment.client.ProfileClient;
 import com.hms.appointment.dto.*;
+import com.hms.appointment.dto.event.AppointmentCancelledEvent;
 import com.hms.appointment.dto.event.AppointmentCreatedEvent;
 import com.hms.appointment.entity.Appointment;
 import com.hms.appointment.exception.HmsException;
@@ -94,6 +95,25 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         appointment.setStatus(Status.CANCELLED);
         appointmentRepository.save(appointment);
+
+        try {
+            PatientDTO patient = profileClient.getPatientById(appointment.getPatientId());
+            DoctorDTO  doctor  = profileClient.getDoctorById(appointment.getDoctorId());
+            AppointmentCancelledEvent event = new AppointmentCancelledEvent(
+                    appointmentId,
+                    appointment.getPatientId(),
+                    patient != null ? patient.getName() : null,
+                    patient != null ? patient.getEmail() : null,
+                    appointment.getDoctorId(),
+                    doctor != null ? doctor.getName() : null,
+                    doctor != null ? doctor.getEmail() : null,
+                    appointment.getAppointmentTime(),
+                    appointment.getReason()
+            );
+            appointmentEventPublisher.publishAppointmentCancelled(event);
+        } catch (Exception e) {
+            log.error("Failed to publish appointment-cancelled event for appointmentId={}: {}", appointmentId, e.getMessage(), e);
+        }
     }
 
     @Override

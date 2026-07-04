@@ -75,6 +75,8 @@ logging:
 hms:
   email:
     from: ${MAIL_USERNAME:yumxpress2024@gmail.com}
+  pharmacy:
+    admin-email: ${PHARMACY_ADMIN_EMAIL:admin@hmshospital.com}
   kafka:
     topic:
       user-registered: user-registered
@@ -84,4 +86,9 @@ hms:
       report-created: report-created
       sale-created: sale-created
       doctor-onboarded: doctor-onboarded
+      appointment-reminder: appointment-reminder
+      followup-reminder: followup-reminder
+      appointment-cancelled: appointment-cancelled
+      low-stock-alert: low-stock-alert
+      patient-registered: patient-registered
 

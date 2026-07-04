@@ -1,6 +1,7 @@
 package com.hms.pharmacy.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hms.pharmacy.dto.event.LowStockAlertEvent;
 import com.hms.pharmacy.dto.event.SaleCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ public class PharmacyEventPublisher {
     @Value("${hms.kafka.topic.sale-created}")
     private String saleCreatedTopic;
 
+    @Value("${hms.kafka.topic.low-stock-alert}")
+    private String lowStockAlertTopic;
+
     public PharmacyEventPublisher(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper) {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
@@ -26,6 +30,10 @@ public class PharmacyEventPublisher {
 
     public void publishSaleCreated(SaleCreatedEvent event) {
         publish(saleCreatedTopic, event.getBuyerEmail(), event);
+    }
+
+    public void publishLowStockAlert(LowStockAlertEvent event) {
+        publish(lowStockAlertTopic, String.valueOf(event.getMedicineId()), event);
     }
 
     private void publish(String topic, String key, Object event) {

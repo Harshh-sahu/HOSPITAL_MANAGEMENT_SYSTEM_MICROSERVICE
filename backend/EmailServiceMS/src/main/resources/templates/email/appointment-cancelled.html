@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Appointment Cancelled — HMS Hospital</title>
+</head>
+<body style="margin:0;padding:0;background:#fafafa;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;padding:40px 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+             style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#dc2626,#ef4444);padding:40px 40px 32px;text-align:center;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:12px;">HMS HOSPITAL</div>
+            <div style="font-size:48px;margin-bottom:8px;">❌</div>
+            <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Appointment Cancelled</h1>
+            <p style="margin:10px 0 0;font-size:15px;color:rgba(255,255,255,.85);">Your appointment has been cancelled</p>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px;">
+
+            <p style="margin:0 0 24px;font-size:16px;color:#334155;">
+              Dear <strong style="color:#0f172a;">{{RECIPIENT_NAME}}</strong>,
+            </p>
+            <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:#475569;">
+              We regret to inform you that the following appointment at <strong>HMS Hospital</strong>
+              has been <strong style="color:#dc2626;">cancelled</strong>. We apologize for any inconvenience caused.
+            </p>
+
+            <!-- Appointment ID Badge -->
+            {{APPOINTMENT_ID_BADGE}}
+
+            <!-- Cancelled Appointment Details -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+              <tr>
+                <td style="background:#fff1f2;border:1.5px solid #fecdd3;border-radius:16px;padding:24px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:8px 0;border-bottom:1px solid #fecdd3;">
+                        <span style="font-size:11px;font-weight:700;color:#9f1239;text-transform:uppercase;letter-spacing:.6px;">{{PARTY_LABEL}}</span><br/>
+                        <span style="font-size:15px;font-weight:700;color:#1e293b;">{{PARTY_NAME}}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:12px 0 8px;border-bottom:1px solid #fecdd3;">
+                        <span style="font-size:11px;font-weight:700;color:#9f1239;text-transform:uppercase;letter-spacing:.6px;">Was Scheduled For</span><br/>
+                        <span style="font-size:15px;font-weight:700;color:#1e293b;">{{APPOINTMENT_TIME}}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:12px 0 0;">
+                        <span style="font-size:11px;font-weight:700;color:#9f1239;text-transform:uppercase;letter-spacing:.6px;">Reason</span><br/>
+                        <span style="font-size:15px;color:#1e293b;">{{REASON}}</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Rebook Advisory -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+              <tr>
+                <td style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:16px 20px;border-left:4px solid #f59e0b;">
+                  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#92400e;margin-bottom:8px;">Next Steps</div>
+                  <ul style="margin:0;padding:0 0 0 18px;font-size:13px;color:#78350f;line-height:1.9;">
+                    <li>You can rebook your appointment through the HMS Patient Portal.</li>
+                    <li>For urgent medical needs, please visit our emergency department or call our helpline.</li>
+                    <li>Our team is available to assist you in rescheduling at your earliest convenience.</li>
+                  </ul>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:0;font-size:14px;color:#475569;line-height:1.7;">
+              We are sorry for the inconvenience. Thank you for your understanding.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:24px 40px;text-align:center;">
+            <p style="margin:0 0 4px;font-size:12px;color:#94a3b8;">© {{YEAR}} HMS Hospital. All rights reserved.</p>
+            <p style="margin:0;font-size:11px;color:#cbd5e1;">This is an automated notification. Please do not reply.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

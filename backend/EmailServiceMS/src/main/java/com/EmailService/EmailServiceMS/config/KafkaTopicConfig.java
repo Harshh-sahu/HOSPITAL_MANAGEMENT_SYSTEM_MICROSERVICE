@@ -30,6 +30,21 @@ public class KafkaTopicConfig {
     @Value("${hms.kafka.topic.doctor-onboarded}")
     private String doctorOnboardedTopic;
 
+    @Value("${hms.kafka.topic.appointment-reminder}")
+    private String appointmentReminderTopic;
+
+    @Value("${hms.kafka.topic.followup-reminder}")
+    private String followupReminderTopic;
+
+    @Value("${hms.kafka.topic.appointment-cancelled}")
+    private String appointmentCancelledTopic;
+
+    @Value("${hms.kafka.topic.low-stock-alert}")
+    private String lowStockAlertTopic;
+
+    @Value("${hms.kafka.topic.patient-registered}")
+    private String patientRegisteredTopic;
+
     @Bean
     public NewTopic userRegisteredTopic() {
         return TopicBuilder.name(userRegisteredTopic).partitions(1).replicas(1).build();
@@ -63,5 +78,30 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic doctorOnboardedTopic() {
         return TopicBuilder.name(doctorOnboardedTopic).partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic appointmentReminderTopic() {
+        return TopicBuilder.name(appointmentReminderTopic).partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic followupReminderTopic() {
+        return TopicBuilder.name(followupReminderTopic).partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic appointmentCancelledTopic() {
+        return TopicBuilder.name(appointmentCancelledTopic).partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic lowStockAlertTopic() {
+        return TopicBuilder.name(lowStockAlertTopic).partitions(1).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic patientRegisteredTopic() {
+        return TopicBuilder.name(patientRegisteredTopic).partitions(1).replicas(1).build();
     }
 }

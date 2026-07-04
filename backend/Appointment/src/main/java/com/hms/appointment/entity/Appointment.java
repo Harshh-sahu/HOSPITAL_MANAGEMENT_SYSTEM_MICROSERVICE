@@ -26,7 +26,7 @@ public class Appointment {
 private Status status;
 private String reason;
 private String notes;
-
+private boolean reminderSent = false;
 
 public AppointmentDTO toDto() {
     return new AppointmentDTO(

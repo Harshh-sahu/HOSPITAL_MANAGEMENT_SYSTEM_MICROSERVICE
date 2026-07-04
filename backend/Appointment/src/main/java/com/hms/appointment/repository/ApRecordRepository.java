@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 @Repository
@@ -17,4 +18,6 @@ public interface ApRecordRepository extends CrudRepository<ApRecord,Long> {
 
     List<ApRecord> findByPatientId(Long patientId);
     Boolean existsByAppointment_Id(Long appointmentId);
+
+    List<ApRecord> findByFollowUpDate(LocalDate followUpDate);
 }

@@ -86,6 +86,101 @@ public class EmailTemplateBuilder {
             .replace("{{YEAR}}",           year());
     }
 
+    public String appointmentReminder(String patientName, Long appointmentId, String doctorName,
+                                      String appointmentTime, String reason) {
+        String idBadge = "";
+        if (appointmentId != null) {
+            idBadge = "<div style=\"text-align:center;margin:0 0 24px;\">"
+                + "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:0 auto;\">"
+                + "<tr><td style=\"padding:8px 24px;"
+                + "background:linear-gradient(135deg,#d97706,#f59e0b);border-radius:999px;\">"
+                + "<span style=\"font-size:12px;font-weight:800;color:#ffffff;letter-spacing:1.5px;"
+                + "text-transform:uppercase;\">Appointment &nbsp;#" + appointmentId + "</span>"
+                + "</td></tr></table></div>";
+        }
+        return load("appointment-reminder.html")
+            .replace("{{PATIENT_NAME}}",         esc(safe(patientName)))
+            .replace("{{APPOINTMENT_ID_BADGE}}", idBadge)
+            .replace("{{DOCTOR_NAME}}",          esc(safe(doctorName)))
+            .replace("{{APPOINTMENT_TIME}}",     esc(safe(appointmentTime)))
+            .replace("{{REASON}}",               esc(reason != null && !reason.isBlank() ? reason : "General Consultation"))
+            .replace("{{YEAR}}",                 year());
+    }
+
+    public String followUpReminder(String patientName, String doctorName, String followUpDate, String diagnosis) {
+        String diagnosisSection = "";
+        if (diagnosis != null && !diagnosis.isBlank()) {
+            diagnosisSection = "<tr><td style=\"padding:12px 0 0;\">"
+                + "<span style=\"font-size:11px;font-weight:700;color:#5b21b6;text-transform:uppercase;letter-spacing:.6px;\">Previous Diagnosis</span><br/>"
+                + "<span style=\"font-size:14px;color:#1e293b;\">" + esc(diagnosis) + "</span>"
+                + "</td></tr>";
+        }
+        return load("followup-reminder.html")
+            .replace("{{PATIENT_NAME}}",     esc(safe(patientName)))
+            .replace("{{DOCTOR_NAME}}",      esc(safe(doctorName)))
+            .replace("{{FOLLOWUP_DATE}}",    esc(safe(followUpDate)))
+            .replace("{{DIAGNOSIS_SECTION}}", diagnosisSection)
+            .replace("{{YEAR}}",             year());
+    }
+
+    public String appointmentCancelled(String recipientName, Long appointmentId, String partyLabel,
+                                       String partyName, String appointmentTime, String reason) {
+        String idBadge = "";
+        if (appointmentId != null) {
+            idBadge = "<div style=\"text-align:center;margin:0 0 24px;\">"
+                + "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:0 auto;\">"
+                + "<tr><td style=\"padding:8px 24px;"
+                + "background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:999px;\">"
+                + "<span style=\"font-size:12px;font-weight:800;color:#ffffff;letter-spacing:1.5px;"
+                + "text-transform:uppercase;\">Appointment &nbsp;#" + appointmentId + "</span>"
+                + "</td></tr></table></div>";
+        }
+        return load("appointment-cancelled.html")
+            .replace("{{RECIPIENT_NAME}}",       esc(safe(recipientName)))
+            .replace("{{APPOINTMENT_ID_BADGE}}", idBadge)
+            .replace("{{PARTY_LABEL}}",          esc(safe(partyLabel)))
+            .replace("{{PARTY_NAME}}",           esc(safe(partyName)))
+            .replace("{{APPOINTMENT_TIME}}",     esc(safe(appointmentTime)))
+            .replace("{{REASON}}",               esc(reason != null && !reason.isBlank() ? reason : "General Consultation"))
+            .replace("{{YEAR}}",                 year());
+    }
+
+    public String lowStockAlert(String medicineName, Integer currentStock, Integer threshold, Long medicineId) {
+        return load("low-stock-alert.html")
+            .replace("{{MEDICINE_NAME}}",   esc(safe(medicineName)))
+            .replace("{{CURRENT_STOCK}}",   currentStock != null ? String.valueOf(currentStock) : "0")
+            .replace("{{THRESHOLD}}",       threshold != null ? String.valueOf(threshold) : "10")
+            .replace("{{MEDICINE_ID}}",     medicineId != null ? String.valueOf(medicineId) : "")
+            .replace("{{YEAR}}",            year());
+    }
+
+    public String patientProfile(String name, String bloodGroup, String phone, String registeredAt) {
+        String bloodGroupRow = bloodGroup != null && !bloodGroup.isBlank()
+            ? "<tr><td style=\"padding:8px 0;border-bottom:1px solid #86efac;\">"
+              + "<span style=\"font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.6px;\">Blood Group</span><br/>"
+              + "<span style=\"font-size:15px;font-weight:700;color:#1e293b;\">" + esc(bloodGroup.replace("_", " ")) + "</span>"
+              + "</td></tr>"
+            : "";
+        String phoneRow = phone != null && !phone.isBlank()
+            ? "<tr><td style=\"padding:8px 0;border-bottom:1px solid #86efac;\">"
+              + "<span style=\"font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.6px;\">Phone</span><br/>"
+              + "<span style=\"font-size:15px;color:#1e293b;\">" + esc(phone) + "</span>"
+              + "</td></tr>"
+            : "";
+        String registeredRow = registeredAt != null && !registeredAt.isBlank()
+            ? "<tr><td style=\"padding:8px 0;\">"
+              + "<span style=\"font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.6px;\">Registered On</span><br/>"
+              + "<span style=\"font-size:15px;color:#1e293b;\">" + esc(registeredAt) + "</span>"
+              + "</td></tr>"
+            : "";
+        return load("patient-profile.html")
+            .replace("{{NAME}}",            esc(safe(name)))
+            .replace("{{BLOOD_GROUP_ROW}}", bloodGroupRow)
+            .replace("{{PHONE_ROW}}",       phoneRow)
+            .replace("{{REGISTERED_ROW}}", registeredRow)
+            .replace("{{YEAR}}",            year());
+    }
+
     public String invoice(String name, Long invoiceId, String saleDate, String totalAmount) {
         return load("invoice.html")
             .replace("{{NAME}}",         esc(safe(name)))
