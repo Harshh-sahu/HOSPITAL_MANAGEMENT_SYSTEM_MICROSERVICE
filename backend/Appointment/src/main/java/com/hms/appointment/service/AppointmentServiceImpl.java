@@ -2,9 +2,13 @@ package com.hms.appointment.service;
 
 import com.hms.appointment.client.ProfileClient;
 import com.hms.appointment.dto.*;
+import com.hms.appointment.dto.event.AppointmentCreatedEvent;
 import com.hms.appointment.entity.Appointment;
 import com.hms.appointment.exception.HmsException;
+import com.hms.appointment.kafka.AppointmentEventPublisher;
 import com.hms.appointment.repository.AppointmentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +21,7 @@ import java.util.List;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
+    private static final Logger log = LoggerFactory.getLogger(AppointmentServiceImpl.class);
 @Autowired
     private ProfileClient profileClient;
     @Autowired
@@ -24,6 +29,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
     private AppointmentRepository appointmentRepository;
+    @Autowired
+    private AppointmentEventPublisher appointmentEventPublisher;
     @Override
     @CacheEvict(cacheNames = {
             "appointmentCountByPatient",
@@ -44,7 +51,29 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new HmsException("PATIENT_NOT_FOUND");
         }
         appointmentDTO.setStatus(Status.SCHEDULED);;
-      return  appointmentRepository.save(appointmentDTO.toEntity()).getId();
+        Long appointmentId = appointmentRepository.save(appointmentDTO.toEntity()).getId();
+
+        try {
+            DoctorDTO doctorDTO = profileClient.getDoctorById(appointmentDTO.getDoctorId());
+            PatientDTO patientDTO = profileClient.getPatientById(appointmentDTO.getPatientId());
+            if (patientDTO != null && patientDTO.getEmail() != null) {
+                appointmentEventPublisher.publishAppointmentCreated(new AppointmentCreatedEvent(
+                        appointmentId,
+                        appointmentDTO.getPatientId(),
+                        patientDTO.getName(),
+                        patientDTO.getEmail(),
+                        appointmentDTO.getDoctorId(),
+                        doctorDTO != null ? doctorDTO.getName() : null,
+                                doctorDTO != null ? doctorDTO.getEmail() : null,
+                                appointmentDTO.getAppointmentTime(),
+                                appointmentDTO.getReason()
+                ));
+            }
+        } catch (Exception e) {
+            log.error("Failed to publish appointment-created event for appointmentId={}: {}", appointmentId, e.getMessage(), e);
+        }
+
+        return appointmentId;
 
     }
 

@@ -2,15 +2,21 @@ package com.hms.appointment.service;
 
 
 import com.hms.appointment.client.ProfileClient;
+import com.hms.appointment.dto.DoctorDTO;
 import com.hms.appointment.dto.DoctorName;
 import com.hms.appointment.dto.MedicineDTO;
+import com.hms.appointment.dto.PatientDTO;
 import com.hms.appointment.dto.PrescriptionDTO;
 import com.hms.appointment.dto.PrescriptionDetails;
+import com.hms.appointment.dto.event.PrescriptionCreatedEvent;
 import com.hms.appointment.entity.Prescription;
 import com.hms.appointment.exception.HmsException;
+import com.hms.appointment.kafka.AppointmentEventPublisher;
 import com.hms.appointment.repository.PrescriptionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,25 +28,60 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional
 public class PrescriptionServiceImpl implements PrescriptionService {
+    private static final Logger log = LoggerFactory.getLogger(PrescriptionServiceImpl.class);
 
     private final PrescriptionRepository prescriptionRepository;
 
 private final MedicineService medicineService;
     private final ProfileClient profileClient;
+private final AppointmentEventPublisher appointmentEventPublisher;
 
-    @Override
-    public Long savePrescription(PrescriptionDTO Request) {
-Request.setPrescriptionDate(LocalDate.now());
-   Long prescriptionId= prescriptionRepository.save(Request.toEntity()).getId();
-Request.getMedicines().forEach(medicine -> {
-    medicine.setPrescriptionId(prescriptionId);
-    System.out.println(medicine);
-});
-
-medicineService.saveAllMedicines(Request.getMedicines());
-
-   return prescriptionId;
+@Override
+public Long savePrescription(PrescriptionDTO Request) {
+    Request.setPrescriptionDate(LocalDate.now());
+    Long prescriptionId = prescriptionRepository.save(Request.toEntity()).getId();
+    if (Request.getMedicines() != null && !Request.getMedicines().isEmpty()) {
+        Request.getMedicines().forEach(medicine -> medicine.setPrescriptionId(prescriptionId));
+        medicineService.saveAllMedicines(Request.getMedicines());
     }
+    publishPrescriptionCreated(prescriptionId, Request);
+    return prescriptionId;
+}
+
+private void publishPrescriptionCreated(Long prescriptionId, PrescriptionDTO request) {
+    try {
+        PatientDTO patientDTO = profileClient.getPatientById(request.getPatientId());
+        DoctorDTO doctorDTO = profileClient.getDoctorById(request.getDoctorId());
+        if (patientDTO == null || patientDTO.getEmail() == null) {
+            return;
+        }
+        List<String> medicineSummaries = request.getMedicines() == null ? List.of()
+                : request.getMedicines().stream()
+                .map(m -> {
+                    StringBuilder sb = new StringBuilder(m.getName());
+                    if (m.getDosage() != null) sb.append(" - ").append(m.getDosage());
+                    if (m.getFrequency() != null) sb.append(", ").append(m.getFrequency());
+                    if (m.getDuration() != null) sb.append(", ").append(m.getDuration()).append(" day(s)");
+                    return sb.toString();
+                })
+                .toList();
+
+        appointmentEventPublisher.publishPrescriptionCreated(new PrescriptionCreatedEvent(
+                prescriptionId,
+                request.getAppointmentId(),
+                request.getPatientId(),
+                patientDTO.getName(),
+                patientDTO.getEmail(),
+                request.getDoctorId(),
+                doctorDTO != null ? doctorDTO.getName() : null,
+                request.getPrescriptionDate(),
+                request.getNotes(),
+                medicineSummaries
+        ));
+    } catch (Exception e) {
+        log.error("Failed to publish prescription-created event for prescriptionId={}: {}", prescriptionId, e.getMessage(), e);
+    }
+}
 
     @Override
     public PrescriptionDTO getPrescriptionByAppointmentId(Long appointmentId) throws  HmsException {

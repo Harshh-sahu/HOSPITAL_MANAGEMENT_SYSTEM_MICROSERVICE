@@ -5,6 +5,8 @@ package com.hms.appointment.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -20,21 +22,25 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
 
+    private static final Logger log = LoggerFactory.getLogger(ExceptionControllerAdvice.class);
+
     @Autowired
     Environment environment;
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorInfo> exceptionHandler(Exception e) {
-        ErrorInfo error = new ErrorInfo("Some error Occured", HttpStatus.INTERNAL_SERVER_ERROR.value(), LocalDateTime.now());
+        log.error("Unhandled exception: {}", e.getMessage(), e);
+        ErrorInfo error = new ErrorInfo(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-
     }
 
     @ExceptionHandler(HmsException.class)
-    public ResponseEntity<ErrorInfo> HmsExceptionHandler(Exception e) {
-        ErrorInfo error = new ErrorInfo(environment.getProperty(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR.value(), LocalDateTime.now());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-
+    public ResponseEntity<ErrorInfo> HmsExceptionHandler(HmsException e) {
+        String msg = environment.getProperty(e.getMessage());
+        if (msg == null) msg = e.getMessage();
+        log.warn("Business exception: {}", msg);
+        ErrorInfo error = new ErrorInfo(msg, HttpStatus.BAD_REQUEST.value(), LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
